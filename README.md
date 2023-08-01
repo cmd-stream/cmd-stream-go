@@ -69,7 +69,7 @@ but you can use any other serializer. mus-stream-go benefits:
    deserialize invalid commands completely.
 
 You can find examples of using the cmd-stream-go in 
-[cmd-stream/cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go).
+[cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go).
 
 # Architecture
 There are the following cmd-stream-go submodules:
