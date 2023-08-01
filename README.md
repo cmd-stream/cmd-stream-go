@@ -4,7 +4,7 @@ which applies a well known Command design pattern to the client-server
 architecture and supports reconnection and keepalive features.
 
 # Tests
-Test coverage of each submodule is 90% or bigger.
+Test coverage of each submodule is over 90%.
 
 # RCE vs RPC
 By mapping commands to remote procedure calls, you can simply implement RPC with 
