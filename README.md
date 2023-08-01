@@ -1,5 +1,5 @@
 # cmd-stream-go
-cmd-stream-go is a high performance RCE (Remote Command Execution) library, 
+cmd-stream-go is a high-performance RCE (Remote Command Execution) library, 
 which applies a well known Command design pattern to the client-server 
 architecture and supports reconnection and keepalive features.
 
