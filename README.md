@@ -65,8 +65,8 @@ but you can use any other serializer. mus-stream-go benefits:
 2. It uses a small number of bytes to encode data, and it doesn't encode the
    length of the data before the data itself. This all may improve your
 	 bandwidth.
-3. With it you can validate commands during the deserialization, so you have not
-   deserialize invalid commands completely.
+3. With it you can validate commands during the deserialization, so there is no 
+   need to deserialize invalid commands completely.
 
 You can find examples of using the cmd-stream-go in 
 [cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go).
