@@ -1,6 +1,6 @@
 # cmd-stream-go
 cmd-stream-go is a high-performance RCE (Remote Command Execution) library, 
-which applies a well known Command design pattern to the client-server 
+which applies the well known Command design pattern to the client-server 
 architecture and supports reconnection and keepalive features.
 
 # Tests
@@ -59,8 +59,8 @@ the client and server.
 
 The client codec encodes commands and decodes results from the connection.
 The server codec does the same thing, but in reverse. cms-stream-go was designed
-with the [mus-stream-go](https://github.com/mus-format/mus-stream-go) in mind,
-but you can use any other serializer. mus-stream-go benefits:
+with [mus-stream-go](https://github.com/mus-format/mus-stream-go) in mind,
+but you can use any other serializer with it. mus-stream-go benefits:
 1. It is a fast streaming serializer.
 2. It uses a small number of bytes to encode data, and it doesn't encode the
    length of the data before the data itself. This all may improve your
@@ -68,7 +68,7 @@ but you can use any other serializer. mus-stream-go benefits:
 3. With it you can validate commands during the deserialization, so there is no 
    need to deserialize invalid commands completely.
 
-You can find examples of using the cmd-stream-go in 
+You can find examples of using cmd-stream-go in 
 [cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go).
 
 # Architecture
