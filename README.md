@@ -73,15 +73,17 @@ You can find examples of using the cmd-stream-go in
 
 # Architecture
 There are the following cmd-stream-go submodules:
-- `base-go` - basic module for creating the client and server.
-- `delegate-go` - the client entrusts all its communication-related work to the 
-  delegate. The server does the same. The connection is also initialized at this
-	level.
-- `handler-go` - the server delegate uses a handler to receive commands, execute 
-  them, and return results. Here you can find a `Proxy` definition (the 
-	proxy of the server transport), which allows commands to send back results.
-- `transport-go` is resposible for commands/results delivery. Here you can find a 
-  `Codec` definition.
+- [base-go](https://github.com/cmd-stream/base-go) - basic module for creating 
+  the client and server.
+- [delegate-go](https://github.com/cmd-stream/delegate-go) - the client entrusts 
+  all its communication-related work to the delegate. The server does the same. 
+  The connection is also initialized at this level.
+- [handler-go](https://github.com/cmd-stream/handler-go) - the server delegate 
+  uses a handler to receive commands, execute them, and return results. Here you 
+  can find a `Proxy` definition (the proxy of the server transport), which 
+  allows commands to send back results.
+- [transport-go](https://github.com/cmd-stream/transport-go) is resposible for 
+  commands/results delivery. Here you can find a `Codec` definition.
 
 cmd-stream-go was designed in such a way that you can easily replace any part of 
 it.
