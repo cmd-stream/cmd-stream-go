@@ -1,15 +1,15 @@
 # cmd-stream-go
-cmd-stream-go is a high-performance RCE (Remote Command Execution) library, 
+cmd-stream-go is a high-performance RCX (Remote Command Execution) library, 
 which applies the Command design pattern to the client-server architecture and 
 supports reconnect and keepalive features.
 
 # Tests
 Test coverage of each submodule is over 90%.
 
-# RCE vs RPC
+# RCX vs RPC
 By mapping commands to remote procedure calls, you can simply implement RPC with 
-RCE. This way, if you are already using one of the RPC products, you can switch 
-to RCE even without modifying your interfaces.
+RCX. This way, if you are already using one of the RPC products, you can switch 
+to RCX even without modifying your interfaces.
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
