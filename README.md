@@ -60,16 +60,10 @@ the client and server.
 The client codec encodes commands and decodes results from the connection.
 The server codec does the same thing, but in reverse. cms-stream-go was designed
 with [mus-stream-go](https://github.com/mus-format/mus-stream-go) in mind,
-but you can use any other serializer with it. mus-stream-go benefits:
-1. It is a fast streaming serializer.
-2. It uses a small number of bytes to encode data, and it doesn't encode the
-   length of the data before the data itself. This all may improve your
-	 bandwidth.
-3. With it you can validate commands during the deserialization, so there is no 
-   need to deserialize invalid commands completely.
+but you can use any other serializer with it.
 
-You can find examples of using cmd-stream-go in 
-[cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go).
+In [cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go)
+you can find examples of using cmd-stream-go.
 
 # Architecture
 There are the following cmd-stream-go submodules:
