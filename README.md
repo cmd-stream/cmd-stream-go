@@ -1,5 +1,5 @@
 # cmd-stream-go
-cmd-stream-go is a high-performance RCX (Remote Command Execution) library, 
+cmd-stream-go is a high-performance RCX (Remote Command eXecution) library, 
 which applies the Command design pattern to the client-server architecture and 
 supports reconnect and keepalive features.
 
