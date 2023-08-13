@@ -7,7 +7,7 @@ import (
 	"github.com/cmd-stream/transport-go"
 )
 
-// Codec helps the Server decode commands and encode the results.
+// Codec helps Server decode commands and encode the results.
 type Codec[T any] interface {
 	Encode(result base.Result, w transport.Writer) (err error)
 	Decode(r transport.Reader) (cmd base.Cmd[T], err error)

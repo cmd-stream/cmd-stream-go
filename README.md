@@ -1,7 +1,7 @@
 # cmd-stream-go
-cmd-stream-go is a high-performance RCX (Remote Command eXecution) library, 
-which applies the Command design pattern to the client-server architecture and 
-supports reconnect and keepalive features.
+cmd-stream-go is a high-performance RCX (**R**emote **C**ommand e**X**ecution) 
+library, which applies the Command design pattern to the client-server 
+architecture and supports reconnect and keepalive features.
 
 # Tests
 Test coverage of each submodule is over 90%.
@@ -16,9 +16,9 @@ cmd-stream-go is built on top of the standard Golang net package, and supports
 connection-oriented protocols like TCP or TLS.
 
 # Client
-The client is asynchronous and can be used from different gorountines
-simultaneously. At the same time, it uses the one connection to send commands
-and receive results.
+The client is asynchronous and can be used from different gorountines 
+simultaneously. Also it uses only one connection to send commands and receive 
+results.
 
 You can create a regular client or a "reconnet" client. The last one tries to 
 reconnect to the server if it has lost the connection.
@@ -40,27 +40,32 @@ desired settings for interacting with the server.
 
 It should also be noted that the number of simultaneous server clients is 
 limited (it can be configured). And each command on the server is executed in a
-separate gorountine, with help of the user-defined `Invoker` and `Receiver`.
-Also, a command can have more than one result.
+separate gorountine, with help of user-defined `Invoker` and `Receiver`. Also, 
+a command can have more than one result.
 
 Among the server configuration, you can find (and not only):
 - FirstConnTimeout - the server will close if it does not receive the first 
   connection during this time.
-- WorkersCount - each connection to the client is processed on the server by the 
-  one `Worker`.	That is, this parameter sets the number of simultaneous clients 
+- WorkersCount - each connection to the client is processed on the server by one 
+  `Worker`.	That is, this parameter sets the number of simultaneous clients 
 	of the server.
 - LostConnCallback - called when the server loses connection with the client.
 - ReceiveTimeout - if the server has not received any commands from the client 
   during this time, it closes the connection.
 
 # How To Use
-All we need to do is define the `Receiver`, commands, results, and codecs for 
+All we need to do is define `Receiver`, commands, results, and codecs for 
 the client and server.
 
 The client codec encodes commands and decodes results from the connection.
 The server codec does the same thing, but in reverse. cms-stream-go was designed
 with [mus-stream-go](https://github.com/mus-format/mus-stream-go) in mind,
 but you can use any other serializer with it.
+
+Thanks to the super simple [MUS format](https://github.com/mus-format/specification), 
+the mus-stream-go serializer uses a small number of bytes to encode the data.
+Also, with mus-stream-go there is no need to put the length of the data before
+the data itself. This all can have a positive impact on your bandwidth.
 
 In [cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go)
 you can find examples of using cmd-stream-go.

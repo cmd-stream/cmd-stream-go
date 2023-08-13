@@ -7,8 +7,9 @@ import (
 	transport_common "github.com/cmd-stream/transport-go/common"
 )
 
-// Conf is a Server configuration. It is a union of the transport, handler,
-// delegate and base configurations.
+// Conf is a Server configuration.
+//
+// It is a union of the transport, handler, delegate and base configurations.
 type Conf struct {
 	Transport transport_common.Conf
 	Handler   handler.Conf

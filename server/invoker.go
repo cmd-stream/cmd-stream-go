@@ -7,7 +7,7 @@ import (
 	base "github.com/cmd-stream/base-go"
 )
 
-// DefInvoker is a default implementation of the handler.Invoker.
+// DefInvoker is a default implementation of the handler.Invoker interface.
 type DefInvoker[T any] struct {
 	receiver T
 }

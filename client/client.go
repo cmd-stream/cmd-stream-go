@@ -15,8 +15,8 @@ import (
 // DefConf is a default Client configuration.
 var DefConf = Conf{}
 
-// NewDef creates a default Client, which uses the default ServerInfo and
-// configuration.
+// NewDef creates a default Client, which uses default ServerInfo and the
+// default configuration.
 func NewDef[T any](codec Codec[T], conn net.Conn,
 	handler base_client.UnexpectedResultHandler,
 ) (client *base_client.Client[T], err error) {
@@ -25,21 +25,16 @@ func NewDef[T any](codec Codec[T], conn net.Conn,
 
 // New creates a Client.
 //
-// The Client relies on the user-defined Codec. It uses the Codec.Encode method
-// to send commands. And if the encoding of any command fails with an error, it
-// will be returned by the Client.Send method.
-// With the Codec.Decode method, the story is a little different. It is used by
-// the Client in the background goroutine that receives the results. And if the
-// decoding of any result fails, the Client will close.
-// Also, if the Server imposes a limit on the size of the command, the Client
-// will use the Codec.Size method to determine if the size of the command being
-// sent is small enough.
+// Client relies on user-defined Codec. It uses Codec.Encode to encode
+// commands for Server and Codec.Decode to decode received results. If the
+// last one method fails Client will be closed.
+// Also, if Server imposes a limit on the size of a command, Client will use
+// Codec.Size to determine if the command being sent is small enough.
+// If the handler parameter is nil, all unknown results received from Server
+// will be ignored.
 //
-// If the handler is nil, all unknown results received from the Server will be
-// ignored.
-//
-// Returns the delegate.ErrServerInfoMismatch if the specified info does not
-// match the info received from the Server.
+// Returns delegate.ErrServerInfoMismatch if the specified info does not
+// match the info received from Server.
 func New[T any](info delegate.ServerInfo, conf Conf, codec Codec[T],
 	conn net.Conn,
 	handler base_client.UnexpectedResultHandler,

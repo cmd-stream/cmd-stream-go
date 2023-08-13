@@ -13,7 +13,7 @@ import (
 	transport_common "github.com/cmd-stream/transport-go/common"
 )
 
-// ConnFactory creates a connection to the Server.
+// ConnFactory creates a connection to Server.
 type ConnFactory interface {
 	New() (net.Conn, error)
 }
@@ -34,7 +34,7 @@ func (f transportFactory[T]) New() (transport delegate.ClienTransport[T],
 	return
 }
 
-// NewDefReconnect creates a default "reconnect" Сlient, which uses the default
+// NewDefReconnect creates a default "reconnect" Сlient, which uses default
 // ServerInfo and configuration.
 func NewDefReconnect[T any](codec Codec[T], factory ConnFactory,
 	callback base_client.UnexpectedResultHandler,
@@ -45,7 +45,7 @@ func NewDefReconnect[T any](codec Codec[T], factory ConnFactory,
 
 // NewReconnect creates a "reconnect" Client.
 //
-// If the Codec.Decode method returns a network error, the Сlient will try to
+// If the Codec.Decode method returns a network error, Сlient will try to
 // reconnect. Otherwise works just like a regular Client.
 func NewReconnect[T any](info delegate.ServerInfo, conf Conf,
 	codec Codec[T],

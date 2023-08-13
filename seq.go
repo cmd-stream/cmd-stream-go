@@ -18,7 +18,7 @@ func UnmarshalSeqMUS(r muss.Reader) (seq base.Seq, n int, err error) {
 	return
 }
 
-// SizeSeqMUS returns a size of the sequence number in the MUS format.
+// SizeSeqMUS returns the size of a sequence number in the MUS format.
 func SizeSeqMUS(seq base.Seq) (size int) {
 	return varint.SizeInt64(int64(seq))
 }
