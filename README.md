@@ -7,7 +7,7 @@ architecture and supports reconnect and keepalive features.
 Test coverage of each submodule is over 90%.
 
 # Benchmarks
-[github.com/ymz-ncnk/go-inter-server-communication-benchmarks](https://github.com/ymz-ncnk/go-inter-server-communication-benchmarks)
+[github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
 # RCX vs RPC
 By mapping commands to remote procedure calls, you can simply implement RPC with 
