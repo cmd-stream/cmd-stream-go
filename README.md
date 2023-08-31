@@ -16,7 +16,8 @@ to RCX even without modifying your interfaces.
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
-connection-oriented protocols like TCP or TLS.
+connection-oriented protocols like TCP or TLS (if you need to authenticate 
+clients as well, you can use mutual TLS).
 
 # Client
 The client is asynchronous and can be used from different gorountines 
