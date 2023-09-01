@@ -153,7 +153,7 @@ client, err := cs_client.NewDef[Calculator](ClientCodec{}, conn, nil)
 ...
 ```
 You can find the full code of this example, called 
-[standart](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard) 
+[standard](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard) 
 and several other examples of using cmd-stream-go in 
 [cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go).
 
