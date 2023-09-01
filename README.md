@@ -52,7 +52,7 @@ Among the server configuration, you can find (and not only):
   connection during this time.
 - WorkersCount - each connection to the client is processed on the server by one 
   `Worker`.	That is, this parameter sets the number of simultaneous clients 
-	of the server.
+  of the server.
 - LostConnCallback - called when the server loses connection with the client.
 - ReceiveTimeout - if the server has not received any commands from the client 
   during this time, it closes the connection.
@@ -84,13 +84,13 @@ func (c Calculator) Sub(n1, n2 int) int {...}
 type Eq1Cmd struct {...}
 
 func (c Eq1Cmd) Exec(ctx context.Context, at time.Time, seq base.Seq,
-	receiver Calculator,
-	proxy base.Proxy,
+  receiver Calculator,
+  proxy base.Proxy,
 ) error {
   // It uses Receiver here.
-	result := Result(receiver.Add(...))
+  result := Result(receiver.Add(...))
   // And sends back result.
-	return proxy.Send(seq, result)
+  return proxy.Send(seq, result)
 }
 
 // 3. Than a result. All results should implement the base.Result interface. The 
@@ -99,7 +99,7 @@ func (c Eq1Cmd) Exec(ctx context.Context, at time.Time, seq base.Seq,
 type Result int
 
 func (r Result) LastOne() bool {
-	return true
+  return true
 }
 
 // 4. Than a client codec, which should implement the cs_client.Codec[T] 
@@ -108,7 +108,7 @@ type ClientCodec struct{}
 
 //  Encode is used by the client to send commands to the server.
 func (c ClientCodec) Encode(cmd base.Cmd[Calculator], w transport.Writer) (
-	err error) {...}
+  err error) {...}
 
 // Decode is used by the client to receive resulsts from the server.
 func (c ClientCodec) Decode(r transport.Reader) (result base.Result, 
@@ -125,11 +125,11 @@ type ServerCodec struct{}
 
 // Encode is used by the server to send results to the client.
 func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
-	err error) {...}
+  err error) {...}
 
 // Decode is used by the server to receive commands from the client.
 func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[Calculator],
-	err error) {...}
+  err error) {...}
 
 // 6. And that's it, the only thing left to do is to create a server and client.
 // Create the server.
