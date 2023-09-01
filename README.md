@@ -106,11 +106,13 @@ func (r Result) LastOne() bool {
 // interface.
 type ClientCodec struct{}
 
-//  Encode is used by the client to send commands to the server.
+// Encode is used by the client to send commands to the server. If Encode fails
+// with an error, the Client.Send method will return it.
 func (c ClientCodec) Encode(cmd base.Cmd[Calculator], w transport.Writer) (
   err error) {...}
 
-// Decode is used by the client to receive resulsts from the server.
+// Decode is used by the client to receive resulsts from the server. If Decode
+// fails with an error, the client will be closed.
 func (c ClientCodec) Decode(r transport.Reader) (result base.Result, 
 err error) {...}
 
@@ -123,11 +125,13 @@ func (c ClientCodec) Size(cmd base.Cmd[Calculator]) (size int) {...}
 // interface.
 type ServerCodec struct{}
 
-// Encode is used by the server to send results to the client.
+// Encode is used by the server to send results to the client. If Encode fails
+// with an error, the server closes the connection.
 func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
   err error) {...}
 
-// Decode is used by the server to receive commands from the client.
+// Decode is used by the server to receive commands from the client. If Decode
+// fails with an error, the server closes the connection.
 func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[Calculator],
   err error) {...}
 
