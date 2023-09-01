@@ -71,8 +71,87 @@ the mus-stream-go serializer uses a small number of bytes to encode the data.
 Also, with mus-stream-go there is no need to put the length of the data before
 the data itself. This all can have a positive impact on your bandwidth.
 
-In [cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go)
-you can find examples of using cmd-stream-go.
+A small example:
+```go
+// 1. First of all we have to define Receiver.
+type Calculator struct{}
+
+func (c Calculator) Add(n1, n2 int) int {...}
+
+func (c Calculator) Sub(n1, n2 int) int {...}
+
+// 2. Than a command. All commands should implement base.Cmd[T] interface.
+type Eq1Cmd struct {...}
+
+func (c Eq1Cmd) Exec(ctx context.Context, at time.Time, seq base.Seq,
+	receiver Calculator,
+	proxy base.Proxy,
+) error {
+  // It uses Receiver here.
+	result := Result(receiver.Add(...))
+  // And sends back result.
+	return proxy.Send(seq, result)
+}
+
+// 3. Than a result. All results should implement the base.Result interface. The 
+// client will wait for more command results if the LastOne method of the 
+// received result returns false.
+type Result int
+
+func (r Result) LastOne() bool {
+	return true
+}
+
+// 4. Than a client codec, which should implement the cs_client.Codec[T] 
+// interface.
+type ClientCodec struct{}
+
+//  Encode is used by the client to send commands to the server.
+func (c ClientCodec) Encode(cmd base.Cmd[Calculator], w transport.Writer) (
+	err error) {...}
+
+// Decode is used by the client to receive resulsts from the server.
+func (c ClientCodec) Decode(r transport.Reader) (result base.Result, 
+err error) {...}
+
+// Size returns the size of the command in bytes. If the server imposes any
+// restrictions on the command size, the client will use this method to
+// check it before sending.
+func (c ClientCodec) Size(cmd base.Cmd[Calculator]) (size int) {...}
+
+// 5. Than a server codec, which should implement the cs_server.Codec[T] 
+// interface.
+type ServerCodec struct{}
+
+// Encode is used by the server to send results to the client.
+func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
+	err error) {...}
+
+// Decode is used by the server to receive commands from the client.
+func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[Calculator],
+	err error) {...}
+
+// 6. And that's it, the only thing left to do is to create a server and client.
+// Create the server.
+server := cs_server.NewDef[Calculator](ServerCodec{}, Calculator{})
+// Start the server.
+listener, err := net.Listen("tcp", Addr)
+...
+go func() {
+  ...
+  server.Serve(listener.(*net.TCPListener))
+}()
+// Connect to the server.
+conn, err := net.Dial("tcp", Addr)
+...
+// Create the client.
+client, err := cs_client.NewDef[Calculator](ClientCodec{}, conn, nil)
+...
+```
+You can find the full code of this example, called 
+[standart](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard) 
+and several other examples of using cmd-stream-go in 
+[cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go).
 
 # Architecture
 There are the following cmd-stream-go submodules:
