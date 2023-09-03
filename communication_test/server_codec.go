@@ -3,6 +3,7 @@ package ct
 import (
 	"github.com/cmd-stream/base-go"
 	"github.com/cmd-stream/transport-go"
+	dts "github.com/mus-format/mus-stream-dts-go"
 )
 
 type ServerCodec struct{}
@@ -20,13 +21,13 @@ func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
 
 func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[Receiver],
 	err error) {
-	tp, _, err := UnmarshalCmdType(r)
-	switch tp {
-	case Cmd1CmdType:
+	dtm, _, err := dts.UnmarshalDTMUS(r)
+	switch dtm {
+	case Cmd1DTM:
 		cmd = Cmd1{}
-	case Cmd2CmdType:
+	case Cmd2DTM:
 		cmd = Cmd2{}
-	case Cmd3CmdType:
+	case Cmd3DTM:
 		cmd = Cmd3{}
 	}
 	return

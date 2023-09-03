@@ -3,24 +3,26 @@ package ct
 import (
 	"github.com/cmd-stream/base-go"
 	"github.com/cmd-stream/transport-go"
+	com "github.com/mus-format/common-go"
+	dts "github.com/mus-format/mus-stream-dts-go"
 )
 
 type ClientCodec struct{}
 
 func (c ClientCodec) Encode(cmd base.Cmd[Receiver],
 	w transport.Writer) (err error) {
-	var tp CmdType
+	var dtm com.DTM
 	switch cmd.(type) {
 	case Cmd1:
-		tp = Cmd1CmdType
+		dtm = Cmd1DTM
 	case Cmd2:
-		tp = Cmd2CmdType
+		dtm = Cmd2DTM
 	case Cmd3:
-		tp = Cmd3CmdType
+		dtm = Cmd3DTM
 	default:
 		panic("unexpected cmd type")
 	}
-	_, err = MarshalCmdType(tp, w)
+	_, err = dts.MarshalDTMUS(dtm, w)
 	return
 }
 

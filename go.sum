@@ -8,6 +8,8 @@ github.com/cmd-stream/transport-go v0.0.0-20230903164829-803729ab691f h1:iU/JITv
 github.com/cmd-stream/transport-go v0.0.0-20230903164829-803729ab691f/go.mod h1:xCMizrt4YLV7J1LJWS+INhINcZIHXJImQSXW0Ks8vck=
 github.com/mus-format/common-go v0.0.0-20230828235912-098b21ff73ae h1:FLdV/+PU4WpWbm/4lXS2WnrApURl6z7pGFfJxwv0ils=
 github.com/mus-format/common-go v0.0.0-20230828235912-098b21ff73ae/go.mod h1:5sn4NSNGbbz1jKRmn2q9oFKEkz7Vtv1NxBNxuMYabMc=
+github.com/mus-format/mus-stream-dts-go v0.1.1 h1:PPA4N9Lg0w/FPYcss7jw0uyDim0Le3dQGRLBq6+h1hU=
+github.com/mus-format/mus-stream-dts-go v0.1.1/go.mod h1:/utHL1qrv6qizaXnqzqZ6ZRS6AuwCqfxPPY5e5OjqsE=
 github.com/mus-format/mus-stream-go v0.1.4 h1:mLHT+EpwdZ6KpY+v5CoQQfsSp+hvWUY1uRGV4jQZ5rw=
 github.com/mus-format/mus-stream-go v0.1.4/go.mod h1:e5S/elHg8zKJA/Qp+pZTwAhkpFQqDMzigO+QNilnKlo=
 github.com/ymz-ncnk/jointwork-go v0.0.0-20230813141517-ca76a85bd420 h1:+O5gMzm9NLMdG7J47y0hbKebOqg7ChpWEcHncuY5JE8=

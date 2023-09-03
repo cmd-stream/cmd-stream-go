@@ -5,33 +5,8 @@ import (
 	"time"
 
 	"github.com/cmd-stream/base-go"
-	muss "github.com/mus-format/mus-stream-go"
-	"github.com/mus-format/mus-stream-go/raw"
 )
 
-type CmdType byte
-
-const (
-	Cmd1CmdType CmdType = iota + 1
-	Cmd2CmdType
-	Cmd3CmdType
-)
-
-func MarshalCmdType(tp CmdType, w muss.Writer) (n int, err error) {
-	return raw.MarshalByte(byte(tp), w)
-}
-
-func UnmarshalCmdType(r muss.Reader) (tp CmdType, n int, err error) {
-	b, n, err := raw.UnmarshalByte(r)
-	tp = CmdType(b)
-	return
-}
-
-func SizeCmdType(tp CmdType) (size int) {
-	return raw.SizeByte(byte(tp))
-}
-
-// -----------------------------------------------------------------------------
 type Cmd1 struct{}
 
 func (c Cmd1) Exec(ctx context.Context, at time.Time, seq base.Seq,
@@ -53,6 +28,7 @@ func (c Cmd1) Exec(ctx context.Context, at time.Time, seq base.Seq,
 }
 
 // -----------------------------------------------------------------------------
+
 type Cmd2 struct{}
 
 func (c Cmd2) Exec(ctx context.Context, at time.Time, seq base.Seq,
@@ -64,6 +40,7 @@ func (c Cmd2) Exec(ctx context.Context, at time.Time, seq base.Seq,
 }
 
 // -----------------------------------------------------------------------------
+
 type Cmd3 struct{}
 
 func (c Cmd3) Exec(ctx context.Context, at time.Time, seq base.Seq,
