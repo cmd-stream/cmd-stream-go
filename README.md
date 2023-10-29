@@ -10,21 +10,24 @@ Test coverage of each submodule is over 90%.
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
 # RCX vs RPC
-By mapping commands to remote procedure calls, you can simply implement RPC with 
-RCX. This way, if you are already using one of the RPC products, you can switch 
-to RCX even without modifying your interfaces.
+By mapping commands to remote procedure calls, it is quite easy to implement 
+RPC using RCX. That is, when a remote procedure call will actually send a 
+command to the server. 
+
+Thus, if you are already using one of the RPC products, you can switch to RCX 
+even without changing the interfaces.
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
-connection-oriented protocols like TCP or TLS (if you need to authenticate 
-clients as well, use mutual TLS).
+connection-oriented protocols like TCP, TLS or mutual TLS (for client
+authentication).
 
 # Client
 The client is asynchronous and can be used from different gorountines 
 simultaneously. Also it uses only one connection to send commands and receive 
 results.
 
-You can create a regular client or a "reconnet" client. The last one tries to 
+A regular or a "reconnect" client can be created. The last one tries to 
 reconnect to the server if it has lost the connection.
 
 Among the client configuration, you can find (and not only):
