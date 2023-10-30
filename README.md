@@ -27,8 +27,8 @@ The client is asynchronous and can be used from different gorountines
 simultaneously. Also it uses only one connection to send commands and receive 
 results.
 
-A regular or a "reconnect" client can be created. The last one tries to 
-reconnect to the server if it has lost the connection.
+With `client.NewReconnect()`, you can create a client that tries to reconnect to
+the server if it loses the connection.
 
 Among the client configuration, you can find (and not only):
 - KeepaliveTime and KeepaliveIntvl - if both of them != 0, client will try to
