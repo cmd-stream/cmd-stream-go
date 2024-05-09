@@ -21,7 +21,7 @@ func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
 
 func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[Receiver],
 	err error) {
-	dtm, _, err := dts.UnmarshalDTMUS(r)
+	dtm, _, err := dts.UnmarshalDTM(r)
 	switch dtm {
 	case Cmd1DTM:
 		cmd = Cmd1{}

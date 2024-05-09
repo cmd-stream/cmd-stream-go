@@ -22,7 +22,7 @@ func (c ClientCodec) Encode(cmd base.Cmd[Receiver],
 	default:
 		panic("unexpected cmd type")
 	}
-	_, err = dts.MarshalDTMUS(dtm, w)
+	_, err = dts.MarshalDTM(dtm, w)
 	return
 }
 
