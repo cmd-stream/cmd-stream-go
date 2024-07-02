@@ -1,9 +1,9 @@
 github.com/cmd-stream/base-go v0.0.0-20240428104458-99caa236f969 h1:uQOfPheinM5Z4TyRoCTsl+0wRX80qS2WwpZTumL4MDo=
 github.com/cmd-stream/base-go v0.0.0-20240428104458-99caa236f969/go.mod h1:TGNARVuDSdpKjcnmwMEHuXFKBXw+82CO3MdWbnuWrIs=
-github.com/cmd-stream/delegate-go v0.0.0-20240509130536-af7a9cccb253 h1:8WDdtdh2suTLm5pWMWnbqkwJSHSva8WMkn4JY6BW9MM=
-github.com/cmd-stream/delegate-go v0.0.0-20240509130536-af7a9cccb253/go.mod h1:DTgQsb6UVQCOeP9ByVFML6iN8ofzVkIJXz5AqJVo374=
-github.com/cmd-stream/handler-go v0.0.0-20240509130708-3f7b56d33394 h1:rAOTpNVo714cRXDWwbQ9SKpHasnO4EUo5NT/OPJgaFo=
-github.com/cmd-stream/handler-go v0.0.0-20240509130708-3f7b56d33394/go.mod h1:bDVkaW/4BVo+qErfxoabAAZYa+FKrjs8SZO5v1JaHX8=
+github.com/cmd-stream/delegate-go v0.0.0-20240702232359-39203f4a3d3f h1:tKqva3g+n6PKQDmP391qicj8jOsHqRU7Z5uR/o3R6Y0=
+github.com/cmd-stream/delegate-go v0.0.0-20240702232359-39203f4a3d3f/go.mod h1:wCrPKHxWYHiWDX/TyceJ/w3ErgCoeBtdCptdiZr3IT8=
+github.com/cmd-stream/handler-go v0.0.0-20240702232640-d79c1075ad0f h1:T5iUmqru5VDqDAcu6U/PVhNyJg3Z064L/KQn8Tvxo1I=
+github.com/cmd-stream/handler-go v0.0.0-20240702232640-d79c1075ad0f/go.mod h1:7gFXXeEZBRJp24yAUlvpxREhzB8l1tnZ1aAIFRwCPzA=
 github.com/cmd-stream/transport-go v0.0.0-20240509130817-146e60741fe6 h1:xyPAEu07kLWk5RaipAWrZ3tAdqIcn6LI64Qm0QXc+g0=
 github.com/cmd-stream/transport-go v0.0.0-20240509130817-146e60741fe6/go.mod h1:fOv+75bS46HKqoIQXB+zltNaVltYTJ4oXteLqIlp+Bw=
 github.com/mus-format/common-go v0.0.0-20240427160332-fda7f59c1da2 h1:VlQlK11OtURHQ1VsdHcp9OFq56i8HEIHURgfEtP9Jek=
