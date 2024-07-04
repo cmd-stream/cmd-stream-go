@@ -4,12 +4,12 @@ go 1.20
 
 require (
 	github.com/cmd-stream/base-go v0.0.0-20240428104458-99caa236f969
-	github.com/cmd-stream/delegate-go v0.0.0-20240702232359-39203f4a3d3f
-	github.com/cmd-stream/handler-go v0.0.0-20240702232640-d79c1075ad0f
-	github.com/cmd-stream/transport-go v0.0.0-20240509130817-146e60741fe6
-	github.com/mus-format/common-go v0.0.0-20240427160332-fda7f59c1da2
-	github.com/mus-format/mus-stream-dts-go v0.3.0
-	github.com/mus-format/mus-stream-go v0.3.0
+	github.com/cmd-stream/delegate-go v0.0.0-20240704164829-ecea8829feee
+	github.com/cmd-stream/handler-go v0.0.0-20240704165004-6f7e3d7f06cc
+	github.com/cmd-stream/transport-go v0.0.0-20240702232803-d33ed8359b0b
+	github.com/mus-format/common-go v0.0.0-20240704141923-ea7d12c7eed3
+	github.com/mus-format/mus-stream-dts-go v0.4.0
+	github.com/mus-format/mus-stream-go v0.4.1
 )
 
 require (
