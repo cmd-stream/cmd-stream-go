@@ -1,7 +1,7 @@
 # cmd-stream-go
-cmd-stream-go is a high-performance RCX (Remote Command eXecution) 
-library, which applies the Command design pattern to the client-server 
-architecture and supports reconnect and keepalive features.
+cmd-stream-go is a high-performance client-server communication library that
+implements distributed Command pattern and supports reconnect and keepalive 
+features.
 
 # Tests
 Test coverage of each submodule is over 90%.
@@ -9,13 +9,10 @@ Test coverage of each submodule is over 90%.
 # Benchmarks
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
-# RCX vs RPC
-By mapping commands to remote procedure calls, it is quite easy to implement 
-RPC using RCX. That is, when a remote procedure call will actually send a 
-command to the server. 
-
-Thus, if you are already using one of the RPC products, you can switch to RCX 
-even without changing the interfaces.
+# Distributed Command Pattern vs RPC
+By mapping commands to remote procedure calls, it is quite easy to implement the
+RPC approach. Thus, if you are already using one of the RPC products, you can 
+switch to cmd-stream-go even without changing your interfaces.
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
