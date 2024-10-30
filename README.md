@@ -1,7 +1,6 @@
 # cmd-stream-go
 cmd-stream-go is a high-performance client-server library that implements a 
-distributed Command pattern, supports [MUS](https://medium.com/p/21d7be309e8d) 
-serialization format, reconnect and keepalive features.
+distributed Command pattern, supports reconnect and keepalive features.
 
 # Tests
 Test coverage of each submodule is over 90%.
