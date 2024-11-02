@@ -1,6 +1,6 @@
 # cmd-stream-go
 cmd-stream-go is a high-performance client-server library that implements a 
-distributed Command pattern, supports reconnect and keepalive features.
+Command pattern, supports reconnect and keepalive features.
 
 # Tests
 Test coverage of each submodule is over 90%.
@@ -8,7 +8,7 @@ Test coverage of each submodule is over 90%.
 # Benchmarks
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
-# Distributed Command Pattern vs RPC
+# Command Pattern Over Network vs RPC
 By mapping commands to remote procedure calls, it is quite easy to implement the
 RPC approach. Thus, if you are already using one of the RPC products, you can 
 switch to cmd-stream-go even without changing your interfaces.
