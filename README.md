@@ -1,5 +1,5 @@
 # cmd-stream-go
-cmd-stream-go is a high-performance client-server library that implements a 
+cmd-stream-go is a high-performance client-server library that implements the 
 Command pattern, supports reconnect and keepalive features.
 
 # Tests
