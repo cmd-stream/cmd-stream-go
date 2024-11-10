@@ -72,14 +72,14 @@ the data itself. This all can have a positive impact on your bandwidth.
 
 A small example:
 ```go
-// 1. First of all we have to define Receiver.
+// 1. Define receiver.
 type Calculator struct{}
 
 func (c Calculator) Add(n1, n2 int) int {...}
 
 func (c Calculator) Sub(n1, n2 int) int {...}
 
-// 2. Than a command. All commands should implement base.Cmd[T] interface.
+// 2. Define command. All commands should implement base.Cmd[T] interface.
 type Eq1Cmd struct {...}
 
 func (c Eq1Cmd) Exec(ctx context.Context, at time.Time, seq base.Seq,
@@ -92,7 +92,7 @@ func (c Eq1Cmd) Exec(ctx context.Context, at time.Time, seq base.Seq,
   return proxy.Send(seq, result)
 }
 
-// 3. Than a result. All results should implement the base.Result interface. The 
+// 3. Define result. All results should implement the base.Result interface. The 
 // client will wait for more command results if the LastOne method of the 
 // received result returns false.
 type Result int
@@ -101,7 +101,7 @@ func (r Result) LastOne() bool {
   return true
 }
 
-// 4. Than a client codec, which should implement the cs_client.Codec[T] 
+// 4. Define the client codec, which should implement the cs_client.Codec[T] 
 // interface.
 type ClientCodec struct{}
 
@@ -120,7 +120,7 @@ err error) {...}
 // check it before sending.
 func (c ClientCodec) Size(cmd base.Cmd[Calculator]) (size int) {...}
 
-// 5. Than a server codec, which should implement the cs_server.Codec[T] 
+// 5. Define the server codec, which should implement the cs_server.Codec[T] 
 // interface.
 type ServerCodec struct{}
 
@@ -134,7 +134,7 @@ func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
 func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[Calculator],
   err error) {...}
 
-// 6. And that's it, the only thing left to do is to create a server and client.
+// 6. And that's it, the only thing left to do is to create the server and client.
 // Create the server.
 server := cs_server.NewDef[Calculator](ServerCodec{}, Calculator{})
 // Start the server.
@@ -144,6 +144,7 @@ go func() {
   ...
   server.Serve(listener.(*net.TCPListener))
 }()
+
 // Connect to the server.
 conn, err := net.Dial("tcp", Addr)
 ...
