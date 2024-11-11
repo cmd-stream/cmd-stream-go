@@ -72,14 +72,14 @@ the data itself. This all can have a positive impact on your bandwidth.
 
 A small example:
 ```go
-// 1. Define receiver.
+// 1. Define the receiver.
 type Calculator struct{}
 
 func (c Calculator) Add(n1, n2 int) int {...}
 
 func (c Calculator) Sub(n1, n2 int) int {...}
 
-// 2. Define command. All commands should implement base.Cmd[T] interface.
+// 2. Define the command. All commands should implement base.Cmd[T] interface.
 type Eq1Cmd struct {...}
 
 func (c Eq1Cmd) Exec(ctx context.Context, at time.Time, seq base.Seq,
@@ -92,8 +92,8 @@ func (c Eq1Cmd) Exec(ctx context.Context, at time.Time, seq base.Seq,
   return proxy.Send(seq, result)
 }
 
-// 3. Define result. All results should implement the base.Result interface. The 
-// client will wait for more command results if the LastOne method of the 
+// 3. Define the result. All results should implement the base.Result interface. 
+// The client will wait for more command results if the LastOne method of the 
 // received result returns false.
 type Result int
 
