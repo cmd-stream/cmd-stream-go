@@ -8,10 +8,8 @@ Test coverage of each submodule is over 90%.
 # Benchmarks
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
-# Command Pattern Over Network vs RPC
-By mapping commands to remote procedure calls, it is quite easy to implement the
-RPC approach. Thus, if you are already using one of the RPC products, you can 
-switch to cmd-stream-go even without changing your interfaces.
+# Commands vs RPC
+[https://medium.com/p/b08b3b2bba35](https://medium.com/p/b08b3b2bba35)
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
