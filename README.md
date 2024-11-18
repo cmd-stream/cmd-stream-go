@@ -8,7 +8,7 @@ Test coverage of each submodule is over 90%.
 # Benchmarks
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
-# Commands vs RPC
+# The Command Pattern as an Alternative to RPC
 [https://medium.com/p/b08b3b2bba35](https://medium.com/p/b08b3b2bba35)
 
 # Network Protocols Support
@@ -59,7 +59,7 @@ All we need to do is define `Receiver`, commands, results, and codecs for
 the client and server.
 
 The client codec encodes commands and decodes results from the connection.
-The server codec does the same thing, but in reverse. cms-stream-go was designed
+The server codec does the same thing, but in reverse. cmd-stream-go was designed
 with [mus-stream-go](https://github.com/mus-format/mus-stream-go) in mind,
 but you can use any other serializer with it.
 
