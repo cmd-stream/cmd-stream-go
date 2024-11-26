@@ -28,10 +28,11 @@ func NewDef[T any](codec Codec[T], receiver T) *base_server.Server {
 
 // New creates a Server.
 //
-// Server relies on user-defined Codec. It uses Codec.Decode to decode commands
-// received from Client and Codec.Encode to encode the results sent
-// back. If one of these methods fails, Server closes the connection to the
-// client.
+// Server relies on user-defined Codec. It uses Codec.Decode() to decode
+// commands received from the Client and Codec.Encode() to encode the results
+// sent back. If one of these methods fails, the Server closes the connection to
+// the client.
+//
 // All closed connections could be tracked with Conf.Base.LostConnCallback.
 // If the invoker parameter is nil, the default value is used.
 func New[T any](info delegate.ServerInfo, settings delegate.ServerSettings,

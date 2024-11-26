@@ -25,16 +25,16 @@ func NewDef[T any](codec Codec[T], conn net.Conn,
 
 // New creates a Client.
 //
-// Client relies on user-defined Codec. It uses Codec.Encode to encode
-// commands for Server and Codec.Decode to decode received results. If the
-// last one method fails Client will be closed.
-// Also, if Server imposes a limit on the size of a command, Client will use
-// Codec.Size to determine if the command being sent is small enough.
-// If the handler parameter is nil, all unknown results received from Server
+// Client relies on user-defined Codec. It uses Codec.Encode() to encode
+// commands for the Server and Codec.Decode() to decode received results. If the
+// last one method fails the Client will be closed.
+// Also, if the Server imposes a limit on the size of a command, the Client will
+// use Codec.Size() to determine if the command being sent is small enough.
+// If the handler parameter is nil, all unknown results received from the Server
 // will be ignored.
 //
-// Returns delegate.ErrServerInfoMismatch if the specified info does not
-// match the info received from Server.
+// Returns client.ErrServerInfoMismatch (from the delegate module) if the
+// specified info does not match the info received from the Server.
 func New[T any](info delegate.ServerInfo, conf Conf, codec Codec[T],
 	conn net.Conn,
 	handler base_client.UnexpectedResultHandler,
