@@ -236,6 +236,7 @@ client, err := cs_client.NewDef[Calculator](ClientCodec{}, conn, nil)
 
 8. Send a command and get the result.
 ```go
+...
 results := make(chan base.AsyncResult, 1)
 _, err := client.Send(cmd, results)
 ...
