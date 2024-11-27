@@ -15,6 +15,25 @@ Command pattern.
 - Supports keepalive feature.
 - Has a flexible architecture.
 
+# Contents
+- [cmd-stream-go](#cmd-stream-go)
+- [Brief cmd-stream-go Description](#brief-cmd-stream-go-description)
+- [Contents](#contents)
+- [Tests](#tests)
+- [Benchmarks](#benchmarks)
+- [The Command Pattern as an Alternative to RPC](#the-command-pattern-as-an-alternative-to-rpc)
+- [High-performance Communication Channel](#high-performance-communication-channel)
+- [Network Protocols Support](#network-protocols-support)
+- [Client](#client)
+  - [Configuration](#configuration)
+  - [Waiting for the Result with a Timeout](#waiting-for-the-result-with-a-timeout)
+  - [Reconect](#reconect)
+- [Server](#server)
+  - [Configuration](#configuration-1)
+  - [Command Size Restriction](#command-size-restriction)
+- [How To Use](#how-to-use)
+- [Architecture](#architecture)
+
 # Tests
 Test coverage of each submodule is over 90%.
 
