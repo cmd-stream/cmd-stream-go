@@ -13,6 +13,7 @@ Command pattern.
 - The server can configure the client.
 - Supports reconnect feature.
 - Supports keepalive feature.
+- Can work with various serialization formats.
 - Has a flexible architecture.
 
 # Contents
