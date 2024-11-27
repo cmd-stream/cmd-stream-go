@@ -4,7 +4,8 @@ Command pattern.
 
 # Brief cmd-stream-go Description
 - Can work over TCP, TLS or mutual TLS.
-- The client is asynchronous and can be used by several goroutines.
+- The client is asynchronous and can be used by several goroutines 
+  simultaneously.
 - Only one connection is used per client.
 - Supports a deadline for sending a command or result.
 - Supports timeouts.
