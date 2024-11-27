@@ -32,7 +32,7 @@ To build a high-performance communication channel between two services:
    benefits.
 2. To improve the responsiveness of the system use all available connections
    from the start, instead of creating new ones as needed.
-3. Use keepalive feature.
+3. Use keepalive connections.
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
