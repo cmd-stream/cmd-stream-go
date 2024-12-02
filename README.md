@@ -217,6 +217,7 @@ func (c ClientCodec) Size(cmd base.Cmd[Calculator]) (size int) {...}
 // ServerCodec encodes results to the Writer and decodes commands from the 
 // Reader. It should implement the server.Codec[T] interface (from the 
 // cmd-stream-go module), where T is a Receiver.
+// One ServerCodec will be used by all server Workers, so it must be thread-safe.
 type ServerCodec struct{}
 
 // Encode is used by the server to send results to the client. If it fails with 
