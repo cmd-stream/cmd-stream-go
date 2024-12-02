@@ -12,7 +12,7 @@ Command pattern.
 - Supports timeouts.
 - Supports reconnect feature.
 - Supports keepalive feature.
-- Can work with various serialization formats.
+- Can work with various serialization formats ([here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard_protobuf) is an example using the Protobuf serializer).
 - Has a flexible architecture.
 
 # Contents
