@@ -21,7 +21,6 @@ Command pattern.
 - [Contents](#contents)
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
-- [The Command Pattern as an Alternative to RPC](#the-command-pattern-as-an-alternative-to-rpc)
 - [High-performance Communication Channel](#high-performance-communication-channel)
 - [Network Protocols Support](#network-protocols-support)
 - [Client](#client)
@@ -39,9 +38,6 @@ Test coverage of each submodule is over 90%.
 
 # Benchmarks
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
-
-# The Command Pattern as an Alternative to RPC
-[https://medium.com/p/b08b3b2bba35](https://medium.com/p/b08b3b2bba35)
 
 # High-performance Communication Channel
 To build a high-performance communication channel between two services:
