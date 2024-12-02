@@ -256,10 +256,17 @@ client, err := cs_client.NewDef[Calculator](ClientCodec{}, conn, nil)
 8. Send a command and get the result.
 ```go
 ...
-results := make(chan base.AsyncResult, 1)
-_, err := client.Send(cmd, results)
+asyncResults := make(chan base.AsyncResult, 1)
+_, err := client.Send(cmd, asyncResults)
 ...
-result := (<-results).Result
+asyncResult := <-asyncResults
+if asyncResult.Error != nil {
+  // asyncResult.Error != nil if something is wrong with the connection.
+  ...
+}
+// The result sent by the command.
+result := asyncResult.Result.(Result)
+...
 ...
 ```
 The full code of this example, called [standard](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard) 
