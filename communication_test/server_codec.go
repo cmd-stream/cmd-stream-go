@@ -10,13 +10,11 @@ type ServerCodec struct{}
 
 func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
 	err error) {
-	switch r := result.(type) {
-	case Result:
-		_, err = MarshalResultMUS(r, w)
-	default:
-		panic("unexpected result")
+	if m, ok := result.(MarshallerMUS); ok {
+		_, err = m.MarshalMUS(w)
+		return
 	}
-	return
+	panic("result doesn't implement the MarshallerMUS interface")
 }
 
 func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[Receiver],

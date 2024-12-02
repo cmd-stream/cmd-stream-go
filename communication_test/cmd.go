@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/cmd-stream/base-go"
+	dts "github.com/mus-format/mus-stream-dts-go"
+	muss "github.com/mus-format/mus-stream-go"
 )
 
 type Cmd1 struct{}
@@ -27,6 +29,10 @@ func (c Cmd1) Exec(ctx context.Context, at time.Time, seq base.Seq,
 	return
 }
 
+func (c Cmd1) MarshalMUS(w muss.Writer) (n int, err error) {
+	return dts.MarshalDTM(Cmd1DTM, w)
+}
+
 // -----------------------------------------------------------------------------
 
 type Cmd2 struct{}
@@ -39,6 +45,10 @@ func (c Cmd2) Exec(ctx context.Context, at time.Time, seq base.Seq,
 	return proxy.Send(seq, Result{true})
 }
 
+func (c Cmd2) MarshalMUS(w muss.Writer) (n int, err error) {
+	return dts.MarshalDTM(Cmd2DTM, w)
+}
+
 // -----------------------------------------------------------------------------
 
 type Cmd3 struct{}
@@ -49,4 +59,8 @@ func (c Cmd3) Exec(ctx context.Context, at time.Time, seq base.Seq,
 ) (err error) {
 	time.Sleep(500 * time.Millisecond)
 	return proxy.Send(seq, Result{true})
+}
+
+func (c Cmd3) MarshalMUS(w muss.Writer) (n int, err error) {
+	return dts.MarshalDTM(Cmd3DTM, w)
 }
