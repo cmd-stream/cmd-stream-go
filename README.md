@@ -45,9 +45,9 @@ To build a high-performance communication channel between two services:
    information than one. The number N depends on your system and can indicate 
    the number of connections after which adding another one will not provide any 
    benefits.
-2. To improve the responsiveness of the system use all available connections
-   from the start, instead of creating new ones as needed.
-3. Use keepalive connections.
+2. To minimize system latency, use all available connections from the start 
+   instead of creating new ones on demand.
+4. Use keepalive connections.
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
@@ -62,12 +62,12 @@ in order.
 
 ## Configuration
 Client configuration options include (and not only):
-- KeepaliveTime and KeepaliveIntvl - if both of them != 0, client will try to
-  keep the connection alive. If there are no commands to send, it starts 
-  Ping-Pong with the server - sends a Ping command and receives a Pong result, 
-  both of which are transfered as a 0 (like a ball) byte.
-- SysDataReceiveTimeout - determines how long the client will wait for system 
-  data from the server.
+- KeepaliveTime and KeepaliveIntvl - If both != 0, client will try to keep the 
+  connection alive. When there are no commands to send, it starts Ping-Pong with
+  the server - sends a Ping command and receives a Pong result, both of which 
+  are transfered as a 0 (like a ball) byte.
+- SysDataReceiveTimeout - Specifies how long the client will wait to receive 
+  system data from the server.
 
 ## Waiting for the Result with a Timeout
 ```go
@@ -85,43 +85,46 @@ case result := <-results:
 ```
 
 ## Reconect
-`client.NewDefReconnect()` will create a client that attempts to reconnect to 
-the server if the connection is lost. This can happen while sending a command -
+`client.NewDefReconnect()` creates a client that attempts to reconnect to the 
+server if the connection is lost. This may occur while sending a command -
 we'll get an error, or while waiting for the result - we will not be sure 
 whether the command was executed on the server or not.
 
-In both cases, after a while, we can try to send the command again (idempotent
+In both cases, after some time, we can try to resend the command (idempotent
 command). If the connection is restored, normal operation will continue, 
 otherwise we will get the error again.
 
-Regarding the time interval before retrying, it is better to choose it randomly 
-for each goroutine to avoid overloading the server with a large number of 
+When deciding on the retry interval, it is advisable to randomize it for each 
+goroutine to prevent overloading the server with a large number of 
 simultaneously sent commands.
 
 # Server
-Before starting to receive commands, the server sends to the client system 
-data: `ServerInfo` and `ServerSettings`. With `ServerInfo`, the client can 
-determine  its compatibility with the server, for example, whether it and the 
-server support the same set of commands. `ServerSettings`, in turn, contains the 
-desired settings for interacting with the server.
+Before receiving commands, the server sends system data to the client: 
+`ServerInfo` and `ServerSettings`. Using `ServerInfo`, the client can 
+determine  its compatibility with the server, for instance, whether they both 
+support the same set of commands. `ServerSettings`, on the other hand, contains 
+the preferred configuration for interacting with the server.
 
-A few words about commands execution:
+A few words about command execution:
 - Each command is executed by a single `Invoker` (it should be thread-safe) in 
   a separete goroutine.
-- There is a default `Invoker`, but you can specify your own.
-- Command can send back several results. They all will be delivered to the 
-  client in order.
+- There is a default `Invoker`, but you can provide your own.
+- A command can send back multiple results, all of which will be delivered to 
+  the client in order.
 
 ## Configuration
 Server configuration options include (and not only):
-- FirstConnTimeout - the server will close if it does not receive the first 
-  connection during this time.
-- WorkersCount - each connection to the client is processed on the server by one 
-  `Worker`.	That is, this parameter sets the maximum number of simultaneous 
-  clients of the server.
-- LostConnCallback - called when the server loses connection with the client.
-- ReceiveTimeout - if the server has not received any commands from the client 
-  during this time, it closes the connection.
+- FirstConnTimeout - Specifies the time limit for receiving the first 
+  connection. If the server does not receive a connection within this time, it 
+  will close.
+- WorkersCount - Each connection is processed by one `Worker`, so this parameter
+  determines the maximum number of simultaneous clients that the server can 
+  handle.
+- LostConnCallback - A callback function triggered when the server loses its 
+  connection with a client.
+- ReceiveTimeout - Specifies the maximum duration the server will wait for a
+  command from a client. If no one command is received within this time, the 
+  server will close the connection.
 
 ## Command Size Restriction
 The server may ask the client not to send too large commands.
@@ -131,13 +134,13 @@ implement the client codec's `Size()` method, it will be used to verify the
 command size.
 
 Please note that even with this feature, the server must protect itself from
-receiving too large commands. This can be done while decoding a command - the 
-server codec's `Decode()` method may return an error, which will close the 
-connection to the client.
+receiving too large commands. This can be achieved during the command decoding 
+process - the server codec's `Decode()` method may return an error, which will 
+close the connection to the client.
 
 # How To Use
-All you need to do is implement the Command pattern and codecs - one for the 
-client and one for the server:
+All you need to do is implement the Command pattern and codecs (one for the 
+client and one for the server):
 1. First of all define the Receiver. In this case it will be a `Calculator` with
    two methods `Add()` and `Sub()`:
 ```go
@@ -156,8 +159,8 @@ type Eq1Cmd struct {...}
 
 // Exec method will be called by the Invoker on the server.
 func (c Eq1Cmd) Exec(ctx context.Context, 
-  at time.Time, // If the server was configured with Conf.Handler.At == true, 
-  // contains the command receiving time.
+  at time.Time, // If Conf.Handler.At == true on the server, this param will 
+  // contain the time when the command was received.
   seq base.Seq, // The sequence number of the command. It is used to send back 
   // results.
   receiver Calculator, // Receiver.
@@ -166,8 +169,9 @@ func (c Eq1Cmd) Exec(ctx context.Context,
 ) error {
   // It uses Receiver here.
   result := Result(receiver.Add(...))
-  // And sends back the result. In general, a command can send back several 
-  // results, which will be received by the client in order.
+  // And sends back the result. 
+  // In general, a command can send back multiple results, which will be 
+  // received by the client in order.
   // If an error was encountered during execution, the command can send it back 
   // to the client as a result, or it can simply return it. In the latter case, 
   // the connection to the client will be closed.
