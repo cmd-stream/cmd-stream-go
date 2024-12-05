@@ -30,6 +30,7 @@ Command pattern.
 - [Server](#server)
   - [Configuration](#configuration-1)
   - [Command Size Restriction](#command-size-restriction)
+  - [Close and Shutdown](#close-and-shutdown)
 - [How To Use](#how-to-use)
 - [Architecture](#architecture)
 
@@ -41,13 +42,13 @@ Test coverage of each submodule is over 90%.
 
 # High-performance Communication Channel
 To build a high-performance communication channel between two services:
-1. Use N connections. Because several connections can transmit much more 
-   information than one. The number N depends on your system and can indicate 
-   the number of connections after which adding another one will not provide any 
-   benefits.
+1. Use N connections. Multiple connections can transfer significantly more 
+   information than a single one. The number N depends on your system and can 
+   represents the number of connections after which adding another one will not 
+   provide additional benefits.
 2. To minimize system latency, use all available connections from the start 
    instead of creating new ones on demand.
-4. Use keepalive connections.
+3. Use keepalive connections.
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
@@ -137,6 +138,10 @@ Please note that even with this feature, the server must protect itself from
 receiving too large commands. This can be achieved during the command decoding 
 process - the server codec's `Decode()` method may return an error, which will 
 close the connection to the client.
+
+## Close and Shutdown
+Close closes all connections and stops the server. Shutdown allows the server to
+finish processing already established connections (new ones are not accepted).
 
 # How To Use
 All you need to do is implement the Command pattern and codecs (one for the 
@@ -270,6 +275,7 @@ result := asyncResult.Result.(Result)
 ...
 ...
 ```
+
 The full code of this example, called [standard](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard) 
 and several other examples of using cmd-stream-go can be found in 
 [cmd-stream-examples-go](https://github.com/cmd-stream/cmd-stream-examples-go).
