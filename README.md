@@ -140,8 +140,9 @@ process - the server codec's `Decode()` method may return an error, which will
 close the connection to the client.
 
 ## Close and Shutdown
-Close closes all connections and stops the server. Shutdown allows the server to
-finish processing already established connections (new ones are not accepted).
+`Server.Close()` terminates all connections and immediately stops the server. 
+`Server.Shutdown()` allows the server to complete processing of already 
+established connections while rejecting new ones.
 
 # How To Use
 All you need to do is implement the Command pattern and codecs (one for the 
