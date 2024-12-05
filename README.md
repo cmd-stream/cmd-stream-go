@@ -273,7 +273,6 @@ if asyncResult.Error != nil {
 // The result sent by the command.
 result := asyncResult.Result.(Result)
 ...
-...
 ```
 
 The full code of this example, called [standard](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard) 
