@@ -73,14 +73,14 @@ Client configuration options include (and not only):
 ## Waiting for the Result with a Timeout
 ```go
 ...
-results := make(chan base.AsyncResult, 1)
-seq, err := client.Send(cmd, results) // Where seq is the sequence number of the command.
+asyncResults := make(chan base.AsyncResult, 1)
+seq, err := client.Send(cmd, asyncResults) // Where seq is the sequence number of the command.
 ...
 select {
 case <-time.NewTimer(3 * time.Second).C:
     client.Forget(seq)
   // Handle timeout.
-case result := <-results:
+case asyncResult := <-asyncResults:
   // Handle result.
 }
 ```
