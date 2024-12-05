@@ -42,10 +42,10 @@ Test coverage of each submodule is over 90%.
 
 # High-performance Communication Channel
 To build a high-performance communication channel between two services:
-1. Use N connections. Multiple connections can transfer significantly more 
-   information than a single one. The number N depends on your system and can 
-   represents the number of connections after which adding another one will not 
-   provide additional benefits.
+1. Use N connections. Several connections can transfer significantly more
+   data than a single one. The number N, depends on your system and represents 
+   the point after which adding more connections will not provide additional 
+   benefits.
 2. To minimize system latency, use all available connections from the start 
    instead of creating new ones on demand.
 3. Use keepalive connections.
