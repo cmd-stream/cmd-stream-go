@@ -1,6 +1,6 @@
 # cmd-stream-go
 cmd-stream-go is a high-performance client-server library that implements the 
-Command pattern.
+[Command pattern](https://en.wikipedia.org/wiki/Command_pattern).
 
 # Brief cmd-stream-go Description
 - Can work over TCP, TLS or mutual TLS.
@@ -86,25 +86,25 @@ case asyncResult := <-asyncResults:
 ```
 
 ## Reconect
-`client.NewDefReconnect()` creates a client that attempts to reconnect to the 
-server if the connection is lost. This may occur while sending a command -
-we'll get an error, or while waiting for the result - we will not be sure 
-whether the command was executed on the server or not.
+The client may lose the connection to the server while:
+- Sending a command - `Client.Send()` will return an error.
+- Waiting for a response - whether the command was executed on the server or not
+  remains unknown.
 
-In both cases, after some time, we can try to resend the command (idempotent
-command). If the connection is restored, normal operation will continue, 
-otherwise we will get the error again.
+In both cases, if the client was created using `client.NewReconnect()`, then 
+after some time we can try to send the command again (it must be be idempotent). 
+If the client has restored the connection, normal operation will continue, 
+otherwise `Client.Send()` will return the error again.
 
-When deciding on the retry interval, it is advisable to randomize it for each 
-goroutine to prevent overloading the server with a large number of 
-simultaneously sent commands.
+When multiple goroutines are sending commands, randomizing retry intervals helps
+prevent server overload caused by a large number of simultaneous requests.
 
 # Server
-Before receiving commands, the server sends system data to the client: 
+The server initializes the connection to the client by sending system data: 
 `ServerInfo` and `ServerSettings`. Using `ServerInfo`, the client can 
-determine  its compatibility with the server, for instance, whether they both 
-support the same set of commands. `ServerSettings`, on the other hand, contains 
-the preferred configuration for interacting with the server.
+determine its compatibility with the server, for instance, whether they both 
+support the same set of commands. `ServerSettings` specifies the configuration 
+parameters for interacting with the server.
 
 A few words about command execution:
 - Each command is executed by a single `Invoker` (it should be thread-safe) in 
@@ -128,21 +128,18 @@ Server configuration options include (and not only):
   server will close the connection.
 
 ## Command Size Restriction
-The server may ask the client not to send too large commands.
+The server may ask the client not to send too large commandss - simply set 
+`Conf.ServerSettings.MaxCmdSize` in bytes and implement the client codec's 
+`Size()` method, it will be used to verify the command size.
 
-To enable this, simply set `Conf.ServerSettings.MaxCmdSize` in bytes and 
-implement the client codec's `Size()` method, it will be used to verify the 
-command size.
-
-Please note that even with this feature, the server must protect itself from
-receiving too large commands. This can be achieved during the command decoding 
-process - the server codec's `Decode()` method may return an error, which will 
-close the connection to the client.
+Even with this feature, the server must protect itself from excessively large 
+commands. If such a command is received, the server codec's `Decode()` method 
+may return an error, which will close the client connection.
 
 ## Close and Shutdown
 `Server.Close()` terminates all connections and immediately stops the server. 
 `Server.Shutdown()` allows the server to complete processing of already 
-established connections while rejecting new ones.
+established connections without accepting new ones.
 
 # How To Use
 All you need to do is implement the Command pattern and codecs (one for the 
@@ -175,12 +172,11 @@ func (c Eq1Cmd) Exec(ctx context.Context,
 ) error {
   // It uses Receiver here.
   result := Result(receiver.Add(...))
-  // And sends back the result. 
-  // In general, a command can send back multiple results, which will be 
-  // received by the client in order.
+  // And sends back the result. In general, a command can send back multiple 
+  // results, which will be received by the client in order.
   // If an error was encountered during execution, the command can send it back 
-  // to the client as a result, or it can simply return it. In the latter case, 
-  // the connection to the client will be closed.
+  // to the client as a result, or it can simply return it to the Invoker. In 
+  // the latter case, the connection to the client will be closed.
   return proxy.Send(seq, result)
 }
 
@@ -241,12 +237,12 @@ func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[Calculator],
 ```go
 server := cs_server.NewDef[Calculator](ServerCodec{}, Calculator{})
 // Make the listener.
-listener, err := net.Listen("tcp", Addr)
+l, err := net.Listen("tcp", Addr)
 ...
 go func() {
   ...
   // Start the server.
-  server.Serve(listener.(*net.TCPListener))
+  server.Serve(l.(*net.TCPListener))
 }()
 ```
 
