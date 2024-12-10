@@ -78,7 +78,8 @@ seq, err := client.Send(cmd, asyncResults) // Where seq is the sequence number o
 ...
 select {
 case <-time.NewTimer(3 * time.Second).C:
-    client.Forget(seq)
+  client.Forget(seq) // If we are no longer interested in the results of the 
+  // command, we should call Forget().
   // Handle timeout.
 case asyncResult := <-asyncResults:
   // Handle result.
@@ -128,13 +129,13 @@ Server configuration options include (and not only):
   server will close the connection.
 
 ## Command Size Restriction
-The server may ask the client not to send too large commandss - simply set 
+The server may ask the client not to send too large commands - simply set 
 `Conf.ServerSettings.MaxCmdSize` in bytes and implement the client codec's 
 `Size()` method, it will be used to verify the command size.
 
 Even with this feature, the server must protect itself from excessively large 
-commands. If such a command is received, the server codec's `Decode()` method 
-may return an error, which will close the client connection.
+commands - the server codec's `Decode()` method may return an error, which will 
+close the client connection.
 
 ## Close and Shutdown
 `Server.Close()` terminates all connections and immediately stops the server. 
