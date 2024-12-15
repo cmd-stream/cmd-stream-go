@@ -1,3 +1,3 @@
-package ct
+package intest
 
 type Receiver struct{}

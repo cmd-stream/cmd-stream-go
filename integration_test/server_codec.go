@@ -1,4 +1,4 @@
-package ct
+package intest
 
 import (
 	"github.com/cmd-stream/base-go"

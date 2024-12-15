@@ -1,4 +1,4 @@
-package ct
+package intest
 
 import muss "github.com/mus-format/mus-stream-go"
 
