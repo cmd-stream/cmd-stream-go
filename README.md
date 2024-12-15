@@ -3,8 +3,11 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/cmd-stream/cmd-stream-go.svg)](https://pkg.go.dev/github.com/cmd-stream/cmd-stream-go)
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
 
-cmd-stream-go is a high-performance client-server library that implements the 
-[Command pattern](https://en.wikipedia.org/wiki/Command_pattern).
+A client-server cmd-stream-go library implements the [Command pattern](https://en.wikipedia.org/wiki/Command_pattern)
+that can be used as an alternative to RPC.
+
+# Why cmd-stream-go?
+It provides an extremely fast and flexible communication mechanism.
 
 # Brief cmd-stream-go Description
 - Can work over TCP, TLS or mutual TLS.
@@ -17,15 +20,15 @@ cmd-stream-go is a high-performance client-server library that implements the
 - Supports reconnect feature.
 - Supports keepalive feature.
 - Can work with various serialization formats ([here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard_protobuf) is an example using the Protobuf serializer).
-- Has a flexible architecture.
+- Has a customizable architecture.
 
 # Contents
 - [cmd-stream-go](#cmd-stream-go)
+- [Why cmd-stream-go?](#why-cmd-stream-go)
 - [Brief cmd-stream-go Description](#brief-cmd-stream-go-description)
 - [Contents](#contents)
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
-- [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
 - [High-performance Communication Channel](#high-performance-communication-channel)
 - [Network Protocols Support](#network-protocols-support)
 - [Client](#client)
@@ -40,15 +43,12 @@ cmd-stream-go is a high-performance client-server library that implements the
 - [Architecture](#architecture)
 
 # Tests
-Currently, cmd-stream-go contains only a few integration tests. The test 
-coverage of each submodule (see [Architecture](#architecture) section) is more 
-than 90%.
+The cmd-stream-go module includes only a few integration tests, while each 
+submodule (see the [Architecture](#architecture) section) has approximately 90% 
+test coverage.
 
 # Benchmarks
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
-
-# cmd-stream-go and RPC
-cmd-stream-go can be used to implement RPC. [Here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) is an example.
 
 # High-performance Communication Channel
 To build a high-performance communication channel between two services:
