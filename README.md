@@ -21,6 +21,7 @@ cmd-stream-go is a high-performance client-server library that implements the
 - [Contents](#contents)
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
+- [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
 - [High-performance Communication Channel](#high-performance-communication-channel)
 - [Network Protocols Support](#network-protocols-support)
 - [Client](#client)
@@ -35,10 +36,15 @@ cmd-stream-go is a high-performance client-server library that implements the
 - [Architecture](#architecture)
 
 # Tests
-Test coverage of each submodule is over 90%.
+Currently, cmd-stream-go contains only a few integration tests. The test 
+coverage of each submodule (see [Architecture](#architecture) section) is more 
+than 90%.
 
 # Benchmarks
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
+
+# cmd-stream-go and RPC
+cmd-stream-go can be used to implement RPC. [Here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) is an example.
 
 # High-performance Communication Channel
 To build a high-performance communication channel between two services:
@@ -66,7 +72,8 @@ Client configuration options include (and not only):
 - KeepaliveTime and KeepaliveIntvl - If both != 0, client will try to keep the 
   connection alive. When there are no commands to send, it starts Ping-Pong with
   the server - sends a Ping command and receives a Pong result, both of which 
-  are transfered as a 0 (like a ball) byte.
+  are transfered as a 0 (like a ball) byte. An example of using the "keepalive"
+  client can be found [here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/keepalive).
 - SysDataReceiveTimeout - Specifies how long the client will wait to receive 
   system data from the server.
 
@@ -100,6 +107,8 @@ otherwise `Client.Send()` will return the error again.
 When multiple goroutines are sending commands, randomizing retry intervals helps
 prevent server overload caused by a large number of simultaneous requests.
 
+An example of using the "reconnect" client can be found [here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/reconnect).
+
 # Server
 The server initializes the connection to the client by sending system data: 
 `ServerInfo` and `ServerSettings`. Using `ServerInfo`, the client can 
@@ -112,7 +121,8 @@ A few words about command execution:
   a separete goroutine.
 - There is a default `Invoker`, but you can provide your own.
 - A command can send back multiple results, all of which will be delivered to 
-  the client in order.
+  the client in order. [Here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/multi_result) 
+  is an example.
 
 ## Configuration
 Server configuration options include (and not only):
@@ -135,7 +145,8 @@ The server may ask the client not to send too large commands - simply set
 
 Even with this feature, the server must protect itself from excessively large 
 commands - the server codec's `Decode()` method may return an error, which will 
-close the client connection.
+close the client connection. [Here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/max_cmd_size) 
+is an example.
 
 ## Close and Shutdown
 `Server.Close()` terminates all connections and immediately stops the server. 
