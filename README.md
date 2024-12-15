@@ -1,4 +1,8 @@
 # cmd-stream-go
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/cmd-stream/cmd-stream-go.svg)](https://pkg.go.dev/github.com/cmd-stream/cmd-stream-go)
+[![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
+
 cmd-stream-go is a high-performance client-server library that implements the 
 [Command pattern](https://en.wikipedia.org/wiki/Command_pattern).
 
