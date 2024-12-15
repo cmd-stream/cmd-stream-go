@@ -15,8 +15,7 @@ import (
 // DefConf is a default Client configuration.
 var DefConf = Conf{}
 
-// NewDef creates a default Client, which uses default ServerInfo and the
-// default configuration.
+// NewDef creates a Client with default ServerInfo and configuration.
 func NewDef[T any](codec Codec[T], conn net.Conn,
 	handler base_client.UnexpectedResultHandler,
 ) (client *base_client.Client[T], err error) {
@@ -25,11 +24,11 @@ func NewDef[T any](codec Codec[T], conn net.Conn,
 
 // New creates a Client.
 //
-// Client relies on user-defined Codec. It uses Codec.Encode() to encode
-// commands for the Server and Codec.Decode() to decode received results. If the
-// last one method fails the Client will be closed.
-// Also, if the Server imposes a limit on the size of a command, the Client will
-// use Codec.Size() to determine if the command being sent is small enough.
+// Client relies on user-defined Codec - Codec.Encode() is used to encode
+// commands, Codec.Decode() to decode results received from the Server. If
+// decoding fails, the Client will close.
+// If the Server impose a limit on the command size, Codec.Size() will be used
+// to determine whether the command being sent is small enough.
 // If the handler parameter is nil, all unknown results received from the Server
 // will be ignored.
 //

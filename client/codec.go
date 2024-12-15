@@ -6,7 +6,7 @@ import (
 	"github.com/cmd-stream/transport-go"
 )
 
-// Codec helps Client encode commands and decode the results.
+// Сodec helps the Сlient to encode commands and decode the results.
 //
 // Size method should return the size of a command in bytes.
 type Codec[T any] interface {

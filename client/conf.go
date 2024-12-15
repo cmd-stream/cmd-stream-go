@@ -5,9 +5,9 @@ import (
 	transport_common "github.com/cmd-stream/transport-go/common"
 )
 
-// Conf is a Сlient configuration.
-
-// It is a union of the transport and delegate configurations.
+// Conf is a Client configuration.
+//
+// Represents a union of the Transport and Delegate configurations.
 type Conf struct {
 	Transport transport_common.Conf
 	Delegate  delegate_client.Conf

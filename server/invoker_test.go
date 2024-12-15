@@ -37,7 +37,7 @@ func TestInvoker(t *testing.T) {
 					return nil
 				},
 			)
-			invoker = DefInvoker[any]{wantReceiver}
+			invoker = Invoker[any]{wantReceiver}
 			err     = invoker.Invoke(wantCtx, wantAt, wantSeq, cmd, wantProxy)
 		)
 		if err != nil {
@@ -55,7 +55,7 @@ func TestInvoker(t *testing.T) {
 						return wantErr
 					},
 				)
-				invoker = DefInvoker[any]{nil}
+				invoker = Invoker[any]{nil}
 				err     = invoker.Invoke(context.TODO(), time.Time{}, base.Seq(1), cmd, nil)
 			)
 			if err != wantErr {

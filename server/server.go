@@ -8,31 +8,29 @@ import (
 	handler "github.com/cmd-stream/handler-go"
 )
 
-// DefWorkersCount defines a default workers count.
-const DefWorkersCount = 8
+var (
+	// ServerInfo defines a default ServerInfo.
+	DefServerInfo = []byte("default")
+	// Conf defines a default Server configuration.
+	DefConf = Conf{
+		Base: base_server.Conf{WorkersCount: 8},
+	}
+)
 
-// DefServerInfo defines a default ServerInfo.
-var DefServerInfo = []byte("default")
-
-// DefConf defines a default Server configuration.
-var DefConf = Conf{
-	Base: base_server.Conf{WorkersCount: DefWorkersCount},
-}
-
-// NewDef creates a default Server.
+// NewDef creates a Server with default ServerInfo and configuration.
+//
+// The server will be able to handle only 8 connections at a time.
 func NewDef[T any](codec Codec[T], receiver T) *base_server.Server {
 	return New[T](DefServerInfo, delegate.ServerSettings{}, DefConf, codec,
 		receiver,
-		DefInvoker[T]{receiver})
+		Invoker[T]{receiver})
 }
 
 // New creates a Server.
 //
 // Server relies on user-defined Codec. It uses Codec.Decode() to decode
-// commands received from the Client and Codec.Encode() to encode the results
-// sent back. If one of these methods fails, the Server closes the connection to
-// the client.
-//
+// commands received from the Client and Codec.Encode() to encode the results.
+// If one of these methods fails, the connection to the client will be closed.
 // All closed connections could be tracked with Conf.Base.LostConnCallback.
 // If the invoker parameter is nil, the default value is used.
 func New[T any](info delegate.ServerInfo, settings delegate.ServerSettings,
@@ -54,7 +52,7 @@ func New[T any](info delegate.ServerInfo, settings delegate.ServerSettings,
 	return NewWith(conf.Base, delegate)
 }
 
-// NewWith creates a Server with the delegate.
+// NewWith creates a Server with the specified delegate.
 func NewWith(conf base_server.Conf,
 	delegate base.ServerDelegate) *base_server.Server {
 	return &base_server.Server{
@@ -65,7 +63,7 @@ func NewWith(conf base_server.Conf,
 
 func makeInvoker[T any](receiver T, invoker handler.Invoker[T]) handler.Invoker[T] {
 	if invoker == nil {
-		return DefInvoker[T]{receiver}
+		return Invoker[T]{receiver}
 	}
 	return invoker
 }

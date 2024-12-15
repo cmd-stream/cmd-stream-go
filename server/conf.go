@@ -9,7 +9,7 @@ import (
 
 // Conf is a Server configuration.
 //
-// It is a union of the transport, handler, delegate and base configurations.
+// Represents a union of the Transport, Handler, Delegate and Base configurations.
 type Conf struct {
 	Transport transport_common.Conf
 	Handler   handler.Conf

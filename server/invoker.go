@@ -7,12 +7,12 @@ import (
 	base "github.com/cmd-stream/base-go"
 )
 
-// DefInvoker is a default implementation of the handler.Invoker interface.
-type DefInvoker[T any] struct {
+// Invoker is a default implementation of the handler.Invoker interface.
+type Invoker[T any] struct {
 	receiver T
 }
 
-func (i DefInvoker[T]) Invoke(ctx context.Context, at time.Time, seq base.Seq,
+func (i Invoker[T]) Invoke(ctx context.Context, at time.Time, seq base.Seq,
 	cmd base.Cmd[T],
 	proxy base.Proxy,
 ) error {
