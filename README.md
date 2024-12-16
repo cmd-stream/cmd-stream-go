@@ -5,7 +5,7 @@
 
 cmd-stream-go is a client-server library that implements the
 [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern). It can be used
-as an alternative to RPC products.
+as an alternative to RPC products or as a tool for building RPC.
 
 # Why cmd-stream-go?
 It provides an extremely fast and flexible communication mechanism.
@@ -31,6 +31,7 @@ It provides an extremely fast and flexible communication mechanism.
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
 - [High-performance Communication Channel](#high-performance-communication-channel)
+- [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
 - [Network Protocols Support](#network-protocols-support)
 - [Client](#client)
   - [Configuration](#configuration)
@@ -60,6 +61,11 @@ To build a high-performance communication channel between two services:
 2. To minimize system latency, use all available connections from the start 
    instead of creating new ones on demand.
 3. Use keepalive connections.
+
+# cmd-stream-go and RPC
+If you are already using RPC, cmd-stream-go can boost its performance by 
+providing a faster communication tool. [Here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
+an example.
 
 # Network Protocols Support
 cmd-stream-go is built on top of the standard Golang net package, and supports 
