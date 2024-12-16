@@ -21,7 +21,7 @@ It provides an extremely fast and flexible communication mechanism.
 - Supports reconnect feature.
 - Supports keepalive feature.
 - Can work with various serialization formats ([here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard_protobuf) is an example using the Protobuf serializer).
-- Has a customizable architecture.
+- Has a modular architecture.
 
 # Contents
 - [cmd-stream-go](#cmd-stream-go)
