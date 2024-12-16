@@ -4,8 +4,8 @@
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
 
 cmd-stream-go is a client-server library that implements the
-[Command Pattern](https://en.wikipedia.org/wiki/Command_pattern). It can be used
-as an alternative to RPC products or as a tool for building RPC.
+[Command Pattern](https://en.wikipedia.org/wiki/Command_pattern). The latter
+can be used as an alternative to RPC or as a tool for building it.
 
 # Why cmd-stream-go?
 It provides an extremely fast and flexible communication mechanism.
