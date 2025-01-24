@@ -7,7 +7,14 @@ import (
 	"github.com/cmd-stream/transport-go"
 )
 
-// Codec decodes commands received from the client and encodes the results.
+// Codec represents a generic server Codec inteface. It encodes Results and
+// decodes Commands.
+//
+// Encode method is used by the server to send results. If Encode fails with an
+// error, the server closes the coresponding client connection.
+//
+// Decode method is used by the server to receive commands. If it fails with an
+// error, the server closes the corresponding client connection.
 type Codec[T any] interface {
 	Encode(result base.Result, w transport.Writer) (err error)
 	Decode(r transport.Reader) (cmd base.Cmd[T], err error)

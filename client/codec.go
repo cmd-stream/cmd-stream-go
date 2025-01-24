@@ -6,9 +6,17 @@ import (
 	"github.com/cmd-stream/transport-go"
 )
 
-// Сodec helps the Сlient to encode commands and decode the results.
+// Сodec represents a generic client Codec interface. It encodes Commands and
+// decodes Results,
 //
-// Size method should return the size of a command in bytes.
+// Encode method is used by the client to send Commands to the server. If Encode
+// fails with an error, the Client.Send() method will return it.
+//
+// Decode method is used by the client to receive Resulsts from the server. If
+// Decode fails with an error, the client will be closed.
+//
+// Size method returns the Command size in bytes. If ServerSettings.MaxCmdSize > 0,
+// the client will use it to verify the Command before sending.
 type Codec[T any] interface {
 	Encode(cmd base.Cmd[T], w transport.Writer) (err error)
 	Decode(r transport.Reader) (result base.Result, err error)
