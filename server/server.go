@@ -1,69 +1,57 @@
 package server
 
 import (
-	base "github.com/cmd-stream/base-go"
-	base_server "github.com/cmd-stream/base-go/server"
-	delegate "github.com/cmd-stream/delegate-go"
-	delegate_server "github.com/cmd-stream/delegate-go/server"
-	handler "github.com/cmd-stream/handler-go"
+	"context"
+	"time"
+
+	"github.com/cmd-stream/base-go"
+	bser "github.com/cmd-stream/base-go/server"
+	"github.com/cmd-stream/delegate-go"
+	dser "github.com/cmd-stream/delegate-go/server"
+	"github.com/cmd-stream/handler-go"
 )
 
-var (
-	// ServerInfo defines a default ServerInfo.
-	DefServerInfo = []byte("default")
-	// Conf defines a default Server configuration.
-	DefConf = Conf{
-		Base: base_server.Conf{WorkersCount: 8},
-	}
-)
+// DefaultServerInfo is the default ServerInfo.
+var DefaultServerInfo = []byte("default")
 
-// NewDef creates a Server with default ServerInfo and configuration.
+// Default creates a new Server with the default: configuration (WorkersCount == 8),
+// ServerInfo, ServerSettings and Invoker.
 //
-// The server will be able to handle only 8 connections at a time.
-func NewDef[T any](codec Codec[T], receiver T) *base_server.Server {
-	return New[T](DefServerInfo, delegate.ServerSettings{}, DefConf, codec,
-		receiver,
-		Invoker[T]{receiver})
-}
-
-// New creates a Server.
-//
-// Server relies on user-defined Codec. It uses Codec.Decode() to decode
-// commands received from the Client and Codec.Encode() to encode the results.
-// If one of these methods fails, the connection to the client will be closed.
-// All closed connections could be tracked with Conf.Base.LostConnCallback.
-// If the invoker parameter is nil, the default value is used.
-func New[T any](info delegate.ServerInfo, settings delegate.ServerSettings,
-	conf Conf,
-	codec Codec[T],
-	receiver T,
-	invoker handler.Invoker[T],
-) *base_server.Server {
+// This function is ideal for quickly initializing a Server with standard
+// settings. For customized configurations, use the New constructor instead.
+func Default[T any](codec Codec[T], receiver T) *bser.Server {
 	var (
-		factory = TransportFactory[T]{
-			Conf:  conf.Transport,
-			Codec: codecAdapter[T]{codec},
+		conf                         = Conf{Base: bser.Conf{WorkersCount: 8}}
+		invoker handler.InvokerFn[T] = func(ctx context.Context, at time.Time,
+			seq base.Seq, cmd base.Cmd[T], proxy base.Proxy) error {
+			return cmd.Exec(ctx, at, seq, receiver, proxy)
 		}
-		handler  = handler.New[T](conf.Handler, makeInvoker[T](receiver, invoker))
-		delegate = delegate_server.New[T](conf.Delegate, info, settings,
-			factory,
-			handler)
 	)
-	return NewWith(conf.Base, delegate)
+	return New[T](conf, DefaultServerInfo, delegate.ServerSettings{}, codec,
+		invoker, nil)
 }
 
-// NewWith creates a Server with the specified delegate.
-func NewWith(conf base_server.Conf,
-	delegate base.ServerDelegate) *base_server.Server {
-	return &base_server.Server{
-		Conf:     conf,
-		Delegate: delegate,
-	}
-}
-
-func makeInvoker[T any](receiver T, invoker handler.Invoker[T]) handler.Invoker[T] {
-	if invoker == nil {
-		return Invoker[T]{receiver}
-	}
-	return invoker
+// New creates a new Server.
+//
+// Parameters:
+//   - conf: Configuration for the server.
+//   - info: Server info, sent to the client during connection initialization.
+//   - settings: Server settings, also sent to the client during connection
+//     initialization.
+//   - codec: Decodes Commands and encodes Results sent back to the client.
+//   - invoker: Responsible for invoking the Commands.
+//   - callback: Closed connections can be tracked using this callback, allowing
+//     for monitoring and handling of disconnections.
+func New[T any](conf Conf, info delegate.ServerInfo,
+	settings delegate.ServerSettings,
+	codec Codec[T],
+	invoker handler.Invoker[T],
+	callback bser.LostConnCallback,
+) *bser.Server {
+	var (
+		f = TransportFactory[T]{Conf: conf.Transport, Codec: codecAdapter[T]{codec}}
+		h = handler.New[T](conf.Handler, invoker)
+		d = dser.New[T](conf.Delegate, info, settings, f, h)
+	)
+	return &bser.Server{Conf: conf.Base, Delegate: d, Callback: callback}
 }
