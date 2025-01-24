@@ -4,59 +4,53 @@ import (
 	"net"
 
 	"github.com/cmd-stream/base-go"
-	base_client "github.com/cmd-stream/base-go/client"
-	cs_server "github.com/cmd-stream/cmd-stream-go/server"
+	bcln "github.com/cmd-stream/base-go/client"
+	cser "github.com/cmd-stream/cmd-stream-go/server"
 	"github.com/cmd-stream/delegate-go"
-	delegate_client "github.com/cmd-stream/delegate-go/client"
+	dcln "github.com/cmd-stream/delegate-go/client"
 	"github.com/cmd-stream/transport-go"
-	transport_client "github.com/cmd-stream/transport-go/client"
+	tcln "github.com/cmd-stream/transport-go/client"
 )
 
-// DefConf is a default Client configuration.
-var DefConf = Conf{}
-
-// NewDef creates a Client with default ServerInfo and configuration.
-func NewDef[T any](codec Codec[T], conn net.Conn,
-	handler base_client.UnexpectedResultHandler,
-) (client *base_client.Client[T], err error) {
-	return New[T](cs_server.DefServerInfo, DefConf, codec, conn, handler)
+// Default creates a new Client with the default: configuration and ServerInfo.
+//
+// This function is ideal for quickly initializing a Client with standard
+// settings. For customized configurations, use the New constructor instead.
+func Default[T any](codec Codec[T], conn net.Conn) (client *bcln.Client[T],
+	err error) {
+	return New[T](Conf{}, cser.DefaultServerInfo, codec, conn, nil)
 }
 
-// New creates a Client.
+// New creates a new Client.
 //
-// Client relies on user-defined Codec - Codec.Encode() is used to encode
-// commands, Codec.Decode() to decode results received from the Server. If
-// decoding fails, the Client will close.
-// If the Server impose a limit on the command size, Codec.Size() will be used
-// to determine whether the command being sent is small enough.
-// If the handler parameter is nil, all unknown results received from the Server
-// will be ignored.
+// Parameters:
+//   - conf: Client configuration.
+//   - info: Must match the corresponding data provided by the server.
+//   - codec: Responsible for encoding Commands and decoding Results. If the
+//     server enforces a limit on Command size, Codec.Size() will be used to
+//     verify whether the Command is within the allowed size.
+//   - callback: Used to handle unexpected Results received from the server.
 //
-// Returns client.ErrServerInfoMismatch (from the delegate module) if the
-// specified info does not match the info received from the Server.
-func New[T any](info delegate.ServerInfo, conf Conf, codec Codec[T],
+// Returns dcln.ErrServerInfoMismatch if the provided ServerInfo does not match
+// the server's info.
+func New[T any](conf Conf, info delegate.ServerInfo, codec Codec[T],
 	conn net.Conn,
-	handler base_client.UnexpectedResultHandler,
-) (client *base_client.Client[T], err error) {
+	callback bcln.UnexpectedResultCallback,
+) (client *bcln.Client[T], err error) {
 	var (
 		d base.ClientDelegate[T]
 		c = adaptCodec[T](conf, codec)
-		t = transport_client.New[T](conf.Transport, conn, c)
+		t = tcln.New[T](conf.Transport, conn, c)
 	)
-	d, err = delegate_client.New[T](conf.Delegate, info, t)
+	d, err = dcln.New[T](conf.Delegate, info, t)
 	if err != nil {
 		return
 	}
 	if conf.KeepaliveOn() {
-		d = delegate_client.NewKeepalive[T](conf.Delegate, d)
+		d = dcln.NewKeepalive[T](conf.Delegate, d)
 	}
-	return NewWith[T](d, handler), nil
-}
-
-// NewWith creates a Client with the specified delegate.
-func NewWith[T any](delegate base.ClientDelegate[T],
-	handler base_client.UnexpectedResultHandler) *base_client.Client[T] {
-	return base_client.New[T](delegate, handler)
+	client = bcln.New[T](d, callback)
+	return
 }
 
 func adaptCodec[T any](conf Conf, codec Codec[T]) transport.Codec[base.Cmd[T], base.Result] {
