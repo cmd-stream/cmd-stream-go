@@ -7,16 +7,17 @@ import (
 )
 
 // Сodec represents a generic client Codec interface. It encodes Commands and
-// decodes Results,
+// decodes Results.
 //
-// Encode method is used by the client to send Commands to the server. If Encode
-// fails with an error, the Client.Send() method will return it.
+// Encode method is used by the client to send Commands to the server. If
+// Encode fails with an error, the Client.Send() method will return it.
 //
 // Decode method is used by the client to receive Resulsts from the server. If
 // Decode fails with an error, the client will be closed.
 //
-// Size method returns the Command size in bytes. If ServerSettings.MaxCmdSize > 0,
-// the client will use it to verify the Command before sending.
+// The Size method returns the Command size in bytes. If
+// ServerSettings.MaxCmdSize > 0, the client will use it to verify the Command
+// before sending.
 type Codec[T any] interface {
 	Encode(cmd base.Cmd[T], w transport.Writer) (err error)
 	Decode(r transport.Reader) (result base.Result, err error)
