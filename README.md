@@ -3,7 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/cmd-stream/cmd-stream-go.svg)](https://pkg.go.dev/github.com/cmd-stream/cmd-stream-go)
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
 
-cmd-stream-go enables server-side Command execution using the 
+cmd-stream-go allows execution of Commands on the server using the 
 [Command pattern](https://en.wikipedia.org/wiki/Command_pattern).
 
 # Why cmd-stream-go?
