@@ -3,10 +3,8 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/cmd-stream/cmd-stream-go.svg)](https://pkg.go.dev/github.com/cmd-stream/cmd-stream-go)
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
 
-cmd-stream-go enables the execution of Commands on the server by implementing 
-the [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern). This 
-approach can serve as an alternative to RPC or as a foundation for building RPC 
-systems.
+cmd-stream-go enables server-side Command execution using the 
+[Command pattern](https://en.wikipedia.org/wiki/Command_pattern).
 
 # Why cmd-stream-go?
 It provides an extremely fast and flexible communication mechanism.
