@@ -122,7 +122,8 @@ established connections without accepting new ones.
 
 # How To Use
 [Here](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8) is a 
-detailed tutorial.
+detailed tutorial and [here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/echo) 
+is a short example.
 
 # Architecture
 There are the following cmd-stream-go submodules:
