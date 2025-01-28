@@ -119,9 +119,8 @@ Commands. This can be handled in the `Codec.Decode()` method on the server. See
 established connections without accepting new ones.
 
 # How To Use
-- [Detailed tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
-- [Short example](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/echo)
-- [Additional examples](https://github.com/cmd-stream/cmd-stream-examples-go)
+- [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
+- [Examples](https://github.com/cmd-stream/cmd-stream-examples-go)
 
 # Architecture
 There are the following cmd-stream-go submodules:
