@@ -39,7 +39,6 @@ It provides an extremely fast and flexible communication mechanism.
 - [Client](#client)
   - [Reconect](#reconect)
 - [Server](#server)
-  - [Command Size Restriction](#command-size-restriction)
   - [Close and Shutdown](#close-and-shutdown)
 - [How To Use](#how-to-use)
 - [Architecture](#architecture)
@@ -92,26 +91,15 @@ successfully reconnected, normal operation will continue, otherwise
 An example of using the "reconnect" client can be found [here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/reconnect).
 
 # Server
-The server initializes the connection to the client by sending system data: 
-`ServerInfo` and `ServerSettings`. Using `ServerInfo`, the client can 
-determine its compatibility with the server, for instance, whether they both 
-support the same set of Commands. `ServerSettings` specifies the configuration 
-parameters for interacting with the server.
+The server initializes the connection to the client by sending `ServerInfo`. 
+Using which, the client can determine its compatibility with the server, for 
+instance, whether they both support the same set of Commands.
 
 A few words about Command execution:
 - Each Command is executed by a single `Invoker` (it should be thread-safe) in 
   a separete goroutine.
 - A Command can send multiple Results, all of which will be delivered to 
   the client in order. See [this example](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/multi_result).
-
-## Command Size Restriction
-The server may ask the client not to send too large Commands - simply set 
-`Conf.ServerSettings.MaxCmdSize` in bytes and implement the client codec's 
-`Size()` method, it will be used to verify the Command size.
-
-Even with this feature, the server must protect itself against excessively large
-Commands. This can be handled in the `Codec.Decode()` method on the server. See 
-[this example](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/max_cmd_size).
 
 ## Close and Shutdown
 `Server.Close()` terminates all connections and immediately stops the server. 

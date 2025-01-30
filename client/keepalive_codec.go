@@ -34,7 +34,3 @@ func (c keepaliveCodecAdapter[T]) Decode(r transport.Reader) (seq base.Seq,
 	result, err = c.c.Decode(r)
 	return
 }
-
-func (c keepaliveCodecAdapter[T]) Size(cmd base.Cmd[T]) int {
-	return c.c.Size(cmd)
-}

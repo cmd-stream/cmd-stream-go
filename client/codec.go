@@ -14,14 +14,9 @@ import (
 //
 // Decode method is used by the client to receive Resulsts from the server. If
 // Decode fails with an error, the client will be closed.
-//
-// The Size method returns the Command size in bytes. If
-// ServerSettings.MaxCmdSize > 0, the client will use it to verify the Command
-// before sending.
 type Codec[T any] interface {
 	Encode(cmd base.Cmd[T], w transport.Writer) (err error)
 	Decode(r transport.Reader) (result base.Result, err error)
-	Size(cmd base.Cmd[T]) int
 }
 
 type codecAdapter[T any] struct {
@@ -43,8 +38,4 @@ func (c codecAdapter[T]) Decode(r transport.Reader) (seq base.Seq,
 	}
 	result, err = c.c.Decode(r)
 	return
-}
-
-func (c codecAdapter[T]) Size(cmd base.Cmd[T]) int {
-	return c.c.Size(cmd)
 }
