@@ -6,7 +6,7 @@ require (
 	github.com/cmd-stream/base-go v0.0.0-20250126204318-04ae7366853d
 	github.com/cmd-stream/delegate-go v0.0.0-20250130202943-5a16b3074403
 	github.com/cmd-stream/handler-go v0.0.0-20250130203936-7221d588ada7
-	github.com/cmd-stream/transport-go v0.0.0-20250130203317-29c3e9fc778c
+	github.com/cmd-stream/transport-go v0.0.0-20250131173127-241ac499953e
 	github.com/mus-format/common-go v0.0.0-20240704141923-ea7d12c7eed3
 	github.com/mus-format/mus-stream-dts-go v0.5.2
 	github.com/mus-format/mus-stream-go v0.4.3
