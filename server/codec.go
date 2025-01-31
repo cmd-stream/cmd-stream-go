@@ -15,10 +15,7 @@ import (
 //
 // Decode method is used by the server to receive commands. If it fails with an
 // error, the server closes the corresponding client connection.
-type Codec[T any] interface {
-	Encode(result base.Result, w transport.Writer) (err error)
-	Decode(r transport.Reader) (cmd base.Cmd[T], err error)
-}
+type Codec[T any] cs.Codec[base.Result, base.Cmd[T]]
 
 type codecAdapter[T any] struct {
 	c Codec[T]
