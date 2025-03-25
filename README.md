@@ -38,7 +38,7 @@ It provides an extremely fast and flexible communication mechanism.
 - [Network Protocols Support](#network-protocols-support)
 - [Client](#client)
 - [Server](#server)
-- [How To Use](#how-to-use)
+- [How To](#how-to)
 - [Architecture](#architecture)
 
 # Tests
@@ -89,7 +89,7 @@ separete goroutine. Also a Command can send multiple Results back, all of which
 will be delivered to the client in order, [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/multi_result) 
 an example.
 
-# How To Use
+# How To
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
 - [Examples](https://github.com/cmd-stream/cmd-stream-examples-go)
 
