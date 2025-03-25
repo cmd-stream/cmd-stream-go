@@ -9,9 +9,6 @@ cmd-stream-go allows execution of Commands on the server using the
 # Why cmd-stream-go?
 It provides an extremely fast and flexible communication mechanism.
 
-# Command Pattern as an API Architecture Style
-[Article Link](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94)
-
 # Brief cmd-stream-go Description
 - Can work over TCP, TLS or mutual TLS.
 - Has an asynchronous client that uses only one connection for both sending 
@@ -28,9 +25,9 @@ It provides an extremely fast and flexible communication mechanism.
 # Contents
 - [cmd-stream-go](#cmd-stream-go)
 - [Why cmd-stream-go?](#why-cmd-stream-go)
-- [Command Pattern as an API Architecture Style](#command-pattern-as-an-api-architecture-style)
 - [Brief cmd-stream-go Description](#brief-cmd-stream-go-description)
 - [Contents](#contents)
+- [Command Pattern as an API Architecture Style](#command-pattern-as-an-api-architecture-style)
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
 - [High-performance Communication Channel](#high-performance-communication-channel)
@@ -40,6 +37,9 @@ It provides an extremely fast and flexible communication mechanism.
 - [Server](#server)
 - [How To](#how-to)
 - [Architecture](#architecture)
+
+# Command Pattern as an API Architecture Style
+[Article Link](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94)
 
 # Tests
 The cmd-stream-go module includes only a few integration tests, while each 
