@@ -18,7 +18,7 @@ func (c ClientCodec) Encode(cmd base.Cmd[Receiver],
 
 func (c ClientCodec) Decode(r transport.Reader) (result base.Result,
 	err error) {
-	result, _, err = UnmarshalResultMUS(r)
+	result, _, err = ResultMUS.Unmarshal(r)
 	return
 }
 

@@ -1,4 +1,4 @@
-package server
+package cser
 
 import (
 	"github.com/cmd-stream/base-go"
@@ -7,14 +7,13 @@ import (
 	"github.com/cmd-stream/transport-go"
 )
 
-// Codec represents a generic server Codec inteface. It encodes Results and
-// decodes Commands.
+// Codec defines a generic server-side Codec interface responsible for encoding
+// Results and decoding Commands.
 //
-// Encode method is used by the server to send results. If Encode fails with an
-// error, the server closes the coresponding client connection.
-//
-// Decode method is used by the server to receive commands. If it fails with an
-// error, the server closes the corresponding client connection.
+//   - Encode is used by the server to send Results. If encoding fails, the
+//     server closes the corresponding client connection.
+//   - Decode is used by the server to receive Commands. If decoding fails, the
+//     server closes the corresponding client connection.
 type Codec[T any] cs.Codec[base.Result, base.Cmd[T]]
 
 type codecAdapter[T any] struct {
@@ -23,7 +22,7 @@ type codecAdapter[T any] struct {
 
 func (c codecAdapter[T]) Encode(seq base.Seq, result base.Result,
 	w transport.Writer) (err error) {
-	if _, err = cs.MarshalSeqMUS(seq, w); err != nil {
+	if _, err = cs.SeqMUS.Marshal(seq, w); err != nil {
 		return
 	}
 	if seq == 0 { // It is a delegate.PongResult.
@@ -34,7 +33,7 @@ func (c codecAdapter[T]) Encode(seq base.Seq, result base.Result,
 
 func (c codecAdapter[T]) Decode(r transport.Reader) (seq base.Seq,
 	cmd base.Cmd[T], err error) {
-	if seq, _, err = cs.UnmarshalSeqMUS(r); err != nil {
+	if seq, _, err = cs.SeqMUS.Unmarshal(r); err != nil {
 		return
 	}
 	if seq == 0 {

@@ -1,50 +1,33 @@
-package server
+package cser
 
 import (
-	"context"
-	"time"
-
-	"github.com/cmd-stream/base-go"
 	bser "github.com/cmd-stream/base-go/server"
-	"github.com/cmd-stream/delegate-go"
 	dser "github.com/cmd-stream/delegate-go/server"
 	"github.com/cmd-stream/handler-go"
 )
 
-// DefaultServerInfo is the default ServerInfo.
-var DefaultServerInfo = []byte("default")
+// ServerInfo is the default ServerInfo.
+var ServerInfo = []byte("default")
 
-// Default creates a new Server with the default: configuration (WorkersCount == 8),
-// ServerInfo and Invoker.
-//
-// This function is ideal for quickly initializing a Server with standard
-// settings. For customized configurations, use the New constructor instead.
-func Default[T any](codec Codec[T], receiver T) *bser.Server {
-	var (
-		conf                         = Conf{Base: bser.Conf{WorkersCount: 8}}
-		invoker handler.InvokerFn[T] = func(ctx context.Context, at time.Time,
-			seq base.Seq, cmd base.Cmd[T], proxy base.Proxy) error {
-			return cmd.Exec(ctx, at, seq, receiver, proxy)
-		}
-	)
-	return New[T](conf, DefaultServerInfo, codec, invoker, nil)
-}
-
-// New creates a new Server.
+// New creates a new server.
 //
 // Parameters:
-//   - conf: Configuration for the server.
-//   - info: Server info, sent to the client during connection initialization.
-//   - codec: Decodes Commands and encodes Results sent back to the client.
-//   - invoker: Responsible for invoking the Commands.
-//   - callback: Closed connections can be tracked using this callback, allowing
-//     for monitoring and handling of disconnections.
-func New[T any](conf Conf, info delegate.ServerInfo, codec Codec[T],
-	invoker handler.Invoker[T], callback bser.LostConnCallback) *bser.Server {
+//   - codec: Handles encoding of Results and decoding of Commands from clients.
+//   - invoker: Executes incoming Commands.
+//
+// Additional options (ops) can be used to configure various aspects of the
+// server.
+func New[T any](codec Codec[T], invoker handler.Invoker[T],
+	ops ...SetOption) *bser.Server {
+	options := Options{Info: ServerInfo}
+	Apply(ops, &options)
 	var (
-		f = TransportFactory[T]{Conf: conf.Transport, Codec: codecAdapter[T]{codec}}
-		h = handler.New[T](conf.Handler, invoker)
-		d = dser.New[T](conf.Delegate, info, f, h)
+		f = TransportFactory[T]{
+			Codec: codecAdapter[T]{codec},
+			Ops:   options.Transport,
+		}
+		h = handler.New[T](invoker, options.Handler...)
+		d = dser.New[T](options.Info, f, h, options.Delegate...)
 	)
-	return &bser.Server{Conf: conf.Base, Delegate: d, Callback: callback}
+	return bser.New(d, options.Base...)
 }

@@ -1,10 +1,11 @@
-package client
+package ccln
 
 import (
 	"net"
 
 	"github.com/cmd-stream/base-go"
 	bcln "github.com/cmd-stream/base-go/client"
+	cser "github.com/cmd-stream/cmd-stream-go/server"
 	"github.com/cmd-stream/delegate-go"
 	dcln "github.com/cmd-stream/delegate-go/client"
 	"github.com/cmd-stream/transport-go"
@@ -12,15 +13,40 @@ import (
 	tcom "github.com/cmd-stream/transport-go/common"
 )
 
-// ConnFactory establishes a new connection to the Server.
+// NewReconnect creates a "reconnect" Client.
+//
+// If the Codec.Decode method encounters a network error, the client will
+// attempt to reconnect automatically. In all other aspects, it functions like
+// a regular client.
+func NewReconnect[T any](codec Codec[T], factory ConnFactory,
+	ops ...SetOption) (client *bcln.Client[T], err error) {
+	options := Options{Info: cser.ServerInfo}
+	Apply(ops, &options)
+	var (
+		d base.ClientDelegate[T]
+		f = transportFactory[T]{adaptCodec[T](codec, options), factory,
+			options.Transport}
+	)
+	d, err = dcln.NewReconnect[T](options.Info, f, options.Delegate...)
+	if err != nil {
+		return
+	}
+	if options.Keepalive != nil {
+		d = dcln.NewKeepalive[T](d, options.Keepalive...)
+	}
+	client = bcln.New[T](d, options.Base...)
+	return
+}
+
+// ConnFactory establishes a new connection to the server.
 type ConnFactory interface {
 	New() (net.Conn, error)
 }
 
 type transportFactory[T any] struct {
-	conf    tcom.Conf
 	codec   transport.Codec[base.Cmd[T], base.Result]
 	factory ConnFactory
+	ops     []tcom.SetOption
 }
 
 func (f transportFactory[T]) New() (transport delegate.ClienTransport[T],
@@ -29,30 +55,6 @@ func (f transportFactory[T]) New() (transport delegate.ClienTransport[T],
 	if err != nil {
 		return
 	}
-	transport = tcln.New[T](f.conf, conn, f.codec)
-	return
-}
-
-// NewReconnect creates a "reconnect" Client.
-//
-// If the Codec.Decode method returns a network error, the client will try to
-// reconnect. Otherwise works just like a regular client.
-func NewReconnect[T any](conf Conf, info delegate.ServerInfo, codec Codec[T],
-	factory ConnFactory,
-	callback bcln.UnexpectedResultCallback,
-) (client *bcln.Client[T], err error) {
-	var (
-		d base.ClientDelegate[T]
-		c = adaptCodec[T](conf, codec)
-		f = transportFactory[T]{conf.Transport, c, factory}
-	)
-	d, err = dcln.NewReconnect[T](conf.Delegate, info, f)
-	if err != nil {
-		return
-	}
-	if conf.KeepaliveOn() {
-		d = dcln.NewKeepalive[T](conf.Delegate, d)
-	}
-	client = bcln.New[T](d, callback)
+	transport = tcln.New[T](conn, f.codec, f.ops...)
 	return
 }

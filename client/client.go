@@ -1,4 +1,4 @@
-package client
+package ccln
 
 import (
 	"net"
@@ -6,55 +6,45 @@ import (
 	"github.com/cmd-stream/base-go"
 	bcln "github.com/cmd-stream/base-go/client"
 	cser "github.com/cmd-stream/cmd-stream-go/server"
-	"github.com/cmd-stream/delegate-go"
 	dcln "github.com/cmd-stream/delegate-go/client"
 	"github.com/cmd-stream/transport-go"
 	tcln "github.com/cmd-stream/transport-go/client"
 )
 
-// Default creates a new Client with the default: configuration and ServerInfo.
-//
-// This function is ideal for quickly initializing a Client with standard
-// settings. For customized configurations, use the New constructor instead.
-func Default[T any](codec Codec[T], conn net.Conn) (client *bcln.Client[T],
-	err error) {
-	return New[T](Conf{}, cser.DefaultServerInfo, codec, conn, nil)
-}
-
 // New creates a new Client.
 //
 // Parameters:
-//   - conf: Client configuration.
-//   - info: Must match the corresponding data provided by the server.
-//   - codec: Responsible for encoding Commands and decoding Results. If the
-//     server enforces a limit on Command size, Codec.Size() will be used to
-//     verify whether the Command is within the allowed size.
-//   - callback: Used to handle unexpected Results received from the server.
+//   - codec: Handles encoding of Commands and decoding of Results.
+//   - conn: The network connection used for communication between the client
+//     and server.
 //
-// Returns dcln.ErrServerInfoMismatch if the provided ServerInfo does not match
-// the server's info.
-func New[T any](conf Conf, info delegate.ServerInfo, codec Codec[T],
-	conn net.Conn,
-	callback bcln.UnexpectedResultCallback,
-) (client *bcln.Client[T], err error) {
+// Additional options (ops) can be used to configure various aspects of the
+// client.
+//
+// Returns dcln.ErrServerInfoMismatch if the provided ServerInfo (configured via
+// ops) does not match the server's expected info.
+func New[T any](codec Codec[T], conn net.Conn, ops ...SetOption) (
+	client *bcln.Client[T], err error) {
+	options := Options{Info: cser.ServerInfo}
+	Apply(ops, &options)
 	var (
 		d base.ClientDelegate[T]
-		c = adaptCodec[T](conf, codec)
-		t = tcln.New[T](conf.Transport, conn, c)
+		t = tcln.New[T](conn, adaptCodec[T](codec, options), options.Transport...)
 	)
-	d, err = dcln.New[T](conf.Delegate, info, t)
+	d, err = dcln.New[T](options.Info, t, options.Delegate...)
 	if err != nil {
 		return
 	}
-	if conf.KeepaliveOn() {
-		d = dcln.NewKeepalive[T](conf.Delegate, d)
+	if options.Keepalive != nil {
+		d = dcln.NewKeepalive[T](d, options.Keepalive...)
 	}
-	client = bcln.New[T](d, callback)
+	client = bcln.New[T](d, options.Base...)
 	return
 }
 
-func adaptCodec[T any](conf Conf, codec Codec[T]) transport.Codec[base.Cmd[T], base.Result] {
-	if conf.KeepaliveOn() {
+func adaptCodec[T any](codec Codec[T],
+	o Options) transport.Codec[base.Cmd[T], base.Result] {
+	if o.Keepalive != nil {
 		return keepaliveCodecAdapter[T]{codec}
 	}
 	return codecAdapter[T]{codec}

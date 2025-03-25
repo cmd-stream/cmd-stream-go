@@ -1,30 +1,34 @@
-package server
+package cser
 
 import (
-	"reflect"
 	"testing"
 
-	base_mock "github.com/cmd-stream/base-go/testdata/mock"
-	transport_common "github.com/cmd-stream/transport-go/common"
-	transport_server "github.com/cmd-stream/transport-go/server"
-	transport_mock "github.com/cmd-stream/transport-go/testdata/mock"
+	bmock "github.com/cmd-stream/base-go/testdata/mock"
+	tcom "github.com/cmd-stream/transport-go/common"
+	tser "github.com/cmd-stream/transport-go/server"
+	tmock "github.com/cmd-stream/transport-go/testdata/mock"
 )
 
 func TestTransportFactory(t *testing.T) {
 
 	t.Run("New should work correctly", func(t *testing.T) {
 		var (
-			wantConf  = transport_common.Conf{WriterBufSize: 10, ReaderBufSize: 20}
-			wantCodec = transport_mock.NewServerCodec()
-			wantConn  = base_mock.NewConn()
-			factory   = TransportFactory[any]{wantConf, wantCodec}
-
-			transport     = factory.New(wantConn)
-			wantTransport = transport_server.New[any](wantConf, wantConn, wantCodec)
+			wantCodec = tmock.NewServerCodec()
+			wantConn  = bmock.NewConn()
+			factory   = TransportFactory[any]{Codec: wantCodec, Ops: []tcom.SetOption{
+				tcom.WithWriterBufSize(10),
+				tcom.WithReaderBufSize(20),
+			}}
+			tn    = factory.New(wantConn)
+			serTn = tn.(*tser.Transport[any])
 		)
-		if !reflect.DeepEqual(wantTransport, transport) {
-			t.Errorf("unexpected server, want '%v' actual '%v'", wantTransport,
-				transport)
+		if serTn.WriterBufSize() != 10 || serTn.ReaderBufSize() != 20 {
+			t.Errorf("unexpected Transport.WriterBufSize(), want '%v' actual '%v'",
+				10, serTn.WriterBufSize())
+		}
+		if serTn.ReaderBufSize() != 20 {
+			t.Errorf("unexpected Transport.ReaderBufSize(), want '%v' actual '%v'",
+				10, serTn.ReaderBufSize())
 		}
 	})
 

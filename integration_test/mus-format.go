@@ -6,31 +6,25 @@ import (
 	"github.com/mus-format/mus-stream-go/ord"
 )
 
-// -----------------------------------------------------------------------------
-// DTM
-// -----------------------------------------------------------------------------
-
 const (
 	Cmd1DTM com.DTM = iota
 	Cmd2DTM
 	Cmd3DTM
 )
 
-// -----------------------------------------------------------------------------
-// Marshal/Unmarshal/Size functions
-// -----------------------------------------------------------------------------
+var ResultMUS = resultMUS{}
 
-// Result
+type resultMUS struct{}
 
-func MarshalResultMUS(result Result, w muss.Writer) (n int, err error) {
-	return ord.MarshalBool(result.lastOne, w)
+func (s resultMUS) Marshal(result Result, w muss.Writer) (n int, err error) {
+	return ord.Bool.Marshal(result.lastOne, w)
 }
 
-func UnmarshalResultMUS(r muss.Reader) (result Result, n int, err error) {
-	result.lastOne, n, err = ord.UnmarshalBool(r)
+func (s resultMUS) Unmarshal(r muss.Reader) (result Result, n int, err error) {
+	result.lastOne, n, err = ord.Bool.Unmarshal(r)
 	return
 }
 
-func SizeResultMUS(result Result) (size int) {
+func (s resultMUS) Size(result Result) (size int) {
 	return ord.SizeBool(result.lastOne)
 }

@@ -1,4 +1,4 @@
-package client
+package ccln
 
 import (
 	"github.com/cmd-stream/base-go"
@@ -13,7 +13,7 @@ type keepaliveCodecAdapter[T any] struct {
 
 func (c keepaliveCodecAdapter[T]) Encode(seq base.Seq, cmd base.Cmd[T],
 	w transport.Writer) (err error) {
-	if _, err = cs.MarshalSeqMUS(seq, w); err != nil {
+	if _, err = cs.SeqMUS.Marshal(seq, w); err != nil {
 		return
 	}
 	if seq == 0 { // It is a delegate.PingCmd.
@@ -24,7 +24,7 @@ func (c keepaliveCodecAdapter[T]) Encode(seq base.Seq, cmd base.Cmd[T],
 
 func (c keepaliveCodecAdapter[T]) Decode(r transport.Reader) (seq base.Seq,
 	result base.Result, err error) {
-	if seq, _, err = cs.UnmarshalSeqMUS(r); err != nil {
+	if seq, _, err = cs.SeqMUS.Unmarshal(r); err != nil {
 		return
 	}
 	if seq == 0 {

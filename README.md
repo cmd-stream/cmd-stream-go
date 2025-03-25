@@ -10,7 +10,7 @@ cmd-stream-go allows execution of Commands on the server using the
 It provides an extremely fast and flexible communication mechanism.
 
 # Command Pattern as an API Architecture Style
-[ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94)
+[Article Link](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94)
 
 # Brief cmd-stream-go Description
 - Can work over TCP, TLS or mutual TLS.
@@ -37,9 +37,7 @@ It provides an extremely fast and flexible communication mechanism.
 - [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
 - [Network Protocols Support](#network-protocols-support)
 - [Client](#client)
-  - [Reconect](#reconect)
 - [Server](#server)
-  - [Close and Shutdown](#close-and-shutdown)
 - [How To Use](#how-to-use)
 - [Architecture](#architecture)
 
@@ -52,59 +50,44 @@ test coverage.
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
 # High-performance Communication Channel
-To build a high-performance communication channel between two services:
-1. Use N connections. Several connections can transfer significantly more
-   data than a single one. The number N, depends on your system and represents 
-   the point after which adding more connections will not provide additional 
-   benefits.
-2. To minimize system latency, use all available connections from the start 
-   instead of creating new ones on demand.
-3. Use keepalive connections.
+To build a high-performance communication channel between two services, consider 
+the following guidelines:
+1. Use N connections, as several connections can transfer significantly more 
+   data than a single one. The optimal number, N, depends on your system and 
+   represents the point after which adding more connections does not improve 
+   performance.
+2. To minimize latency, open all available connections at the start rather than 
+   creating new ones on demand.
+3. Keep connections alive to avoid the overhead of frequent connection setup and 
+   teardown.
+
+Following these practices can significantly enhance throughput and reduce 
+latency between your services.   
 
 # cmd-stream-go and RPC
-If you are already using RPC, cmd-stream-go can boost its performance by 
-providing a faster communication tool. [Here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
+If you're already using RPC, cmd-stream-go can enhance performance by providing 
+a faster communication toolб [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
 an example.
 
 # Network Protocols Support
-cmd-stream-go is built on top of the standard Golang net package, and supports 
-connection-oriented protocols like TCP, TLS or mutual TLS (for client
+cmd-stream-go is built on top of Go's standard net package and supports 
+connection-oriented protocols such as TCP, TLS, and mutual TLS (for client 
 authentication).
 
 # Client
-The client is asynchronous and can be used from different goroutines 
-simultaneously. It uses only one connection to send Commands and receive 
-Results. Commands sent from a single goroutine will be delivered to the server 
-in order.
-
-## Reconect
-The client may lose connection to the server in the following cases:
-- While sending a Command – Client.Send() will return an error.
-- While waiting for a Result – whether the Command was executed on the server 
-  remains unknown.
-
-In both cases, if the `client.NewReconnect()` constructor is used, we can try to
-resend the Command (idempotent Command) after a while. If the client has already
-successfully reconnected, normal operation will continue, otherwise 
-`Client.Send()` will return an error again.
-
-An example of using the "reconnect" client can be found [here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/reconnect).
+The client is asynchronous and can be safely used from multiple goroutines 
+concurrently. It uses a single connection to send Commands and receive Results.
+Commands sent from a single goroutine are delivered to the server in order.
 
 # Server
-The server initializes the connection to the client by sending `ServerInfo`. 
-Using which, the client can determine its compatibility with the server, for 
-instance, whether they both support the same set of Commands.
+The server initiates the connection by sending ServerInfo to the client. The 
+client uses this information to verify compatibility, such as ensuring both 
+endpoints support the same set of Commands.
 
-A few words about Command execution:
-- Each Command is executed by a single `Invoker` (it should be thread-safe) in 
-  a separete goroutine.
-- A Command can send multiple Results, all of which will be delivered to 
-  the client in order. See [this example](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/multi_result).
-
-## Close and Shutdown
-`Server.Close()` terminates all connections and immediately stops the server. 
-`Server.Shutdown()` allows the server to complete processing of already 
-established connections without accepting new ones.
+Each Command is executed by a single `Invoker` (it should be thread-safe) in a 
+separete goroutine. Also a Command can send multiple Results back, all of which 
+will be delivered to the client in order, [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/multi_result) 
+an example.
 
 # How To Use
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)

@@ -30,7 +30,7 @@ func (c Cmd1) Exec(ctx context.Context, at time.Time, seq base.Seq,
 }
 
 func (c Cmd1) MarshalMUS(w muss.Writer) (n int, err error) {
-	return dts.MarshalDTM(Cmd1DTM, w)
+	return dts.DTMSer.Marshal(Cmd1DTM, w)
 }
 
 // -----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ func (c Cmd2) Exec(ctx context.Context, at time.Time, seq base.Seq,
 }
 
 func (c Cmd2) MarshalMUS(w muss.Writer) (n int, err error) {
-	return dts.MarshalDTM(Cmd2DTM, w)
+	return dts.DTMSer.Marshal(Cmd2DTM, w)
 }
 
 // -----------------------------------------------------------------------------
@@ -62,5 +62,5 @@ func (c Cmd3) Exec(ctx context.Context, at time.Time, seq base.Seq,
 }
 
 func (c Cmd3) MarshalMUS(w muss.Writer) (n int, err error) {
-	return dts.MarshalDTM(Cmd3DTM, w)
+	return dts.DTMSer.Marshal(Cmd3DTM, w)
 }

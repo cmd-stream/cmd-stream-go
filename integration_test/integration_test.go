@@ -31,7 +31,7 @@ func TestCommunication(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			client, err := ccln.Default[Receiver](ClientCodec{}, conn)
+			client, err := ccln.New[Receiver](ClientCodec{}, conn)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -141,7 +141,7 @@ func StartServer(addr string, wg *sync.WaitGroup) (server *bser.Server,
 	if err != nil {
 		return
 	}
-	server = cser.Default[Receiver](ServerCodec{}, Receiver{})
+	server = cser.New[Receiver](ServerCodec{}, cser.NewInvoker(Receiver{}))
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -151,14 +151,11 @@ func StartServer(addr string, wg *sync.WaitGroup) (server *bser.Server,
 }
 
 func KeepaliveClient(conn net.Conn) (client *bcln.Client[Receiver], err error) {
-	conf := ccln.Conf{
-		Delegate: dcln.Conf{
-			KeepaliveTime:  time.Second,
-			KeepaliveIntvl: time.Second,
-		},
-	}
-	return ccln.New[Receiver](conf, cser.DefaultServerInfo, ClientCodec{}, conn,
-		nil)
+	return ccln.New[Receiver](ClientCodec{}, conn, nil, ccln.WithKeepalive(
+		dcln.WithKeepaliveTime(time.Second),
+		dcln.WithKeepaliveIntvl(time.Second),
+	),
+	)
 }
 
 func ReceiveResult(results <-chan base.AsyncResult) (result base.AsyncResult,

@@ -6,19 +6,25 @@ import (
 	"github.com/mus-format/mus-stream-go/varint"
 )
 
-// MarshalSeqMUS marshals a sequence number to the MUS format.
-func MarshalSeqMUS(seq base.Seq, w muss.Writer) (n int, err error) {
-	return varint.MarshalInt64(int64(seq), w)
+// SeqMUS is a base.Seq MUS serializer.
+var SeqMUS = seqMUS{}
+
+type seqMUS struct{}
+
+func (s seqMUS) Marshal(seq base.Seq, w muss.Writer) (n int, err error) {
+	return varint.PositiveInt64.Marshal(int64(seq), w)
 }
 
-// UnmarshalSeqMUS unmarshals a sequence number from the MUS format.
-func UnmarshalSeqMUS(r muss.Reader) (seq base.Seq, n int, err error) {
-	num, n, err := varint.UnmarshalInt64(r)
+func (s seqMUS) Unmarshal(r muss.Reader) (seq base.Seq, n int, err error) {
+	num, n, err := varint.PositiveInt64.Unmarshal(r)
 	seq = base.Seq(num)
 	return
 }
 
-// SizeSeqMUS returns the size of a sequence number in the MUS format.
-func SizeSeqMUS(seq base.Seq) (size int) {
-	return varint.SizeInt64(int64(seq))
+func (s seqMUS) Size(seq base.Seq) (size int) {
+	return varint.PositiveInt64.Size(int64(seq))
+}
+
+func (s seqMUS) Skip(r muss.Reader) (n int, err error) {
+	return varint.PositiveInt64.Skip(r)
 }

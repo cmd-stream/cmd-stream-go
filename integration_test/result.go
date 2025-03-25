@@ -11,5 +11,5 @@ func (r Result) LastOne() bool {
 }
 
 func (r Result) MarshalMUS(w muss.Writer) (n int, err error) {
-	return MarshalResultMUS(r, w)
+	return ResultMUS.Marshal(r, w)
 }
