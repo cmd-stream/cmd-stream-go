@@ -66,7 +66,7 @@ latency between your services.
 
 # cmd-stream-go and RPC
 If you're already using RPC, cmd-stream-go can enhance performance by providing 
-a faster communication toolб [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
+a faster communication tool, [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
 an example.
 
 # Network Protocols Support
