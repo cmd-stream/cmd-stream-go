@@ -8,8 +8,8 @@ require (
 	github.com/cmd-stream/handler-go v0.0.0-20250325183740-af6a37b3af7e
 	github.com/cmd-stream/transport-go v0.0.0-20250325202901-2762720a7c55
 	github.com/mus-format/common-go v0.0.0-20250307125743-867bbd6eb59c
-	github.com/mus-format/mus-stream-dts-go v0.7.2
-	github.com/mus-format/mus-stream-go v0.6.2
+	github.com/mus-format/dts-stream-go v0.9.0
+	github.com/mus-format/mus-stream-go v0.7.0
 )
 
 require (

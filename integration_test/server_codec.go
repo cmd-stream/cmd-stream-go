@@ -3,7 +3,7 @@ package intest
 import (
 	"github.com/cmd-stream/base-go"
 	"github.com/cmd-stream/transport-go"
-	dts "github.com/mus-format/mus-stream-dts-go"
+	dts "github.com/mus-format/dts-stream-go"
 )
 
 type ServerCodec struct{}

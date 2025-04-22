@@ -8,10 +8,10 @@ github.com/cmd-stream/transport-go v0.0.0-20250325202901-2762720a7c55 h1:7ZHtr+9
 github.com/cmd-stream/transport-go v0.0.0-20250325202901-2762720a7c55/go.mod h1:mokarEcxUn8hyVijozADaGvJCJOJOUu5KBIjWwRPpMI=
 github.com/mus-format/common-go v0.0.0-20250307125743-867bbd6eb59c h1:axAH0WwqkZNIWZIyswO59y63JaymSi9kqy3yybhQTdI=
 github.com/mus-format/common-go v0.0.0-20250307125743-867bbd6eb59c/go.mod h1:1hTb8w0YdSGIOU6wNY+e9uXnDZ9OQnUivNtd8cPSdoU=
-github.com/mus-format/mus-stream-dts-go v0.7.2 h1:qxksMd5xWUgpd+Hg1/PHJvRZZMb2JN7iflXTbHU7a2o=
-github.com/mus-format/mus-stream-dts-go v0.7.2/go.mod h1:PaZEJujWXgoR2NBnWO84JlRZisVCh0WUQlf0Qv6PXmk=
-github.com/mus-format/mus-stream-go v0.6.2 h1:Tc4fQn05B0mrJqdRuAi8uSraL0kdyEh1mkXROvYBDm0=
-github.com/mus-format/mus-stream-go v0.6.2/go.mod h1:QKUch4gu6y8vsj4JyMykYqhlOMMLhP8mlL7VrYv1y7s=
+github.com/mus-format/dts-stream-go v0.9.0 h1:kod0zEu5d7Q+DnGwAQ4zrLMC6Sa8KHEKG1sp6fTK0Ok=
+github.com/mus-format/dts-stream-go v0.9.0/go.mod h1:W2K3Lhxic9K9AcKtsCheaA7LVZcKqJmAORyKA/zrtIY=
+github.com/mus-format/mus-stream-go v0.7.0 h1:FejG1zOcm7N1kssC7aanlcviUM+S3W4M7enqPdmJlg0=
+github.com/mus-format/mus-stream-go v0.7.0/go.mod h1:QKUch4gu6y8vsj4JyMykYqhlOMMLhP8mlL7VrYv1y7s=
 github.com/ymz-ncnk/jointwork-go v0.0.0-20240428103805-1ee224bde88a h1:we5FNsUNYd+fdpb1wG72OsQW9PSxwZmZvdEX2MPKWr4=
 github.com/ymz-ncnk/jointwork-go v0.0.0-20240428103805-1ee224bde88a/go.mod h1:hSb6kzszMFlMBOgqfEMl5nF0PduNisdKI3Q0rrD19A4=
 github.com/ymz-ncnk/mok v0.2.0 h1:4xOvkG0EXDlr05ZTSeRzM2q5mbyNbALRqRoI+cTwUyc=
