@@ -9,7 +9,7 @@ cmd-stream-go allows execution of Commands on the server using the
 # Why cmd-stream-go?
 It provides an extremely fast and flexible communication mechanism.
 
-# Brief cmd-stream-go Description
+# Description
 - Can work over TCP, TLS or mutual TLS.
 - Has an asynchronous client that uses only one connection for both sending 
   Commands and receiving Results.
@@ -25,21 +25,18 @@ It provides an extremely fast and flexible communication mechanism.
 # Contents
 - [cmd-stream-go](#cmd-stream-go)
 - [Why cmd-stream-go?](#why-cmd-stream-go)
-- [Brief cmd-stream-go Description](#brief-cmd-stream-go-description)
+- [Description](#description)
 - [Contents](#contents)
-- [Command Pattern as an API Architecture Style](#command-pattern-as-an-api-architecture-style)
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
+- [How To](#how-to)
+- [Command Pattern as an API Architecture Style](#command-pattern-as-an-api-architecture-style)
 - [High-performance Communication Channel](#high-performance-communication-channel)
 - [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
 - [Network Protocols Support](#network-protocols-support)
 - [Client](#client)
 - [Server](#server)
-- [How To](#how-to)
 - [Architecture](#architecture)
-
-# Command Pattern as an API Architecture Style
-[Article Link](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94)
 
 # Tests
 The cmd-stream-go module includes only a few integration tests, while each 
@@ -48,6 +45,13 @@ test coverage.
 
 # Benchmarks
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
+
+# How To
+- [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
+- [Examples](https://github.com/cmd-stream/cmd-stream-examples-go)
+
+# Command Pattern as an API Architecture Style
+[Article Link](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94)
 
 # High-performance Communication Channel
 To build a high-performance communication channel between two services, consider 
@@ -65,8 +69,8 @@ Following these practices can significantly enhance throughput and reduce
 latency between your services.   
 
 # cmd-stream-go and RPC
-If you're already using RPC, cmd-stream-go can enhance performance by providing 
-a faster communication tool, [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
+If you're already using RPC, cmd-stream-go can boost performance by offering a 
+faster communication tool. [Here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
 an example.
 
 # Network Protocols Support
@@ -88,10 +92,6 @@ Each Command is executed by a single `Invoker` (it should be thread-safe) in a
 separete goroutine. Also a Command can send multiple Results back, all of which 
 will be delivered to the client in order, [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/multi_result) 
 an example.
-
-# How To
-- [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
-- [Examples](https://github.com/cmd-stream/cmd-stream-examples-go)
 
 # Architecture
 There are the following cmd-stream-go submodules:
