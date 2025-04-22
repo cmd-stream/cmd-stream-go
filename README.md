@@ -30,11 +30,11 @@ It provides an extremely fast and flexible communication mechanism.
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
 - [How To](#how-to)
-- [High-performance Communication Channel](#high-performance-communication-channel)
-- [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
 - [Network Protocols Support](#network-protocols-support)
 - [Client](#client)
 - [Server](#server)
+- [High-performance Communication Channel](#high-performance-communication-channel)
+- [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
 - [Architecture](#architecture)
 
 # Tests
@@ -48,26 +48,6 @@ test coverage.
 # How To
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
 - [Examples](https://github.com/cmd-stream/cmd-stream-examples-go)
-
-# High-performance Communication Channel
-To build a high-performance communication channel between two services, consider 
-the following guidelines:
-1. Use N connections, as several connections can transfer significantly more 
-   data than a single one. The optimal number, N, depends on your system and 
-   represents the point after which adding more connections does not improve 
-   performance.
-2. To minimize latency, open all available connections at the start rather than 
-   creating new ones on demand.
-3. Keep connections alive to avoid the overhead of frequent connection setup and 
-   teardown.
-
-Following these practices can significantly enhance throughput and reduce 
-latency between your services.   
-
-# cmd-stream-go and RPC
-If you're already using RPC, cmd-stream-go can boost performance by offering a 
-faster communication tool. [Here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
-an example.
 
 # Network Protocols Support
 cmd-stream-go is built on top of Go's standard net package and supports 
@@ -87,6 +67,26 @@ endpoints support the same set of Commands.
 Each Command is executed by a single `Invoker` (it should be thread-safe) in a 
 separete goroutine. Also a Command can send multiple Results back, all of which 
 will be delivered to the client in order, [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/multi_result) 
+an example.
+
+# High-performance Communication Channel
+To build a high-performance communication channel between two services, consider 
+the following guidelines:
+1. Use N connections, as several connections can transfer significantly more 
+   data than a single one. The optimal number, N, depends on your system and 
+   represents the point after which adding more connections does not improve 
+   performance.
+2. To minimize latency, open all available connections at the start rather than 
+   creating new ones on demand.
+3. Keep connections alive to avoid the overhead of frequent connection setup and 
+   teardown.
+
+Following these practices can significantly enhance throughput and reduce 
+latency between your services.   
+
+# cmd-stream-go and RPC
+If you're already using RPC, cmd-stream-go can boost performance by offering a 
+faster communication tool. [Here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
 an example.
 
 # Architecture
