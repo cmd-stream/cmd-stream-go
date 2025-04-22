@@ -4,7 +4,7 @@
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
 
 cmd-stream-go allows execution of Commands on the server using the 
-[Command pattern](https://en.wikipedia.org/wiki/Command_pattern).
+[Command pattern](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94).
 
 # Why cmd-stream-go?
 It provides an extremely fast and flexible communication mechanism.
@@ -30,7 +30,6 @@ It provides an extremely fast and flexible communication mechanism.
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
 - [How To](#how-to)
-- [Command Pattern as an API Architecture Style](#command-pattern-as-an-api-architecture-style)
 - [High-performance Communication Channel](#high-performance-communication-channel)
 - [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
 - [Network Protocols Support](#network-protocols-support)
@@ -49,9 +48,6 @@ test coverage.
 # How To
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
 - [Examples](https://github.com/cmd-stream/cmd-stream-examples-go)
-
-# Command Pattern as an API Architecture Style
-[Article Link](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94)
 
 # High-performance Communication Channel
 To build a high-performance communication channel between two services, consider 
