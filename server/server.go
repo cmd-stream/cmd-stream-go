@@ -19,15 +19,15 @@ var ServerInfo = []byte("default")
 // server.
 func New[T any](codec Codec[T], invoker handler.Invoker[T],
 	ops ...SetOption) *bser.Server {
-	options := Options{Info: ServerInfo}
-	Apply(ops, &options)
+	o := Options{Info: ServerInfo}
+	Apply(ops, &o)
 	var (
 		f = TransportFactory[T]{
 			Codec: codecAdapter[T]{codec},
-			Ops:   options.Transport,
+			Ops:   o.Transport,
 		}
-		h = handler.New[T](invoker, options.Handler...)
-		d = dser.New[T](options.Info, f, h, options.Delegate...)
+		h = handler.New(invoker, o.Handler...)
+		d = dser.New(o.Info, f, h, o.Delegate...)
 	)
-	return bser.New(d, options.Base...)
+	return bser.New(d, o.Base...)
 }
