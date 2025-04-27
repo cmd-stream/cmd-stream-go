@@ -29,8 +29,12 @@ func (c Cmd1) Exec(ctx context.Context, at time.Time, seq base.Seq,
 	return
 }
 
-func (c Cmd1) MarshalMUS(w muss.Writer) (n int, err error) {
+func (c Cmd1) MarshalTypedMUS(w muss.Writer) (n int, err error) {
 	return dts.DTMSer.Marshal(Cmd1DTM, w)
+}
+
+func (c Cmd1) SizeTypedMUS() (size int) {
+	return dts.DTMSer.Size(Cmd1DTM)
 }
 
 // -----------------------------------------------------------------------------
@@ -45,8 +49,12 @@ func (c Cmd2) Exec(ctx context.Context, at time.Time, seq base.Seq,
 	return proxy.Send(seq, Result{true})
 }
 
-func (c Cmd2) MarshalMUS(w muss.Writer) (n int, err error) {
+func (c Cmd2) MarshalTypedMUS(w muss.Writer) (n int, err error) {
 	return dts.DTMSer.Marshal(Cmd2DTM, w)
+}
+
+func (c Cmd2) SizeTypedMUS() (size int) {
+	return dts.DTMSer.Size(Cmd2DTM)
 }
 
 // -----------------------------------------------------------------------------
@@ -61,6 +69,29 @@ func (c Cmd3) Exec(ctx context.Context, at time.Time, seq base.Seq,
 	return proxy.Send(seq, Result{true})
 }
 
-func (c Cmd3) MarshalMUS(w muss.Writer) (n int, err error) {
+func (c Cmd3) MarshalTypedMUS(w muss.Writer) (n int, err error) {
 	return dts.DTMSer.Marshal(Cmd3DTM, w)
+}
+
+func (c Cmd3) SizeTypedMUS() (size int) {
+	return dts.DTMSer.Size(Cmd3DTM)
+}
+
+// -----------------------------------------------------------------------------
+
+type Cmd4 struct{}
+
+func (c Cmd4) Exec(ctx context.Context, at time.Time, seq base.Seq,
+	receiver Receiver,
+	proxy base.Proxy,
+) (err error) {
+	return proxy.Send(seq, Result{true})
+}
+
+func (c Cmd4) MarshalTypedMUS(w muss.Writer) (n int, err error) {
+	return dts.DTMSer.Marshal(Cmd4DTM, w)
+}
+
+func (c Cmd4) SizeTypedMUS() (size int) {
+	return dts.DTMSer.Size(Cmd4DTM)
 }

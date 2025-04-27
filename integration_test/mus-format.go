@@ -7,9 +7,10 @@ import (
 )
 
 const (
-	Cmd1DTM com.DTM = iota
+	Cmd1DTM com.DTM = iota + 1
 	Cmd2DTM
 	Cmd3DTM
+	Cmd4DTM
 )
 
 var ResultMUS = resultMUS{}

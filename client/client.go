@@ -25,20 +25,20 @@ import (
 // ops) does not match the server's expected info.
 func New[T any](codec Codec[T], conn net.Conn, ops ...SetOption) (
 	client *bcln.Client[T], err error) {
-	options := Options{Info: cser.ServerInfo}
-	Apply(ops, &options)
+	o := Options{Info: cser.ServerInfo}
+	Apply(ops, &o)
 	var (
 		d base.ClientDelegate[T]
-		t = tcln.New[T](conn, adaptCodec[T](codec, options), options.Transport...)
+		t = tcln.New(conn, adaptCodec(codec, o), o.Transport...)
 	)
-	d, err = dcln.New[T](options.Info, t, options.Delegate...)
+	d, err = dcln.New(o.Info, t, o.Delegate...)
 	if err != nil {
 		return
 	}
-	if options.Keepalive != nil {
-		d = dcln.NewKeepalive[T](d, options.Keepalive...)
+	if o.Keepalive != nil {
+		d = dcln.NewKeepalive(d, o.Keepalive...)
 	}
-	client = bcln.New[T](d, options.Base...)
+	client = bcln.New(d, o.Base...)
 	return
 }
 

@@ -1,8 +1,6 @@
 package ccln
 
 import (
-	"net"
-
 	"github.com/cmd-stream/base-go"
 	bcln "github.com/cmd-stream/base-go/client"
 	cser "github.com/cmd-stream/cmd-stream-go/server"
@@ -20,27 +18,22 @@ import (
 // a regular client.
 func NewReconnect[T any](codec Codec[T], factory ConnFactory,
 	ops ...SetOption) (client *bcln.Client[T], err error) {
-	options := Options{Info: cser.ServerInfo}
-	Apply(ops, &options)
+	o := Options{Info: cser.ServerInfo}
+	Apply(ops, &o)
 	var (
 		d base.ClientDelegate[T]
-		f = transportFactory[T]{adaptCodec[T](codec, options), factory,
-			options.Transport}
+		f = transportFactory[T]{adaptCodec(codec, o), factory,
+			o.Transport}
 	)
-	d, err = dcln.NewReconnect[T](options.Info, f, options.Delegate...)
+	d, err = dcln.NewReconnect(o.Info, f, o.Delegate...)
 	if err != nil {
 		return
 	}
-	if options.Keepalive != nil {
-		d = dcln.NewKeepalive[T](d, options.Keepalive...)
+	if o.Keepalive != nil {
+		d = dcln.NewKeepalive(d, o.Keepalive...)
 	}
-	client = bcln.New[T](d, options.Base...)
+	client = bcln.New(d, o.Base...)
 	return
-}
-
-// ConnFactory establishes a new connection to the server.
-type ConnFactory interface {
-	New() (net.Conn, error)
 }
 
 type transportFactory[T any] struct {
@@ -55,6 +48,6 @@ func (f transportFactory[T]) New() (transport delegate.ClienTransport[T],
 	if err != nil {
 		return
 	}
-	transport = tcln.New[T](conn, f.codec, f.ops...)
+	transport = tcln.New(conn, f.codec, f.ops...)
 	return
 }

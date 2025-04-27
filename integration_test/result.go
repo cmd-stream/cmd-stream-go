@@ -10,6 +10,10 @@ func (r Result) LastOne() bool {
 	return r.lastOne
 }
 
-func (r Result) MarshalMUS(w muss.Writer) (n int, err error) {
+func (r Result) MarshalTypedMUS(w muss.Writer) (n int, err error) {
 	return ResultMUS.Marshal(r, w)
+}
+
+func (r Result) SizeTypedMUS() (size int) {
+	return ResultMUS.Size(r)
 }
