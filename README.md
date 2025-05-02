@@ -46,6 +46,7 @@ test coverage.
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
 # How To
+Just implement the Command Pattern and generate serialization code:
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
 - [Examples](https://github.com/cmd-stream/cmd-stream-examples-go)
 
@@ -81,8 +82,8 @@ the following guidelines:
 3. Keep connections alive to avoid the overhead of frequent connection setup and 
    teardown.
 
-Following these practices can significantly enhance throughput and reduce 
-latency between your services.   
+These practices, implemented via the [client group](https://github.com/cmd-stream/cmd-stream-examples-go/blob/main/group/client_group_test.go), 
+can significantly enhance throughput and reduce latency between your services.
 
 # cmd-stream-go and RPC
 If you're already using RPC, cmd-stream-go can boost performance by offering a 
