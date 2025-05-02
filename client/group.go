@@ -36,8 +36,8 @@ func NewGroup[T any](strategy DispatchStrategy[Client[T]]) (grp Group[T]) {
 }
 
 // Group represents a group of clients which are used to communicate with the
-// server. It can be used to increase the performance of the communication with
-// the server, by spreading the load across multiple connections.
+// server. It can be used to increase the communication speed by spreading the
+// load across multiple connections.
 type Group[T any] struct {
 	strategy DispatchStrategy[Client[T]]
 	done     chan struct{}
