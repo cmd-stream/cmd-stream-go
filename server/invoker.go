@@ -1,10 +1,10 @@
-package csrv
+package srv
 
 import (
 	"context"
 	"time"
 
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 )
 
 // NewInvoker creates a new Invoker.
@@ -19,7 +19,7 @@ type Invoker[T any] struct {
 	receiver T
 }
 
-func (i Invoker[T]) Invoke(ctx context.Context, seq base.Seq, at time.Time,
-	bytesRead int, cmd base.Cmd[T], proxy base.Proxy) error {
+func (i Invoker[T]) Invoke(ctx context.Context, seq core.Seq, at time.Time,
+	bytesRead int, cmd core.Cmd[T], proxy core.Proxy) error {
 	return cmd.Exec(ctx, seq, at, i.receiver, proxy)
 }

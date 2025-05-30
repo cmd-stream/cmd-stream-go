@@ -1,4 +1,4 @@
-package ccln
+package cln
 
 import (
 	"testing"

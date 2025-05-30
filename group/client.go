@@ -1,9 +1,9 @@
-package cgrp
+package grp
 
 import (
 	"time"
 
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 )
 
 // ClientID identifies a specific client within a Group.
@@ -12,12 +12,12 @@ type ClientID int
 // Client represents a client used by the Group for sending commands and
 // receiving results.
 type Client[T any] interface {
-	Send(cmd base.Cmd[T], results chan<- base.AsyncResult) (seq base.Seq, n int,
+	Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int,
 		err error)
-	SendWithDeadline(cmd base.Cmd[T], results chan<- base.AsyncResult,
-		deadline time.Time) (seq base.Seq, n int, err error)
-	Has(seq base.Seq) bool
-	Forget(seq base.Seq)
+	SendWithDeadline(cmd core.Cmd[T], results chan<- core.AsyncResult,
+		deadline time.Time) (seq core.Seq, n int, err error)
+	Has(seq core.Seq) bool
+	Forget(seq core.Seq)
 	Err() (err error)
 	Close() (err error)
 	Done() <-chan struct{}

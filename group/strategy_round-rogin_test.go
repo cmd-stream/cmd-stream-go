@@ -1,4 +1,4 @@
-package cgrp
+package grp
 
 import (
 	"testing"

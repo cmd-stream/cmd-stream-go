@@ -1,14 +1,14 @@
-package cgrp
+package grp
 
 import (
-	ccln "github.com/cmd-stream/cmd-stream-go/client"
+	cln "github.com/cmd-stream/cmd-stream-go/client"
 )
 
 // Options defines the configuration settings for creating a ClientGroup.
 type Options[T any] struct {
 	Factory   DispatchStrategyFactory[T]
 	Reconnect bool
-	ClientOps []ccln.SetOption
+	ClientOps []cln.SetOption
 }
 
 type SetOption[T any] func(o *Options[T])
@@ -31,7 +31,7 @@ func WithReconnect[T any]() SetOption[T] {
 
 // WithClientOps sets client-specific options to be applied when initializing
 // each client in the group.
-func WithClientOps[T any](ops ...ccln.SetOption) SetOption[T] {
+func WithClientOps[T any](ops ...cln.SetOption) SetOption[T] {
 	return func(o *Options[T]) { o.ClientOps = ops }
 }
 

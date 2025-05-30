@@ -1,10 +1,10 @@
-package cgrp
+package grp
 
 import (
 	"errors"
 	"time"
 
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 )
 
 // NewClientGroup creates a new ClientGroup using the provided dispatch strategy.
@@ -49,8 +49,8 @@ type ClientGroup[T any] struct {
 // Returns the sequence number assigned to the Command, the ClientID of the
 // client it was sent through, the number of bytes written, and any error
 // encountered (non-nil if the Command was not sent successfully).
-func (s ClientGroup[T]) Send(cmd base.Cmd[T], results chan<- base.AsyncResult) (
-	seq base.Seq, clientID ClientID, n int, err error) {
+func (s ClientGroup[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
+	seq core.Seq, clientID ClientID, n int, err error) {
 	client, index := s.strategy.Next()
 	clientID = ClientID(index)
 	seq, n, err = client.Send(cmd, results)
@@ -59,10 +59,10 @@ func (s ClientGroup[T]) Send(cmd base.Cmd[T], results chan<- base.AsyncResult) (
 
 // SendWithDeadline is like Send, but ensures that the Command is transmitted
 // before the specified deadline.
-func (s ClientGroup[T]) SendWithDeadline(cmd base.Cmd[T],
-	results chan<- base.AsyncResult,
+func (s ClientGroup[T]) SendWithDeadline(cmd core.Cmd[T],
+	results chan<- core.AsyncResult,
 	deadline time.Time,
-) (seq base.Seq, clientID ClientID, n int, err error) {
+) (seq core.Seq, clientID ClientID, n int, err error) {
 	client, index := s.strategy.Next()
 	clientID = ClientID(index)
 	seq, n, err = client.SendWithDeadline(cmd, results, deadline)
@@ -71,7 +71,7 @@ func (s ClientGroup[T]) SendWithDeadline(cmd base.Cmd[T],
 
 // Has checks if the Command with the specified sequence number has been sent
 // by the client and still waiting for the Result.
-func (s ClientGroup[T]) Has(seq base.Seq, clientID ClientID) (ok bool) {
+func (s ClientGroup[T]) Has(seq core.Seq, clientID ClientID) (ok bool) {
 	return s.strategy.Slice()[int(clientID)].Has(seq)
 }
 
@@ -80,7 +80,7 @@ func (s ClientGroup[T]) Has(seq base.Seq, clientID ClientID) (ok bool) {
 //
 // After calling Forget, all the results of the corresponding Command will be
 // handled with UnexpectedResultCallback.
-func (s ClientGroup[T]) Forget(seq base.Seq, clientID ClientID) {
+func (s ClientGroup[T]) Forget(seq core.Seq, clientID ClientID) {
 	s.strategy.Slice()[int(clientID)].Forget(seq)
 }
 

@@ -1,11 +1,11 @@
-package csrv
+package srv
 
 import (
 	"testing"
 
-	bmock "github.com/cmd-stream/base-go/testdata/mock"
+	cmock "github.com/cmd-stream/core-go/testdata/mock"
 	"github.com/cmd-stream/transport-go"
-	tser "github.com/cmd-stream/transport-go/server"
+	tsrv "github.com/cmd-stream/transport-go/server"
 	tmock "github.com/cmd-stream/transport-go/testdata/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
@@ -15,7 +15,7 @@ func TestTransportFactory(t *testing.T) {
 	t.Run("New should work correctly", func(t *testing.T) {
 		var (
 			wantCodec = tmock.NewServerCodec()
-			wantConn  = bmock.NewConn()
+			wantConn  = cmock.NewConn()
 			factory   = NewTransportFactory[any](
 				wantCodec,
 				[]transport.SetOption{
@@ -23,7 +23,7 @@ func TestTransportFactory(t *testing.T) {
 					transport.WithReaderBufSize(20),
 				}...)
 			tran    = factory.New(wantConn)
-			serTran = tran.(*tser.Transport[any])
+			serTran = tran.(*tsrv.Transport[any])
 		)
 		asserterror.Equal(serTran.WriterBufSize(), 10, t)
 		asserterror.Equal(serTran.ReaderBufSize(), 20, t)

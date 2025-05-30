@@ -1,8 +1,8 @@
-package ccln
+package cln
 
 import (
-	"github.com/cmd-stream/base-go"
 	"github.com/cmd-stream/cmd-stream-go/codec"
+	"github.com/cmd-stream/core-go"
 	"github.com/cmd-stream/delegate-go"
 	"github.com/cmd-stream/transport-go"
 )
@@ -11,7 +11,7 @@ type keepaliveCodecAdapter[T any] struct {
 	c Codec[T]
 }
 
-func (c keepaliveCodecAdapter[T]) Encode(seq base.Seq, cmd base.Cmd[T],
+func (c keepaliveCodecAdapter[T]) Encode(seq core.Seq, cmd core.Cmd[T],
 	w transport.Writer) (n int, err error) {
 	if n, err = codec.SeqMUS.Marshal(seq, w); err != nil {
 		return
@@ -25,8 +25,8 @@ func (c keepaliveCodecAdapter[T]) Encode(seq base.Seq, cmd base.Cmd[T],
 	return
 }
 
-func (c keepaliveCodecAdapter[T]) Decode(r transport.Reader) (seq base.Seq,
-	result base.Result, n int, err error) {
+func (c keepaliveCodecAdapter[T]) Decode(r transport.Reader) (seq core.Seq,
+	result core.Result, n int, err error) {
 	if seq, n, err = codec.SeqMUS.Unmarshal(r); err != nil {
 		return
 	}

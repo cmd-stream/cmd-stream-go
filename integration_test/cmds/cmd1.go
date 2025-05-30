@@ -4,17 +4,17 @@ import (
 	"context"
 	"time"
 
-	"github.com/cmd-stream/base-go"
 	"github.com/cmd-stream/cmd-stream-go/integration_test/results"
+	"github.com/cmd-stream/core-go"
 	dts "github.com/mus-format/dts-stream-go"
 	muss "github.com/mus-format/mus-stream-go"
 )
 
 type Cmd1 struct{}
 
-func (c Cmd1) Exec(ctx context.Context, seq base.Seq, at time.Time,
+func (c Cmd1) Exec(ctx context.Context, seq core.Seq, at time.Time,
 	receiver struct{},
-	proxy base.Proxy,
+	proxy core.Proxy,
 ) (err error) {
 	t := 500 * time.Millisecond
 	time.Sleep(t)

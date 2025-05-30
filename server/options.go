@@ -1,7 +1,7 @@
-package csrv
+package srv
 
 import (
-	bsrv "github.com/cmd-stream/base-go/server"
+	csrv "github.com/cmd-stream/core-go/server"
 	"github.com/cmd-stream/delegate-go"
 	dsrv "github.com/cmd-stream/delegate-go/server"
 	"github.com/cmd-stream/handler-go"
@@ -15,7 +15,7 @@ import (
 // and base server setup.
 type Options struct {
 	Info      delegate.ServerInfo
-	Base      []bsrv.SetOption
+	Base      []csrv.SetOption
 	Delegate  []dsrv.SetOption
 	Handler   []handler.SetOption
 	Transport []transport.SetOption
@@ -31,7 +31,7 @@ func WithServerInfo(info delegate.ServerInfo) SetOption {
 }
 
 // WithCore applies core-level configuration options.
-func WithCore(ops ...bsrv.SetOption) SetOption {
+func WithCore(ops ...csrv.SetOption) SetOption {
 	return func(o *Options) { o.Base = ops }
 }
 

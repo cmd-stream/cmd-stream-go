@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cmd-stream/base-go"
-	bser "github.com/cmd-stream/base-go/server"
 	cmdstream "github.com/cmd-stream/cmd-stream-go"
 	ccln "github.com/cmd-stream/cmd-stream-go/client"
-	cgrp "github.com/cmd-stream/cmd-stream-go/group"
+	grp "github.com/cmd-stream/cmd-stream-go/group"
 	"github.com/cmd-stream/cmd-stream-go/integration_test/cmds"
 	"github.com/cmd-stream/cmd-stream-go/integration_test/results"
-	cser "github.com/cmd-stream/cmd-stream-go/server"
+	srv "github.com/cmd-stream/cmd-stream-go/server"
+	"github.com/cmd-stream/core-go"
+	csrv "github.com/cmd-stream/core-go/server"
 	dcln "github.com/cmd-stream/delegate-go/client"
 
 	asserterror "github.com/ymz-ncnk/assert/error"
@@ -36,18 +36,18 @@ func TestCommunication(t *testing.T) {
 			client, err := cmdstream.MakeClient(ClientCodec{}, conn)
 			assertfatal.EqualError(err, nil, t)
 			var (
-				wantSeq     base.Seq = 1
-				wantResult1          = base.AsyncResult{
+				wantSeq     core.Seq = 1
+				wantResult1          = core.AsyncResult{
 					Seq:       wantSeq,
 					BytesRead: 2,
 					Result:    results.NewResult(false),
 				}
-				wantResult2 = base.AsyncResult{
+				wantResult2 = core.AsyncResult{
 					Seq:       wantSeq,
 					BytesRead: 2,
 					Result:    results.NewResult(true),
 				}
-				results = make(chan base.AsyncResult)
+				results = make(chan core.AsyncResult)
 			)
 
 			seq, _, err := client.Send(cmds.Cmd1{}, results)
@@ -70,13 +70,13 @@ func TestCommunication(t *testing.T) {
 		client, err := keepaliveClient(conn)
 		assertfatal.EqualError(err, nil, t)
 		var (
-			wantSeq1    base.Seq = 1
-			wantResult1          = base.AsyncResult{
+			wantSeq1    core.Seq = 1
+			wantResult1          = core.AsyncResult{
 				Seq:       wantSeq1,
 				BytesRead: 2,
 				Result:    results.NewResult(true),
 			}
-			results1 = make(chan base.AsyncResult, 1)
+			results1 = make(chan core.AsyncResult, 1)
 		)
 		seq, _, err := client.Send(cmds.Cmd2{}, results1)
 		assertfatal.EqualError(err, nil, t)
@@ -89,13 +89,13 @@ func TestCommunication(t *testing.T) {
 		time.Sleep(5 * time.Second)
 
 		var (
-			wantSeq2    base.Seq = 2
-			wantResult2          = base.AsyncResult{
+			wantSeq2    core.Seq = 2
+			wantResult2          = core.AsyncResult{
 				Seq:       wantSeq2,
 				BytesRead: 2,
 				Result:    results.NewResult(true),
 			}
-			results2 = make(chan base.AsyncResult, 1)
+			results2 = make(chan core.AsyncResult, 1)
 		)
 		seq, _, err = client.Send(cmds.Cmd3{}, results2)
 		assertfatal.EqualError(err, nil, t)
@@ -108,15 +108,15 @@ func TestCommunication(t *testing.T) {
 
 	t.Run("We should be able to use a client group", func(t *testing.T) {
 		var (
-			wantSeq1    base.Seq = 1
+			wantSeq1    core.Seq = 1
 			wantN1      int      = 2
-			wantResult1          = base.AsyncResult{
+			wantResult1          = core.AsyncResult{
 				Seq:       wantSeq1,
 				BytesRead: 2,
 				Result:    results.NewResult(true),
 			}
-			wantClientID1 = cgrp.ClientID(0)
-			results1      = make(chan base.AsyncResult, 1)
+			wantClientID1 = grp.ClientID(0)
+			results1      = make(chan core.AsyncResult, 1)
 
 			factory = ccln.ConnFactoryFn(func() (net.Conn, error) {
 				return net.Dial("tcp", addr)
@@ -132,15 +132,15 @@ func TestCommunication(t *testing.T) {
 		asserterror.Equal(n, wantN1, t)
 
 		var (
-			wantSeq2    base.Seq = 1
+			wantSeq2    core.Seq = 1
 			wantN2      int      = 2
-			wantResult2          = base.AsyncResult{
+			wantResult2          = core.AsyncResult{
 				Seq:       wantSeq2,
 				BytesRead: 2,
 				Result:    results.NewResult(true),
 			}
-			wantClientID2 = cgrp.ClientID(1)
-			results2      = make(chan base.AsyncResult, 1)
+			wantClientID2 = grp.ClientID(1)
+			results2      = make(chan core.AsyncResult, 1)
 		)
 		seq, clientID, n, err = group.Send(cmds.Cmd4{}, results2)
 		assertfatal.EqualError(err, nil, t)
@@ -163,13 +163,13 @@ func TestCommunication(t *testing.T) {
 	wg.Wait()
 }
 
-func startServer(addr string, wg *sync.WaitGroup) (server *bser.Server,
+func startServer(addr string, wg *sync.WaitGroup) (server *csrv.Server,
 	err error) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		return
 	}
-	server = cmdstream.MakeServer(ServerCodec{}, cser.NewInvoker(struct{}{}))
+	server = cmdstream.MakeServer(ServerCodec{}, srv.NewInvoker(struct{}{}))
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -178,7 +178,7 @@ func startServer(addr string, wg *sync.WaitGroup) (server *bser.Server,
 	return
 }
 
-func keepaliveClient(conn net.Conn) (client cgrp.Client[struct{}], err error) {
+func keepaliveClient(conn net.Conn) (client grp.Client[struct{}], err error) {
 	return cmdstream.MakeClient(ClientCodec{}, conn, nil, ccln.WithKeepalive(
 		dcln.WithKeepaliveTime(time.Second),
 		dcln.WithKeepaliveIntvl(time.Second),
@@ -186,7 +186,7 @@ func keepaliveClient(conn net.Conn) (client cgrp.Client[struct{}], err error) {
 	)
 }
 
-func receiveResult(results <-chan base.AsyncResult) (result base.AsyncResult,
+func receiveResult(results <-chan core.AsyncResult) (result core.AsyncResult,
 	err error) {
 	select {
 	case <-time.NewTimer(time.Second).C:

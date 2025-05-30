@@ -3,11 +3,11 @@ package cmdstream
 import (
 	"net"
 
-	ccln "github.com/cmd-stream/base-go/client"
-	csrv "github.com/cmd-stream/base-go/server"
 	cln "github.com/cmd-stream/cmd-stream-go/client"
 	grp "github.com/cmd-stream/cmd-stream-go/group"
 	srv "github.com/cmd-stream/cmd-stream-go/server"
+	ccln "github.com/cmd-stream/core-go/client"
+	csrv "github.com/cmd-stream/core-go/server"
 	dcln "github.com/cmd-stream/delegate-go/client"
 	dsrv "github.com/cmd-stream/delegate-go/server"
 	"github.com/cmd-stream/handler-go"

@@ -3,15 +3,15 @@ package mock
 import (
 	"time"
 
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 	"github.com/ymz-ncnk/mok"
 )
 
-type SendFn[T any] = func(cmd base.Cmd[T], results chan<- base.AsyncResult) (seq base.Seq, n int, err error)
-type SendWithDeadlineFn[T any] = func(deadline time.Time, cmd base.Cmd[T],
-	results chan<- base.AsyncResult) (seq base.Seq, n int, err error)
-type HasFn = func(seq base.Seq) bool
-type ForgetFn = func(seq base.Seq)
+type SendFn[T any] = func(cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error)
+type SendWithDeadlineFn[T any] = func(deadline time.Time, cmd core.Cmd[T],
+	results chan<- core.AsyncResult) (seq core.Seq, n int, err error)
+type HasFn = func(seq core.Seq) bool
+type ForgetFn = func(seq core.Seq)
 type DoneFn = func() <-chan struct{}
 type ErrFn = func() (err error)
 type CloseFn = func() (err error)
@@ -59,34 +59,34 @@ func (c Client[T]) RegisterClose(fn CloseFn) Client[T] {
 	return c
 }
 
-func (c Client[T]) Send(cmd base.Cmd[T], results chan<- base.AsyncResult) (
-	seq base.Seq, n int, err error) {
-	result, err := c.Call("Send", mok.SafeVal[base.Cmd[T]](cmd), results)
+func (c Client[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
+	seq core.Seq, n int, err error) {
+	result, err := c.Call("Send", mok.SafeVal[core.Cmd[T]](cmd), results)
 	if err != nil {
 		panic(err)
 	}
-	seq = result[0].(base.Seq)
+	seq = result[0].(core.Seq)
 	n = result[1].(int)
 	err, _ = result[2].(error)
 	return
 }
 
-func (c Client[T]) SendWithDeadline(cmd base.Cmd[T],
-	results chan<- base.AsyncResult,
+func (c Client[T]) SendWithDeadline(cmd core.Cmd[T],
+	results chan<- core.AsyncResult,
 	deadline time.Time,
-) (seq base.Seq, n int, err error) {
+) (seq core.Seq, n int, err error) {
 	result, err := c.Call("SendWithDeadline", deadline,
-		mok.SafeVal[base.Cmd[T]](cmd), results)
+		mok.SafeVal[core.Cmd[T]](cmd), results)
 	if err != nil {
 		panic(err)
 	}
-	seq = result[0].(base.Seq)
+	seq = result[0].(core.Seq)
 	n = result[1].(int)
 	err, _ = result[2].(error)
 	return
 }
 
-func (c Client[T]) Has(seq base.Seq) bool {
+func (c Client[T]) Has(seq core.Seq) bool {
 	result, err := c.Call("Has", seq)
 	if err != nil {
 		panic(err)
@@ -94,7 +94,7 @@ func (c Client[T]) Has(seq base.Seq) bool {
 	return result[0].(bool)
 }
 
-func (c Client[T]) Forget(seq base.Seq) {
+func (c Client[T]) Forget(seq core.Seq) {
 	_, err := c.Call("Forget", seq)
 	if err != nil {
 		panic(err)

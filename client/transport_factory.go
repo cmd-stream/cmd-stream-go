@@ -1,14 +1,14 @@
-package ccln
+package cln
 
 import (
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 	dcln "github.com/cmd-stream/delegate-go/client"
 	"github.com/cmd-stream/transport-go"
 	tcln "github.com/cmd-stream/transport-go/client"
 )
 
 // NewTransportFactory creates a new TransportFactory.
-func NewTransportFactory[T any](codec transport.Codec[base.Cmd[T], base.Result],
+func NewTransportFactory[T any](codec transport.Codec[core.Cmd[T], core.Result],
 	factory ConnFactory, ops ...transport.SetOption) *TransportFactory[T] {
 	return &TransportFactory[T]{
 		codec:   codec,
@@ -22,7 +22,7 @@ func NewTransportFactory[T any](codec transport.Codec[base.Cmd[T], base.Result],
 // It encapsulates the logic for establishing a new connection and applying
 // optional transport-level configuration.
 type TransportFactory[T any] struct {
-	codec   transport.Codec[base.Cmd[T], base.Result]
+	codec   transport.Codec[core.Cmd[T], core.Result]
 	factory ConnFactory
 	ops     []transport.SetOption
 }

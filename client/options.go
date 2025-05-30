@@ -1,7 +1,7 @@
-package ccln
+package cln
 
 import (
-	bcln "github.com/cmd-stream/base-go/client"
+	ccln "github.com/cmd-stream/core-go/client"
 	"github.com/cmd-stream/delegate-go"
 	dcln "github.com/cmd-stream/delegate-go/client"
 	"github.com/cmd-stream/transport-go"
@@ -14,7 +14,7 @@ import (
 // base client setup.
 type Options struct {
 	Info      delegate.ServerInfo
-	Base      []bcln.SetOption
+	Base      []ccln.SetOption
 	Transport []transport.SetOption
 	Delegate  []dcln.SetOption
 	Keepalive []dcln.SetKeepaliveOption
@@ -30,7 +30,7 @@ func WithServerInfo(info delegate.ServerInfo) SetOption {
 }
 
 // WithBase applies base-level configuration options.
-func WithBase(ops ...bcln.SetOption) SetOption {
+func WithBase(ops ...ccln.SetOption) SetOption {
 	return func(o *Options) { o.Base = ops }
 }
 

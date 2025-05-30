@@ -1,4 +1,4 @@
-package cgrp
+package grp
 
 // DispatchStrategyFactory is a factory for a dispatch strategy.
 type DispatchStrategyFactory[T any] interface {

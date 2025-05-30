@@ -1,10 +1,10 @@
-package csrv
+package srv
 
 import (
 	"reflect"
 	"testing"
 
-	bsrv "github.com/cmd-stream/base-go/server"
+	csrv "github.com/cmd-stream/core-go/server"
 	dsrv "github.com/cmd-stream/delegate-go/server"
 	"github.com/cmd-stream/handler-go"
 	"github.com/cmd-stream/transport-go"
@@ -13,7 +13,7 @@ import (
 func TestOptions(t *testing.T) {
 	var (
 		o             = Options{}
-		wantCore      = []bsrv.SetOption{}
+		wantCore      = []csrv.SetOption{}
 		wantDelegate  = []dsrv.SetOption{}
 		wantHandler   = []handler.SetOption{}
 		wantTransport = []transport.SetOption{}

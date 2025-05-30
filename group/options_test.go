@@ -1,9 +1,9 @@
-package cgrp
+package grp
 
 import (
 	"testing"
 
-	ccln "github.com/cmd-stream/cmd-stream-go/client"
+	cln "github.com/cmd-stream/cmd-stream-go/client"
 
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
@@ -12,7 +12,7 @@ func TestOptions(t *testing.T) {
 	var (
 		o             = Options[any]{}
 		wantFactory   = RoundRobinStrategyFactory[any]{}
-		wantClientOps = []ccln.SetOption{}
+		wantClientOps = []cln.SetOption{}
 	)
 	ApplyGroup([]SetOption[any]{
 		WithFactory[any](wantFactory),

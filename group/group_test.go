@@ -1,4 +1,4 @@
-package cgrp_test
+package grp_test
 
 import (
 	"errors"
@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cmd-stream/base-go"
-	bmock "github.com/cmd-stream/base-go/testdata/mock"
-	cgrp "github.com/cmd-stream/cmd-stream-go/group"
+	grp "github.com/cmd-stream/cmd-stream-go/group"
 	"github.com/cmd-stream/cmd-stream-go/group/testdata/mock"
+	"github.com/cmd-stream/core-go"
+	cmock "github.com/cmd-stream/core-go/testdata/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -36,13 +36,13 @@ func TestGroup(t *testing.T) {
 				},
 			)
 			strategy = mock.NewDispatchStrategy[any]().RegisterSlice(
-				func() []cgrp.Client[any] {
-					return []cgrp.Client[any]{client1, client2}
+				func() []grp.Client[any] {
+					return []grp.Client[any]{client1, client2}
 				},
 			)
 			mocks = []*mok.Mock{client1.Mock, client2.Mock, strategy.Mock}
 		)
-		group := cgrp.NewClientGroup(strategy)
+		group := grp.NewClientGroup(strategy)
 
 		close(done1)
 		close(done2)
@@ -64,12 +64,12 @@ func TestGroup(t *testing.T) {
 		wg.Add(2)
 
 		var (
-			wantErr      error         = nil
-			wantSeq      base.Seq      = 10
-			wantN        int           = 1
-			wantClientID cgrp.ClientID = 1
-			wantCmd                    = bmock.NewCmd()
-			wantResults                = make(chan base.AsyncResult)
+			wantErr      error        = nil
+			wantSeq      core.Seq     = 10
+			wantN        int          = 1
+			wantClientID grp.ClientID = 1
+			wantCmd                   = cmock.NewCmd()
+			wantResults               = make(chan core.AsyncResult)
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
@@ -79,7 +79,7 @@ func TestGroup(t *testing.T) {
 					return done1
 				})
 			client2 = mock.NewClient[any]().RegisterSend(
-				func(cmd base.Cmd[any], results chan<- base.AsyncResult) (seq base.Seq, n int, err error) {
+				func(cmd core.Cmd[any], results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
 					asserterror.Equal[any](cmd, wantCmd, t)
 					asserterror.Equal(results, wantResults, t)
 					return wantSeq, wantN, nil
@@ -89,17 +89,17 @@ func TestGroup(t *testing.T) {
 				return done2
 			})
 			strategy = mock.NewDispatchStrategy[any]().RegisterNext(
-				func() (cgrp.Client[any], int64) {
+				func() (grp.Client[any], int64) {
 					return client2, 1
 				},
 			).RegisterSlice(
-				func() []cgrp.Client[any] {
-					return []cgrp.Client[any]{client1, client2}
+				func() []grp.Client[any] {
+					return []grp.Client[any]{client1, client2}
 				},
 			)
 			mocks = []*mok.Mock{client1.Mock, client2.Mock, strategy.Mock}
 		)
-		group := cgrp.NewClientGroup(strategy)
+		group := grp.NewClientGroup(strategy)
 
 		seq, clientID, n, err := group.Send(wantCmd, wantResults)
 		asserterror.EqualError(err, wantErr, t)
@@ -121,13 +121,13 @@ func TestGroup(t *testing.T) {
 		wg.Add(2)
 
 		var (
-			wantErr      error         = nil
-			wantSeq      base.Seq      = 10
-			wantN        int           = 2
-			wantClientID cgrp.ClientID = 1
-			wantDeadline               = time.Now().Add(time.Second)
-			wantCmd                    = bmock.NewCmd()
-			wantResults                = make(chan base.AsyncResult)
+			wantErr      error        = nil
+			wantSeq      core.Seq     = 10
+			wantN        int          = 2
+			wantClientID grp.ClientID = 1
+			wantDeadline              = time.Now().Add(time.Second)
+			wantCmd                   = cmock.NewCmd()
+			wantResults               = make(chan core.AsyncResult)
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
@@ -137,8 +137,8 @@ func TestGroup(t *testing.T) {
 					return done1
 				})
 			client2 = mock.NewClient[any]().RegisterSendWithDeadline(
-				func(deadline time.Time, cmd base.Cmd[any],
-					results chan<- base.AsyncResult) (seq base.Seq, n int, err error) {
+				func(deadline time.Time, cmd core.Cmd[any],
+					results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
 					asserterror.Equal(deadline, wantDeadline, t)
 					asserterror.Equal[any](cmd, wantCmd, t)
 					asserterror.Equal(results, wantResults, t)
@@ -149,17 +149,17 @@ func TestGroup(t *testing.T) {
 				return done2
 			})
 			strategy = mock.NewDispatchStrategy[any]().RegisterNext(
-				func() (cgrp.Client[any], int64) {
+				func() (grp.Client[any], int64) {
 					return client2, 1
 				},
 			).RegisterSlice(
-				func() []cgrp.Client[any] {
-					return []cgrp.Client[any]{client1, client2}
+				func() []grp.Client[any] {
+					return []grp.Client[any]{client1, client2}
 				},
 			)
 			mocks = []*mok.Mock{client1.Mock, client2.Mock, strategy.Mock}
 		)
-		group := cgrp.NewClientGroup(strategy)
+		group := grp.NewClientGroup(strategy)
 
 		seq, clientID, n, err := group.SendWithDeadline(wantCmd, wantResults,
 			wantDeadline)
@@ -182,9 +182,9 @@ func TestGroup(t *testing.T) {
 		wg.Add(2)
 
 		var (
-			wantResult                 = true
-			wantSeq      base.Seq      = 10
-			wantClientID cgrp.ClientID = 1
+			wantResult                = true
+			wantSeq      core.Seq     = 10
+			wantClientID grp.ClientID = 1
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
@@ -194,7 +194,7 @@ func TestGroup(t *testing.T) {
 					return done1
 				})
 			client2 = mock.NewClient[any]().RegisterHas(
-				func(seq base.Seq) bool {
+				func(seq core.Seq) bool {
 					asserterror.Equal(seq, wantSeq, t)
 					return wantResult
 				},
@@ -203,13 +203,13 @@ func TestGroup(t *testing.T) {
 				return done2
 			})
 			strategy = mock.NewDispatchStrategy[any]().RegisterNSlice(2,
-				func() []cgrp.Client[any] {
-					return []cgrp.Client[any]{client1, client2}
+				func() []grp.Client[any] {
+					return []grp.Client[any]{client1, client2}
 				},
 			)
 			mocks = []*mok.Mock{client1.Mock, client2.Mock, strategy.Mock}
 		)
-		group := cgrp.NewClientGroup(strategy)
+		group := grp.NewClientGroup(strategy)
 
 		result := group.Has(wantSeq, wantClientID)
 		asserterror.Equal(result, wantResult, t)
@@ -228,8 +228,8 @@ func TestGroup(t *testing.T) {
 		wg.Add(2)
 
 		var (
-			wantSeq      base.Seq      = 10
-			wantClientID cgrp.ClientID = 1
+			wantSeq      core.Seq     = 10
+			wantClientID grp.ClientID = 1
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
@@ -239,7 +239,7 @@ func TestGroup(t *testing.T) {
 					return done1
 				})
 			client2 = mock.NewClient[any]().RegisterForget(
-				func(seq base.Seq) {
+				func(seq core.Seq) {
 					asserterror.Equal(seq, wantSeq, t)
 				},
 			).RegisterDone(func() <-chan struct{} {
@@ -247,13 +247,13 @@ func TestGroup(t *testing.T) {
 				return done2
 			})
 			strategy = mock.NewDispatchStrategy[any]().RegisterNSlice(2,
-				func() []cgrp.Client[any] {
-					return []cgrp.Client[any]{client1, client2}
+				func() []grp.Client[any] {
+					return []grp.Client[any]{client1, client2}
 				},
 			)
 			mocks = []*mok.Mock{client1.Mock, client2.Mock, strategy.Mock}
 		)
-		group := cgrp.NewClientGroup(strategy)
+		group := grp.NewClientGroup(strategy)
 
 		group.Forget(wantSeq, wantClientID)
 
@@ -296,13 +296,13 @@ func TestGroup(t *testing.T) {
 				return done2
 			})
 			strategy = mock.NewDispatchStrategy[any]().RegisterNSlice(2,
-				func() []cgrp.Client[any] {
-					return []cgrp.Client[any]{client1, client2}
+				func() []grp.Client[any] {
+					return []grp.Client[any]{client1, client2}
 				},
 			)
 			mocks = []*mok.Mock{client1.Mock, client2.Mock, strategy.Mock}
 		)
-		group := cgrp.NewClientGroup(strategy)
+		group := grp.NewClientGroup(strategy)
 
 		err := group.Err()
 		asserterror.EqualError(err, wantErr, t)
@@ -346,13 +346,13 @@ func TestGroup(t *testing.T) {
 				return done2
 			})
 			strategy = mock.NewDispatchStrategy[any]().RegisterNSlice(2,
-				func() []cgrp.Client[any] {
-					return []cgrp.Client[any]{client1, client2}
+				func() []grp.Client[any] {
+					return []grp.Client[any]{client1, client2}
 				},
 			)
 			mocks = []*mok.Mock{client1.Mock, client2.Mock, strategy.Mock}
 		)
-		group := cgrp.NewClientGroup(strategy)
+		group := grp.NewClientGroup(strategy)
 
 		close(done1)
 		close(done2)
@@ -373,12 +373,12 @@ func TestGroup(t *testing.T) {
 	// 			wantErr     error = nil
 	// 			connFactory       = cmock.NewConnFactory[any]().RegisterNew(
 	// 				func() (net.Conn, error) {
-	// 					return bmock.NewConn().RegisterSetReadDeadline(
+	// 					return cmock.NewConn().RegisterSetReadDeadline(
 	// 						func(deadline time.Time) (err error) { return },
 	// 					).RegisterRead(
 	// 						func(b []byte) (n int, err error) {
 	// 							w := &bytes.Buffer{}
-	// 							n, err = ord.ByteSlice.Marshal(cser.ServerInfo, w)
+	// 							n, err = ord.ByteSlice.Marshal(csrv.ServerInfo, w)
 	// 							copy(b, w.Bytes())
 	// 							return
 	// 						},
@@ -388,12 +388,12 @@ func TestGroup(t *testing.T) {
 	// 				},
 	// 			).RegisterNew(
 	// 				func() (net.Conn, error) {
-	// 					return bmock.NewConn().RegisterSetReadDeadline(
+	// 					return cmock.NewConn().RegisterSetReadDeadline(
 	// 						func(deadline time.Time) (err error) { return },
 	// 					).RegisterRead(
 	// 						func(b []byte) (n int, err error) {
 	// 							w := &bytes.Buffer{}
-	// 							n, err = ord.ByteSlice.Marshal(cser.ServerInfo, w)
+	// 							n, err = ord.ByteSlice.Marshal(csrv.ServerInfo, w)
 	// 							copy(b, w.Bytes())
 	// 							return
 	// 						},
@@ -403,10 +403,10 @@ func TestGroup(t *testing.T) {
 	// 				},
 	// 			)
 	// 		)
-	// 		cgrp, err := cgrp.MakeGroup(2, cdmock.NewCodec[base.Cmd[any], base.Result](),
+	// 		grp, err := grp.MakeGroup(2, cdmock.NewCodec[core.Cmd[any], core.Result](),
 	// 			connFactory)
 	// 		asserterror.EqualError(err, wantErr, t)
-	// 		asserterror.Equal(cgrp.Size(), 2, t)
+	// 		asserterror.Equal(grp.Size(), 2, t)
 	// 	})
 
 	// })

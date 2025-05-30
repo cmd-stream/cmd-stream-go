@@ -1,8 +1,8 @@
 package intest
 
 import (
-	"github.com/cmd-stream/base-go"
 	"github.com/cmd-stream/cmd-stream-go/integration_test/cmds"
+	"github.com/cmd-stream/core-go"
 	"github.com/cmd-stream/transport-go"
 	dts "github.com/mus-format/dts-stream-go"
 	exts "github.com/mus-format/ext-mus-stream-go"
@@ -10,7 +10,7 @@ import (
 
 type ServerCodec struct{}
 
-func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
+func (c ServerCodec) Encode(result core.Result, w transport.Writer) (
 	n int, err error) {
 	if m, ok := result.(exts.MarshallerTypedMUS); ok {
 		n, err = m.MarshalTypedMUS(w)
@@ -19,7 +19,7 @@ func (c ServerCodec) Encode(result base.Result, w transport.Writer) (
 	panic("result doesn't implement the MarshallerMUS interface")
 }
 
-func (c ServerCodec) Decode(r transport.Reader) (cmd base.Cmd[struct{}],
+func (c ServerCodec) Decode(r transport.Reader) (cmd core.Cmd[struct{}],
 	n int, err error) {
 	dtm, n, err := dts.DTMSer.Unmarshal(r)
 	if err != nil {
