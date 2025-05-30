@@ -1,19 +1,24 @@
-package cser
+package csrv
 
 import (
-	bser "github.com/cmd-stream/base-go/server"
+	bsrv "github.com/cmd-stream/base-go/server"
 	"github.com/cmd-stream/delegate-go"
-	dser "github.com/cmd-stream/delegate-go/server"
+	dsrv "github.com/cmd-stream/delegate-go/server"
 	"github.com/cmd-stream/handler-go"
-	tcom "github.com/cmd-stream/transport-go/common"
+	"github.com/cmd-stream/transport-go"
 )
 
+// Options defines the configuration settings for initializing a server.
+//
+// These options are composed of modular components that configure different
+// layers of the server, including transport, handler logic, delegate behavior,
+// and base server setup.
 type Options struct {
 	Info      delegate.ServerInfo
-	Base      []bser.SetOption
-	Delegate  []dser.SetOption
+	Base      []bsrv.SetOption
+	Delegate  []dsrv.SetOption
 	Handler   []handler.SetOption
-	Transport []tcom.SetOption
+	Transport []transport.SetOption
 }
 
 type SetOption func(o *Options)
@@ -25,15 +30,15 @@ func WithServerInfo(info delegate.ServerInfo) SetOption {
 	return func(o *Options) { o.Info = info }
 }
 
-// WithBase applies base-level configuration options.
-func WithBase(ops ...bser.SetOption) SetOption {
+// WithCore applies core-level configuration options.
+func WithCore(ops ...bsrv.SetOption) SetOption {
 	return func(o *Options) { o.Base = ops }
 }
 
 // WithDelegate applies delegate-specific options.
 //
 // These options customize the behavior of the server delegate.
-func WithDelegate(ops ...dser.SetOption) SetOption {
+func WithDelegate(ops ...dsrv.SetOption) SetOption {
 	return func(o *Options) { o.Delegate = ops }
 }
 
@@ -47,7 +52,7 @@ func WithHandler(ops ...handler.SetOption) SetOption {
 // WithTransport applies transport-specific options.
 //
 // These options configure the transport layer.
-func WithTransport(ops ...tcom.SetOption) SetOption {
+func WithTransport(ops ...transport.SetOption) SetOption {
 	return func(o *Options) { o.Transport = ops }
 }
 

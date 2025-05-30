@@ -1,11 +1,13 @@
-package ccln
+package cgrp
 
 import "sync/atomic"
 
-// DispatchStrategy is a dispatch strategy.
-type DispatchStrategy[T any] interface {
-	Next() (t T, index int64)
-	Slice() []T
+// RoundRobinStrategyFactory is a factory for a round-robin dispatch strategy.
+type RoundRobinStrategyFactory[T any] struct{}
+
+func (RoundRobinStrategyFactory[T]) New(
+	clients []Client[T]) DispatchStrategy[Client[T]] {
+	return NewRoundRobinStrategy(clients)
 }
 
 // NewRoundRobinStrategy creates a new RoundRobinStrategy.

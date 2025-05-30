@@ -5,8 +5,8 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-type Encode[T any] = func(t T, w transport.Writer) (err error)
-type Decode[V any] = func(r transport.Reader) (v V, err error)
+type Encode[T any] = func(t T, w transport.Writer) (n int, err error)
+type Decode[V any] = func(r transport.Reader) (v V, n int, err error)
 
 type Codec[T, V any] struct {
 	*mok.Mock
@@ -26,21 +26,23 @@ func (c *Codec[T, V]) RegisterDecode(fn Decode[V]) *Codec[T, V] {
 	return c
 }
 
-func (c *Codec[T, V]) Encode(t T, w transport.Writer) (err error) {
+func (c *Codec[T, V]) Encode(t T, w transport.Writer) (n int, err error) {
 	result, err := c.Call("Encode", t, w)
 	if err != nil {
-		return err
+		panic(err)
 	}
-	err, _ = result[0].(error)
+	n = result[0].(int)
+	err, _ = result[1].(error)
 	return
 }
 
-func (c *Codec[T, V]) Decode(r transport.Reader) (v V, err error) {
+func (c *Codec[T, V]) Decode(r transport.Reader) (v V, n int, err error) {
 	result, err := c.Call("Decode", r)
 	if err != nil {
-		return v, err
+		panic(err)
 	}
 	v = result[0].(V)
-	err, _ = result[1].(error)
+	n = result[1].(int)
+	err, _ = result[2].(error)
 	return
 }

@@ -2,27 +2,24 @@ package intest
 
 import (
 	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/cmd-stream-go/integration_test/results"
 	"github.com/cmd-stream/transport-go"
 	exts "github.com/mus-format/ext-mus-stream-go"
 )
 
 type ClientCodec struct{}
 
-func (c ClientCodec) Encode(cmd base.Cmd[Receiver],
-	w transport.Writer) (err error) {
+func (c ClientCodec) Encode(cmd base.Cmd[struct{}],
+	w transport.Writer) (n int, err error) {
 	if m, ok := cmd.(exts.MarshallerTypedMUS); ok {
-		_, err = m.MarshalTypedMUS(w)
+		n, err = m.MarshalTypedMUS(w)
 		return
 	}
 	panic("cmd doesn't implement the ext.MarshallerTypedMUS interface")
 }
 
-func (c ClientCodec) Decode(r transport.Reader) (result base.Result,
+func (c ClientCodec) Decode(r transport.Reader) (result base.Result, n int,
 	err error) {
-	result, _, err = ResultMUS.Unmarshal(r)
+	result, n, err = results.ResultMUS.Unmarshal(r)
 	return
-}
-
-func (c ClientCodec) Size(cmd base.Cmd[Receiver]) (size int) {
-	return 0
 }

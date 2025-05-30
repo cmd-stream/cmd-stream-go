@@ -1,16 +1,8 @@
-package intest
+package results
 
 import (
-	com "github.com/mus-format/common-go"
 	muss "github.com/mus-format/mus-stream-go"
 	"github.com/mus-format/mus-stream-go/ord"
-)
-
-const (
-	Cmd1DTM com.DTM = iota + 1
-	Cmd2DTM
-	Cmd3DTM
-	Cmd4DTM
 )
 
 var ResultMUS = resultMUS{}

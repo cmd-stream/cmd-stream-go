@@ -1,32 +1,32 @@
-package cser
+package csrv
 
 import (
 	"reflect"
 	"testing"
 
-	bser "github.com/cmd-stream/base-go/server"
-	dser "github.com/cmd-stream/delegate-go/server"
+	bsrv "github.com/cmd-stream/base-go/server"
+	dsrv "github.com/cmd-stream/delegate-go/server"
 	"github.com/cmd-stream/handler-go"
-	tcom "github.com/cmd-stream/transport-go/common"
+	"github.com/cmd-stream/transport-go"
 )
 
 func TestOptions(t *testing.T) {
 	var (
 		o             = Options{}
-		wantBase      = []bser.SetOption{}
-		wantDelegate  = []dser.SetOption{}
+		wantCore      = []bsrv.SetOption{}
+		wantDelegate  = []dsrv.SetOption{}
 		wantHandler   = []handler.SetOption{}
-		wantTransport = []tcom.SetOption{}
+		wantTransport = []transport.SetOption{}
 	)
 	Apply([]SetOption{
-		WithBase(wantBase...),
+		WithCore(wantCore...),
 		WithDelegate(wantDelegate...),
 		WithHandler(wantHandler...),
 		WithTransport(wantTransport...),
 	}, &o)
 
-	if !reflect.DeepEqual(o.Base, wantBase) {
-		t.Errorf("unexpected Base, want %v actual %v", wantBase, o.Base)
+	if !reflect.DeepEqual(o.Base, wantCore) {
+		t.Errorf("unexpected Base, want %v actual %v", wantCore, o.Base)
 	}
 
 	if !reflect.DeepEqual(o.Delegate, wantDelegate) {

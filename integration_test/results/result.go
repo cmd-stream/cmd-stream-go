@@ -1,6 +1,10 @@
-package intest
+package results
 
 import muss "github.com/mus-format/mus-stream-go"
+
+func NewResult(lastOne bool) Result {
+	return Result{lastOne: lastOne}
+}
 
 type Result struct {
 	lastOne bool

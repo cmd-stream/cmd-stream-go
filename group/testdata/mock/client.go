@@ -7,9 +7,9 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-type SendFn[T any] = func(cmd base.Cmd[T], results chan<- base.AsyncResult) (seq base.Seq, err error)
+type SendFn[T any] = func(cmd base.Cmd[T], results chan<- base.AsyncResult) (seq base.Seq, n int, err error)
 type SendWithDeadlineFn[T any] = func(deadline time.Time, cmd base.Cmd[T],
-	results chan<- base.AsyncResult) (seq base.Seq, err error)
+	results chan<- base.AsyncResult) (seq base.Seq, n int, err error)
 type HasFn = func(seq base.Seq) bool
 type ForgetFn = func(seq base.Seq)
 type DoneFn = func() <-chan struct{}
@@ -60,25 +60,29 @@ func (c Client[T]) RegisterClose(fn CloseFn) Client[T] {
 }
 
 func (c Client[T]) Send(cmd base.Cmd[T], results chan<- base.AsyncResult) (
-	seq base.Seq, err error) {
+	seq base.Seq, n int, err error) {
 	result, err := c.Call("Send", mok.SafeVal[base.Cmd[T]](cmd), results)
 	if err != nil {
 		panic(err)
 	}
 	seq = result[0].(base.Seq)
-	err, _ = result[1].(error)
+	n = result[1].(int)
+	err, _ = result[2].(error)
 	return
 }
 
-func (c Client[T]) SendWithDeadline(deadline time.Time, cmd base.Cmd[T],
-	results chan<- base.AsyncResult) (seq base.Seq, err error) {
+func (c Client[T]) SendWithDeadline(cmd base.Cmd[T],
+	results chan<- base.AsyncResult,
+	deadline time.Time,
+) (seq base.Seq, n int, err error) {
 	result, err := c.Call("SendWithDeadline", deadline,
 		mok.SafeVal[base.Cmd[T]](cmd), results)
 	if err != nil {
 		panic(err)
 	}
 	seq = result[0].(base.Seq)
-	err, _ = result[1].(error)
+	n = result[1].(int)
+	err, _ = result[2].(error)
 	return
 }
 

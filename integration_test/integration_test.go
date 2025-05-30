@@ -3,14 +3,17 @@ package intest
 import (
 	"errors"
 	"net"
-	"reflect"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/cmd-stream/base-go"
 	bser "github.com/cmd-stream/base-go/server"
+	cmdstream "github.com/cmd-stream/cmd-stream-go"
 	ccln "github.com/cmd-stream/cmd-stream-go/client"
+	cgrp "github.com/cmd-stream/cmd-stream-go/group"
+	"github.com/cmd-stream/cmd-stream-go/integration_test/cmds"
+	"github.com/cmd-stream/cmd-stream-go/integration_test/results"
 	cser "github.com/cmd-stream/cmd-stream-go/server"
 	dcln "github.com/cmd-stream/delegate-go/client"
 
@@ -22,7 +25,7 @@ func TestCommunication(t *testing.T) {
 	const addr = "127.0.0.1:9000"
 
 	wg := &sync.WaitGroup{}
-	server, err := StartServer(addr, wg)
+	server, err := startServer(addr, wg)
 	assertfatal.EqualError(err, nil, t)
 
 	t.Run("We should be able to get several results from one cmd",
@@ -30,30 +33,32 @@ func TestCommunication(t *testing.T) {
 			conn, err := net.Dial("tcp", addr)
 			assertfatal.EqualError(err, nil, t)
 
-			client, err := ccln.New[Receiver](ClientCodec{}, conn)
+			client, err := cmdstream.MakeClient(ClientCodec{}, conn)
 			assertfatal.EqualError(err, nil, t)
 			var (
 				wantSeq     base.Seq = 1
 				wantResult1          = base.AsyncResult{
-					Seq:    wantSeq,
-					Result: Result{false},
+					Seq:       wantSeq,
+					BytesRead: 2,
+					Result:    results.NewResult(false),
 				}
 				wantResult2 = base.AsyncResult{
-					Seq:    wantSeq,
-					Result: Result{true},
+					Seq:       wantSeq,
+					BytesRead: 2,
+					Result:    results.NewResult(true),
 				}
 				results = make(chan base.AsyncResult)
 			)
 
-			seq, err := client.Send(Cmd1{}, results)
+			seq, _, err := client.Send(cmds.Cmd1{}, results)
 			assertfatal.EqualError(err, nil, t)
 			asserterror.Equal(seq, wantSeq, t)
 
-			result, err := ReceiveResult(results)
+			result, err := receiveResult(results)
 			assertfatal.EqualError(err, nil, t)
 			asserterror.Equal(result, wantResult1, t)
 
-			result, err = ReceiveResult(results)
+			result, err = receiveResult(results)
 			assertfatal.EqualError(err, nil, t)
 			asserterror.Equal(result, wantResult2, t)
 		})
@@ -62,18 +67,22 @@ func TestCommunication(t *testing.T) {
 		conn, err := net.Dial("tcp", addr)
 		assertfatal.EqualError(err, nil, t)
 
-		client, err := KeepaliveClient(conn)
+		client, err := keepaliveClient(conn)
 		assertfatal.EqualError(err, nil, t)
 		var (
 			wantSeq1    base.Seq = 1
-			wantResult1          = base.AsyncResult{Seq: wantSeq1, Result: Result{true}}
-			results1             = make(chan base.AsyncResult, 1)
+			wantResult1          = base.AsyncResult{
+				Seq:       wantSeq1,
+				BytesRead: 2,
+				Result:    results.NewResult(true),
+			}
+			results1 = make(chan base.AsyncResult, 1)
 		)
-		seq, err := client.Send(Cmd2{}, results1)
+		seq, _, err := client.Send(cmds.Cmd2{}, results1)
 		assertfatal.EqualError(err, nil, t)
 		asserterror.Equal(seq, wantSeq1, t)
 
-		result, err := ReceiveResult(results1)
+		result, err := receiveResult(results1)
 		assertfatal.EqualError(err, nil, t)
 		asserterror.Equal(result, wantResult1, t)
 
@@ -81,52 +90,69 @@ func TestCommunication(t *testing.T) {
 
 		var (
 			wantSeq2    base.Seq = 2
-			wantResult2          = base.AsyncResult{Seq: wantSeq2, Result: Result{true}}
-			results2             = make(chan base.AsyncResult, 1)
+			wantResult2          = base.AsyncResult{
+				Seq:       wantSeq2,
+				BytesRead: 2,
+				Result:    results.NewResult(true),
+			}
+			results2 = make(chan base.AsyncResult, 1)
 		)
-		seq, err = client.Send(Cmd3{}, results2)
+		seq, _, err = client.Send(cmds.Cmd3{}, results2)
 		assertfatal.EqualError(err, nil, t)
 		asserterror.Equal(seq, wantSeq2, t)
 
-		result, err = ReceiveResult(results2)
+		result, err = receiveResult(results2)
 		assertfatal.EqualError(err, nil, t)
 		asserterror.Equal(result, wantResult2, t)
 	})
 
-	t.Run("We should be able to use Streamline", func(t *testing.T) {
+	t.Run("We should be able to use a client group", func(t *testing.T) {
 		var (
-			wantSeq1      base.Seq = 1
-			wantResult1            = base.AsyncResult{Seq: wantSeq1, Result: Result{true}}
-			wantClientID1          = ccln.ClientID(0)
-			results1               = make(chan base.AsyncResult, 1)
+			wantSeq1    base.Seq = 1
+			wantN1      int      = 2
+			wantResult1          = base.AsyncResult{
+				Seq:       wantSeq1,
+				BytesRead: 2,
+				Result:    results.NewResult(true),
+			}
+			wantClientID1 = cgrp.ClientID(0)
+			results1      = make(chan base.AsyncResult, 1)
 
 			factory = ccln.ConnFactoryFn(func() (net.Conn, error) {
 				return net.Dial("tcp", addr)
 			})
-			clients = ccln.MustMakeClients(2, ClientCodec{}, factory)
-			grp     = ccln.NewGroup(ccln.NewRoundRobinStrategy(clients))
 		)
-		seq, clientID, err := grp.Send(Cmd4{}, results1)
+		group, err := cmdstream.MakeClientGroup(2, ClientCodec{}, factory)
+		assertfatal.EqualError(err, nil, t)
+
+		seq, clientID, n, err := group.Send(cmds.Cmd4{}, results1)
 		assertfatal.EqualError(err, nil, t)
 		asserterror.Equal(seq, wantSeq1, t)
 		asserterror.Equal(clientID, wantClientID1, t)
+		asserterror.Equal(n, wantN1, t)
 
 		var (
-			wantSeq2      base.Seq = 1
-			wantResult2            = base.AsyncResult{Seq: wantSeq2, Result: Result{true}}
-			wantClientID2          = ccln.ClientID(1)
-			results2               = make(chan base.AsyncResult, 1)
+			wantSeq2    base.Seq = 1
+			wantN2      int      = 2
+			wantResult2          = base.AsyncResult{
+				Seq:       wantSeq2,
+				BytesRead: 2,
+				Result:    results.NewResult(true),
+			}
+			wantClientID2 = cgrp.ClientID(1)
+			results2      = make(chan base.AsyncResult, 1)
 		)
-		seq, clientID, err = grp.Send(Cmd4{}, results2)
+		seq, clientID, n, err = group.Send(cmds.Cmd4{}, results2)
 		assertfatal.EqualError(err, nil, t)
-		asserterror.Equal(seq, wantSeq1, t)
+		asserterror.Equal(seq, wantSeq2, t)
 		asserterror.Equal(clientID, wantClientID2, t)
+		asserterror.Equal(n, wantN2, t)
 
-		result, err := ReceiveResult(results1)
+		result, err := receiveResult(results1)
 		assertfatal.EqualError(err, nil, t)
 		asserterror.Equal(result, wantResult1, t)
 
-		result, err = ReceiveResult(results2)
+		result, err = receiveResult(results2)
 		assertfatal.EqualError(err, nil, t)
 		asserterror.Equal(result, wantResult2, t)
 	})
@@ -137,13 +163,13 @@ func TestCommunication(t *testing.T) {
 	wg.Wait()
 }
 
-func StartServer(addr string, wg *sync.WaitGroup) (server *bser.Server,
+func startServer(addr string, wg *sync.WaitGroup) (server *bser.Server,
 	err error) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		return
 	}
-	server = cser.New[Receiver](ServerCodec{}, cser.NewInvoker(Receiver{}))
+	server = cmdstream.MakeServer(ServerCodec{}, cser.NewInvoker(struct{}{}))
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -152,15 +178,15 @@ func StartServer(addr string, wg *sync.WaitGroup) (server *bser.Server,
 	return
 }
 
-func KeepaliveClient(conn net.Conn) (client ccln.Client[Receiver], err error) {
-	return ccln.New[Receiver](ClientCodec{}, conn, nil, ccln.WithKeepalive(
+func keepaliveClient(conn net.Conn) (client cgrp.Client[struct{}], err error) {
+	return cmdstream.MakeClient(ClientCodec{}, conn, nil, ccln.WithKeepalive(
 		dcln.WithKeepaliveTime(time.Second),
 		dcln.WithKeepaliveIntvl(time.Second),
 	),
 	)
 }
 
-func ReceiveResult(results <-chan base.AsyncResult) (result base.AsyncResult,
+func receiveResult(results <-chan base.AsyncResult) (result base.AsyncResult,
 	err error) {
 	select {
 	case <-time.NewTimer(time.Second).C:
@@ -168,11 +194,4 @@ func ReceiveResult(results <-chan base.AsyncResult) (result base.AsyncResult,
 	case result = <-results:
 	}
 	return
-}
-
-func Equal(r1, r2 base.AsyncResult) bool {
-	return reflect.DeepEqual(r1.Result, r2.Result) &&
-		r1.Seq == r2.Seq &&
-		r1.Error == nil &&
-		r2.Error == nil
 }

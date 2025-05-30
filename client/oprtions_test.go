@@ -1,11 +1,11 @@
 package ccln
 
 import (
-	"reflect"
 	"testing"
 
 	dcln "github.com/cmd-stream/delegate-go/client"
-	tcom "github.com/cmd-stream/transport-go/common"
+	"github.com/cmd-stream/transport-go"
+	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestOptions(t *testing.T) {
@@ -13,7 +13,7 @@ func TestOptions(t *testing.T) {
 		o             = Options{}
 		wantDelegate  = []dcln.SetOption{}
 		wantKeepalive = []dcln.SetKeepaliveOption{}
-		wantTransport = []tcom.SetOption{}
+		wantTransport = []transport.SetOption{}
 	)
 	Apply([]SetOption{
 		WithDelegate(wantDelegate...),
@@ -21,19 +21,8 @@ func TestOptions(t *testing.T) {
 		WithTransport(wantTransport...),
 	}, &o)
 
-	if !reflect.DeepEqual(o.Delegate, wantDelegate) {
-		t.Errorf("unexpected Delegate, want %v actual %v", wantDelegate,
-			o.Delegate)
-	}
-
-	if !reflect.DeepEqual(o.Keepalive, wantKeepalive) {
-		t.Errorf("unexpected Keepalive, want %v actual %v", wantKeepalive,
-			o.Keepalive)
-	}
-
-	if !reflect.DeepEqual(o.Transport, wantTransport) {
-		t.Errorf("unexpected Transport, want %v actual %v", wantTransport,
-			o.Transport)
-	}
+	asserterror.EqualDeep(o.Delegate, wantDelegate, t)
+	asserterror.EqualDeep(o.Keepalive, wantKeepalive, t)
+	asserterror.EqualDeep(o.Transport, wantTransport, t)
 
 }

@@ -1,21 +1,31 @@
-package cser
+package csrv
 
 import (
 	"net"
 
 	base "github.com/cmd-stream/base-go"
-	delegate "github.com/cmd-stream/delegate-go"
+	dser "github.com/cmd-stream/delegate-go/server"
 	transport "github.com/cmd-stream/transport-go"
-	tcom "github.com/cmd-stream/transport-go/common"
 	tser "github.com/cmd-stream/transport-go/server"
 )
 
-// TransportFactory implements the delegate.ServerTransportFactory interface.
-type TransportFactory[T any] struct {
-	Codec transport.Codec[base.Result, base.Cmd[T]]
-	Ops   []tcom.SetOption
+// NewTransportFactory creates a new TransportFactory using the provided codec
+// and optional transport-level configuration options.
+func NewTransportFactory[T any](codec transport.Codec[base.Result, base.Cmd[T]],
+	ops ...transport.SetOption,
+) *TransportFactory[T] {
+	return &TransportFactory[T]{codec, ops}
 }
 
-func (f TransportFactory[T]) New(conn net.Conn) delegate.ServerTransport[T] {
-	return tser.New(conn, f.Codec, f.Ops...)
+// TransportFactory implements the delegate.ServerTransportFactory interface.
+//
+// It creates Transports that handle encoding Results / decoding Commands over
+// a network connection.
+type TransportFactory[T any] struct {
+	codec transport.Codec[base.Result, base.Cmd[T]]
+	ops   []transport.SetOption
+}
+
+func (f TransportFactory[T]) New(conn net.Conn) dser.Transport[T] {
+	return tser.New(conn, f.codec, f.ops...)
 }

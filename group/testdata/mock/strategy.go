@@ -1,13 +1,12 @@
 package mock
 
 import (
-	ccln "github.com/cmd-stream/cmd-stream-go/client"
+	cgrp "github.com/cmd-stream/cmd-stream-go/group"
 	"github.com/ymz-ncnk/mok"
 )
 
-type NextFn[T any] = func() (ccln.Client[T], int64)
-
-type SliceFn[T any] = func() []ccln.Client[T]
+type NextFn[T any] = func() (cgrp.Client[T], int64)
+type SliceFn[T any] = func() []cgrp.Client[T]
 
 func NewDispatchStrategy[T any]() DispatchStrategy[T] {
 	return DispatchStrategy[T]{mok.New("DispatchStrategy")}
@@ -32,20 +31,20 @@ func (f DispatchStrategy[T]) RegisterNext(fn NextFn[T]) DispatchStrategy[T] {
 	return f
 }
 
-func (f DispatchStrategy[T]) Next() (client ccln.Client[T], index int64) {
+func (f DispatchStrategy[T]) Next() (client cgrp.Client[T], index int64) {
 	result, err := f.Call("Next")
 	if err != nil {
 		panic(err)
 	}
-	client = result[0].(ccln.Client[T])
+	client = result[0].(cgrp.Client[T])
 	index = result[1].(int64)
 	return
 }
 
-func (f DispatchStrategy[T]) Slice() []ccln.Client[T] {
+func (f DispatchStrategy[T]) Slice() []cgrp.Client[T] {
 	result, err := f.Call("Slice")
 	if err != nil {
 		panic(err)
 	}
-	return result[0].([]ccln.Client[T])
+	return result[0].([]cgrp.Client[T])
 }

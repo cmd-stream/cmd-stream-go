@@ -4,13 +4,18 @@ import (
 	bcln "github.com/cmd-stream/base-go/client"
 	"github.com/cmd-stream/delegate-go"
 	dcln "github.com/cmd-stream/delegate-go/client"
-	tcom "github.com/cmd-stream/transport-go/common"
+	"github.com/cmd-stream/transport-go"
 )
 
+// Options defines the configuration settings for initializing a client.
+//
+// These options are composed of modular components that configure different
+// layers of the client, including transport, keepalive, delegate behavior, and
+// base client setup.
 type Options struct {
 	Info      delegate.ServerInfo
 	Base      []bcln.SetOption
-	Transport []tcom.SetOption
+	Transport []transport.SetOption
 	Delegate  []dcln.SetOption
 	Keepalive []dcln.SetKeepaliveOption
 }
@@ -32,7 +37,7 @@ func WithBase(ops ...bcln.SetOption) SetOption {
 // WithTransport applies transport-specific options.
 //
 // These options configure the transport layer.
-func WithTransport(ops ...tcom.SetOption) SetOption {
+func WithTransport(ops ...transport.SetOption) SetOption {
 	return func(o *Options) { o.Transport = ops }
 }
 

@@ -1,4 +1,4 @@
-package cs
+package codec
 
 import (
 	"github.com/cmd-stream/base-go"
@@ -6,7 +6,7 @@ import (
 	"github.com/mus-format/mus-stream-go/varint"
 )
 
-// SeqMUS is a base.Seq MUS serializer.
+// SeqMUS is a core.Seq MUS serializer.
 var SeqMUS = seqMUS{}
 
 type seqMUS struct{}
