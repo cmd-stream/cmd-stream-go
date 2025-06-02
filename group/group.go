@@ -1,4 +1,4 @@
-package grp
+package group
 
 import (
 	"errors"

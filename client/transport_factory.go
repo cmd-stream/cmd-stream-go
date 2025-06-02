@@ -1,4 +1,4 @@
-package cln
+package client
 
 import (
 	"github.com/cmd-stream/core-go"

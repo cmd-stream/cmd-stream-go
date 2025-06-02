@@ -1,4 +1,4 @@
-package grp_test
+package group_test
 
 import (
 	"errors"

@@ -1,4 +1,4 @@
-package cln
+package client
 
 import "net"
 

@@ -1,4 +1,4 @@
-package grp
+package group
 
 import (
 	cln "github.com/cmd-stream/cmd-stream-go/client"

@@ -1,4 +1,4 @@
-package srv
+package server
 
 import (
 	"github.com/cmd-stream/cmd-stream-go/codec"

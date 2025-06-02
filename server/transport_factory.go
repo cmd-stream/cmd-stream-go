@@ -1,4 +1,4 @@
-package srv
+package server
 
 import (
 	"net"

@@ -1,4 +1,4 @@
-package srv
+package server
 
 import (
 	csrv "github.com/cmd-stream/core-go/server"
