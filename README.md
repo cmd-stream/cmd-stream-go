@@ -48,7 +48,7 @@ test coverage.
 # How To
 Just implement the Command Pattern and generate serialization code:
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
-- [Examples](https://github.com/cmd-stream/cmd-stream-examples-go)
+- [Examples](https://github.com/cmd-stream/examples-go)
 
 # Network Protocols Support
 cmd-stream-go is built on top of Go's standard net package and supports 
