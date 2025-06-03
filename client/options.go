@@ -29,8 +29,8 @@ func WithServerInfo(info delegate.ServerInfo) SetOption {
 	return func(o *Options) { o.Info = info }
 }
 
-// WithBase applies base-level configuration options.
-func WithBase(ops ...ccln.SetOption) SetOption {
+// WithCore applies base-level configuration options.
+func WithCore(ops ...ccln.SetOption) SetOption {
 	return func(o *Options) { o.Base = ops }
 }
 
