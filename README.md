@@ -47,7 +47,8 @@ test coverage.
 [github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
 
 # How To
-Just implement the Command Pattern and generate serialization code:
+Just implement the Command Pattern and generate the serialization code. Find 
+more details in the following resources:
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
 - [OpenTelemetry integration](https://ymz-ncnk.medium.com/cmd-stream-go-with-opentelemetry-adeecfbe7987)
 - [Examples](https://github.com/cmd-stream/examples-go)
