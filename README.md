@@ -9,24 +9,23 @@ the [Command pattern](https://ymz-ncnk.medium.com/command-pattern-as-an-api-arch
 # Why cmd-stream-go?
 It provides an extremely fast and flexible communication mechanism.
 
-# Description
-- Can work over TCP, TLS or mutual TLS.
+# Overview
+- Works over TCP, TLS or mutual TLS.
 - Has an asynchronous client that uses only one connection for both sending 
   Commands and receiving Results.
 - Supports the server streaming, i.e. a Command can send back multiple Results
   (client streaming is not directly supported, but can also be implemented).
 - Supports deadlines for sending Commands and Results.
-- Supports reconnect feature.
-- Supports keepalive feature.
+- Provides reconnect and keepalive features.
 - Supports the Circuit Breaker pattern.
-- Supports OpenTelemetry.
+- Has OpenTelemetry integration.
 - Can work with various serialization formats ([here](https://github.com/cmd-stream/examples-go/tree/main/standard_protobuf) is an example using the Protobuf serializer).
-- Has a modular architecture.
+- Follows a modular design.
 
 # Contents
 - [cmd-stream-go](#cmd-stream-go)
 - [Why cmd-stream-go?](#why-cmd-stream-go)
-- [Description](#description)
+- [Overview](#overview)
 - [Contents](#contents)
 - [Tests](#tests)
 - [Benchmarks](#benchmarks)
