@@ -20,7 +20,7 @@ It provides an extremely fast and flexible communication mechanism.
 - Supports keepalive feature.
 - Supports the Circuit Breaker pattern.
 - Supports OpenTelemetry.
-- Can work with various serialization formats ([here](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/standard_protobuf) is an example using the Protobuf serializer).
+- Can work with various serialization formats ([here](https://github.com/cmd-stream/examples-go/tree/main/standard_protobuf) is an example using the Protobuf serializer).
 - Has a modular architecture.
 
 # Contents
@@ -70,19 +70,19 @@ endpoints support the same set of Commands.
 
 Each Command is executed by a single `Invoker` in a separete goroutine. Also a 
 Command can send multiple Results back, all of which will be delivered to the 
-client in order, [here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/multi_result) 
+client in order, [here's](https://github.com/cmd-stream/examples-go/tree/main/multi_result) 
 an example.
 
 # High-performance Communication Channel
 To build a high-performance communication channel between two services, consider 
 the following guidelines:
-1. Use N connections, as several connections can transfer significantly more 
-   data than a single one. The optimal number, N, depends on your system and 
-   represents the point after which adding more connections does not improve 
+1. Use N connections, as multiple connections can transfer significantly more 
+   data than a single one. The optimal value of N depends on your system and 
+   represents the point beyond which adding more connections no longer improves 
    performance.
-2. To minimize latency, open all available connections at the start rather than 
+3. To minimize latency, open all available connections at the start rather than 
    creating new ones on demand.
-3. Keep connections alive to avoid the overhead of frequent connection setup and 
+4. Keep connections alive to avoid the overhead of frequent connection setup and 
    teardown.
 
 These practices, implemented via the `ClientGroup`, can significantly enhance 
@@ -90,7 +90,7 @@ throughput and reduce latency between your services.
 
 # cmd-stream-go and RPC
 If you’re already using RPC, cmd-stream-go can improve performance by providing 
-a faster communication mechanism. [Here's](https://github.com/cmd-stream/cmd-stream-examples-go/tree/main/rpc) 
+a faster communication mechanism. [Here's](https://github.com/cmd-stream/examples-go/tree/main/rpc) 
 an example.
 
 # Architecture
