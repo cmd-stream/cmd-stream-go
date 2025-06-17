@@ -43,13 +43,13 @@ submodule (see the [Architecture](#architecture) section) has approximately 90%
 test coverage.
 
 # Benchmarks
-[github.com/ymz-ncnk/go-client-server-communication-benchmarks](https://github.com/ymz-ncnk/go-client-server-communication-benchmarks)
+[github.com/ymz-ncnk/go-client-server-benchmarks](https://github.com/ymz-ncnk/go-client-server-benchmarks)
 
 # How To
-Just implement the Command Pattern and generate the serialization code. Find 
-more details in the following resources:
+To get started, simply implement the Command Pattern and generate the 
+serialization code. Explore the following resources for more details:
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
-- [OpenTelemetry integration](https://ymz-ncnk.medium.com/cmd-stream-go-with-opentelemetry-adeecfbe7987)
+- [OpenTelemetry Instrumentation](https://ymz-ncnk.medium.com/cmd-stream-go-with-opentelemetry-adeecfbe7987)
 - [Examples](https://github.com/cmd-stream/examples-go)
 
 # Network Protocols Support
