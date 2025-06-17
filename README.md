@@ -58,18 +58,18 @@ connection-oriented protocols such as TCP, TLS, and mutual TLS (for client
 authentication).
 
 # Client
-The client is asynchronous and safe for concurrent use from multiple goroutines. 
+The client is asynchronous and safe for concurrent use by multiple goroutines. 
 It uses a single connection to send Commands and receive Results. Commands sent 
-from a single goroutine are delivered to the server in order.
+from the same goroutine are delivered to the server in order.
 
 # Server
-The server initiates the connection by sending `ServerInfo` to the client. The 
-client uses this information to verify compatibility, such as ensuring both 
-endpoints support the same set of Commands.
+The server initiates the connection by sending a `ServerInfo` message to the 
+client. The client uses this information to verify compatibility, for example, 
+ensuring that both endpoints support the same set of Commands.
 
-Each Command is executed by a single `Invoker` in a separete goroutine. Also a 
-Command can send multiple Results back, all of which will be delivered to the 
-client in order, [here's](https://github.com/cmd-stream/examples-go/tree/main/multi_result) 
+Each Command is executed by a single `Invoker` in a separate goroutine. A 
+Command can also send multiple Results back to the client, all of which are 
+delivered in order. [Here's](https://github.com/cmd-stream/examples-go/tree/main/multi_result) 
 an example.
 
 # High-performance Communication Channel
@@ -88,9 +88,8 @@ These practices, implemented via the `ClientGroup`, can significantly enhance
 throughput and reduce latency between your services.
 
 # cmd-stream-go and RPC
-If you’re already using RPC, cmd-stream-go can improve performance by providing 
-a faster communication mechanism. [Here's](https://github.com/cmd-stream/examples-go/tree/main/rpc) 
-an example.
+Already using RPC? cmd-stream-go can improve performance by providing a more 
+efficient communication layer. [Example here](https://github.com/cmd-stream/examples-go/tree/main/rpc).
 
 # Architecture
 There are the following cmd-stream-go submodules:
