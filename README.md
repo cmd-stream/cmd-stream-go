@@ -94,8 +94,8 @@ an example.
 
 # Architecture
 There are the following cmd-stream-go submodules:
-- [core-go](https://github.com/cmd-stream/core-go): The core module that 
-- includes client and server definitions.
+- [core-go](https://github.com/cmd-stream/core-go): The core module that includes 
+  client and server definitions.
 - [delegate-go](https://github.com/cmd-stream/delegate-go): The client delegates
   all communication-related tasks to its delegate, the server follows the same 
   approach. The connection is also initialized at this level.
