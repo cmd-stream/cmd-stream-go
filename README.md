@@ -4,8 +4,9 @@
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
 
 cmd-stream-go is a high-performance client-server library for Go, built around 
-the [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern).
-For a deeper look at how this pattern applies over the network, see 
+the [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern). 
+
+To learn how the Command Pattern can be used for networked communication, see 
 [this series of posts](https://ymz-ncnk.medium.com/command-pattern-as-an-api-architecture-style-be9ac25d6d94).
 
 # Why cmd-stream-go?
