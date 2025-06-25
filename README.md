@@ -16,8 +16,7 @@ It provides an extremely fast and flexible communication mechanism.
 - Works over TCP, TLS or mutual TLS.
 - Has an asynchronous client that uses only one connection for both sending 
   Commands and receiving Results.
-- Supports the server streaming, i.e. a Command can send back multiple Results
-  (client streaming is not directly supported, but can also be implemented).
+- Supports the server streaming, i.e. a Command can send back multiple Results.
 - Supports deadlines for sending Commands and Results.
 - Provides reconnect and keepalive features.
 - Supports the Circuit Breaker pattern.
