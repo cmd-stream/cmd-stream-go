@@ -3,10 +3,10 @@ module github.com/cmd-stream/cmd-stream-go
 go 1.23.0
 
 require (
-	github.com/cmd-stream/core-go v0.0.0-20250602134159-c37a0a251158
-	github.com/cmd-stream/delegate-go v0.0.0-20250602164806-f3287deb62cd
-	github.com/cmd-stream/handler-go v0.0.0-20250602165153-3a7b05a77e33
-	github.com/cmd-stream/transport-go v0.0.0-20250602165251-588736e072ce
+	github.com/cmd-stream/core-go v0.0.0-20250704192743-0964e5d35a34
+	github.com/cmd-stream/delegate-go v0.0.0-20250704193228-6d6ed6ac102f
+	github.com/cmd-stream/handler-go v0.0.0-20250704193654-7a2ca8f254de
+	github.com/cmd-stream/transport-go v0.0.0-20250704194107-8696d9c42b6d
 	github.com/mus-format/common-go v0.0.0-20250307125743-867bbd6eb59c
 	github.com/mus-format/dts-stream-go v0.9.0
 	github.com/mus-format/ext-mus-stream-go v0.0.0-20250424190117-02f7e9442021
