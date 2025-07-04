@@ -12,11 +12,25 @@ support for streaming and observability.
 Want to learn how the Command Pattern applies to network communication? Check 
 out [this series of posts](https://medium.com/p/f9e53442c85d).
 
-# Why cmd-stream-go?
+## Contents
+- [cmd-stream-go](#cmd-stream-go)
+  - [Contents](#contents)
+  - [Why cmd-stream-go?](#why-cmd-stream-go)
+  - [Overview](#overview)
+  - [Tests](#tests)
+  - [Benchmarks](#benchmarks)
+  - [How To](#how-to)
+  - [Network Protocols Support](#network-protocols-support)
+  - [Client \& Server](#client--server)
+  - [High-performance Communication Channel](#high-performance-communication-channel)
+  - [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
+  - [Architecture](#architecture)
+
+## Why cmd-stream-go?
 It delivers high-performance and resource efficiency, helping reduce 
 infrastructure costs and scale more effectively.
 
-# Overview
+## Overview
 - Works over TCP, TLS or mutual TLS.
 - Has an asynchronous client that uses only one connection for both sending 
   Commands and receiving Results.
@@ -27,29 +41,15 @@ infrastructure costs and scale more effectively.
 - Can work with various serialization formats.
 - Follows a modular design.
 
-# Contents
-- [cmd-stream-go](#cmd-stream-go)
-- [Why cmd-stream-go?](#why-cmd-stream-go)
-- [Overview](#overview)
-- [Contents](#contents)
-- [Tests](#tests)
-- [Benchmarks](#benchmarks)
-- [How To](#how-to)
-- [Network Protocols Support](#network-protocols-support)
-- [Client \& Server](#client--server)
-- [High-performance Communication Channel](#high-performance-communication-channel)
-- [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
-- [Architecture](#architecture)
-
-# Tests
+## Tests
 The main `cmd-stream-go` module contains basic integration tests, while each 
 submodule (see [Architecture](#architecture)) has approximately 90% code 
 coverage.
 
-# Benchmarks
+## Benchmarks
 See [go-client-server-benchmarks](https://github.com/ymz-ncnk/go-client-server-benchmarks) for performance comparisons.
 
-# How To
+## How To
 Getting started is easy:
 1. Implement the Command Pattern.
 2. Generate the serialization code. 
@@ -59,17 +59,17 @@ For more details, explore the following resources:
 - [OpenTelemetry Instrumentation](https://ymz-ncnk.medium.com/cmd-stream-go-with-opentelemetry-adeecfbe7987)
 - [Examples](https://github.com/cmd-stream/examples-go)
 
-# Network Protocols Support
+## Network Protocols Support
 Built on Go’s standard `net` package, `cmd-stream-go` supports 
 connection-oriented protocols, such as TCP, TLS, and mutual TLS (for client 
 authentication).
 
-# Client & Server
+## Client & Server
 The client operates asynchronously, sending Commands to the server. On the 
 server side, the Invoker executes the Commands, while the Receiver provides the 
 underlying server functionality.
 
-# High-performance Communication Channel
+## High-performance Communication Channel
 To maximize performance between services:
 1. Use N parallel connections. More connections typically improve throughput, 
    until a saturation point.
@@ -79,11 +79,11 @@ To maximize performance between services:
 These practices, implemented via the [ClientGroup](group/group.go), can 
 significantly enhance throughput and reduce latency between your services.
 
-# cmd-stream-go and RPC
+## cmd-stream-go and RPC
 Already using RPC? You can use `cmd-stream-go` as a faster transport layer. See 
 the [RPC example](https://github.com/cmd-stream/examples-go/tree/main/rpc).
 
-# Architecture
+## Architecture
 `cmd-stream-go` is split into the following submodules:
 - [core-go](https://github.com/cmd-stream/core-go): The core module that includes 
   client and server definitions.
