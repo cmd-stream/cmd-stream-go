@@ -43,10 +43,11 @@ infrastructure costs and scale more effectively.
 
 # Tests
 The main `cmd-stream-go` module contains basic integration tests, while each 
-submodule (see [Architecture](#architecture)) has ~90% code coverage.
+submodule (see [Architecture](#architecture)) has approximately 90% code 
+coverage.
 
 # Benchmarks
-[github.com/ymz-ncnk/go-client-server-benchmarks](https://github.com/ymz-ncnk/go-client-server-benchmarks)
+See [go-client-server-benchmarks](https://github.com/ymz-ncnk/go-client-server-benchmarks) for performance comparisons.
 
 # How To
 Getting started is easy:
@@ -91,7 +92,7 @@ the [RPC example](https://github.com/cmd-stream/examples-go/tree/main/rpc).
   approach. The connection is also initialized at this level.
 - [handler-go](https://github.com/cmd-stream/handler-go): The server delegate 
   uses a handler to receive and process Commands.
-- [transport-go](https://github.com/cmd-stream/transport-go): Resposible for 
+- [transport-go](https://github.com/cmd-stream/transport-go): Responsible for 
   Commands/Results delivery.
 
 cmd-stream-go was designed in such a way that you can easily replace any part of 
