@@ -70,17 +70,17 @@ underlying server functionality.
 
 # High-performance Communication Channel
 To maximize performance between services:
-1. Use **N** parallel connections. More connections typically improve throughput, 
+1. Use N parallel connections. More connections typically improve throughput, 
    until a saturation point.
-2. **Pre-establish** all connections instead of opening them on-demand.
-3. **Keep connections alive** to avoid the overhead from reconnections.
+2. Pre-establish all connections instead of opening them on-demand.
+3. Keep connections alive to avoid the overhead from reconnections.
 
 These practices, implemented via the [ClientGroup](group/group.go), can 
 significantly enhance throughput and reduce latency between your services.
 
 # cmd-stream-go and RPC
-Already using RPC? You can use `cmd-stream-go` as a faster transport layer.  
-See the [RPC example](https://github.com/cmd-stream/examples-go/tree/main/rpc).
+Already using RPC? You can use `cmd-stream-go` as a faster transport layer. See 
+the [RPC example](https://github.com/cmd-stream/examples-go/tree/main/rpc).
 
 # Architecture
 `cmd-stream-go` is split into the following submodules:
