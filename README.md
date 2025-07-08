@@ -9,8 +9,12 @@ based on the [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern).
 It's designed for efficient, low-latency communication over TCP/TLS, with 
 support for streaming and observability.
 
-Want to learn how the Command Pattern applies to network communication? Check 
-out [this series of posts](https://medium.com/p/f9e53442c85d).
+In short, the concept is simple: a client sends Commands to the server, where an 
+Invoker executes them, and a Receiver provides the actual server-side 
+functionality.
+
+Want to learn more about how the Command Pattern applies to network 
+communication?  Check out [this series of posts](https://medium.com/p/f9e53442c85d).
 
 ## Contents
 - [cmd-stream-go](#cmd-stream-go)
