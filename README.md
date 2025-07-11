@@ -25,7 +25,6 @@ communication?  Check out [this series of posts](https://medium.com/p/f9e53442c8
   - [Benchmarks](#benchmarks)
   - [How To](#how-to)
   - [Network Protocols Support](#network-protocols-support)
-  - [Client \& Server](#client--server)
   - [High-performance Communication Channel](#high-performance-communication-channel)
   - [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
   - [Architecture](#architecture)
@@ -67,11 +66,6 @@ For more details, explore the following resources:
 Built on Go’s standard `net` package, `cmd-stream-go` supports 
 connection-oriented protocols, such as TCP, TLS, and mutual TLS (for client 
 authentication).
-
-## Client & Server
-The client operates asynchronously, sending Commands to the server. On the 
-server side, the Invoker executes the Commands, while the Receiver provides the 
-underlying server functionality.
 
 ## High-performance Communication Channel
 To maximize performance between services:
