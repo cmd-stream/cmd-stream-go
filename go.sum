@@ -1,5 +1,5 @@
-github.com/cmd-stream/core-go v0.0.0-20250704192743-0964e5d35a34 h1:kCIrMbhEIX4Ql4Qu7ESOs1l8wKrIPKF/jsXkEXpP91s=
-github.com/cmd-stream/core-go v0.0.0-20250704192743-0964e5d35a34/go.mod h1:cDnp3kDEWudlKh2Qx4mziDvfpR4WJftjMe0aH14+cNo=
+github.com/cmd-stream/core-go v0.0.0-20250905212819-3a93b986e5d9 h1:cdNMWanCBV0TpzBs9qCLRmu/XYpkLisdKMhWeonFu0w=
+github.com/cmd-stream/core-go v0.0.0-20250905212819-3a93b986e5d9/go.mod h1:cDnp3kDEWudlKh2Qx4mziDvfpR4WJftjMe0aH14+cNo=
 github.com/cmd-stream/delegate-go v0.0.0-20250704193228-6d6ed6ac102f h1:qdzl6gg198sf9ClHDytzzCpJdeGV35FNRqcVnDJqvGQ=
 github.com/cmd-stream/delegate-go v0.0.0-20250704193228-6d6ed6ac102f/go.mod h1:eULP+Y6GN5S7Qs/3yBgLnLHIE5Q2V2bKJX0lS4pWsEg=
 github.com/cmd-stream/handler-go v0.0.0-20250704193654-7a2ca8f254de h1:euJm4p5u190htvOPChguEvOzI0SKXRVel+9jRli4+dk=
