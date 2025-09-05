@@ -15,11 +15,10 @@ func TestOptions(t *testing.T) {
 		wantClientOps = []cln.SetOption{}
 	)
 	ApplyGroup([]SetOption[any]{
-		WithFactory[any](wantFactory),
-		WithClientOps[any](wantClientOps...),
+		WithFactory(wantFactory),
+		WithClient[any](wantClientOps...),
 	}, &o)
 
 	asserterror.EqualDeep(o.Factory, wantFactory, t)
 	asserterror.EqualDeep(o.ClientOps, wantClientOps, t)
-
 }

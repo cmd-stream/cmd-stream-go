@@ -29,9 +29,9 @@ func WithReconnect[T any]() SetOption[T] {
 	return func(o *Options[T]) { o.Reconnect = true }
 }
 
-// WithClientOps sets client-specific options to be applied when initializing
+// WithClient sets client-specific options to be applied when initializing
 // each client in the group.
-func WithClientOps[T any](ops ...cln.SetOption) SetOption[T] {
+func WithClient[T any](ops ...cln.SetOption) SetOption[T] {
 	return func(o *Options[T]) { o.ClientOps = ops }
 }
 
