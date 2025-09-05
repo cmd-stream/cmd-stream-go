@@ -20,6 +20,7 @@ type Invoker[T any] struct {
 }
 
 func (i Invoker[T]) Invoke(ctx context.Context, seq core.Seq, at time.Time,
-	bytesRead int, cmd core.Cmd[T], proxy core.Proxy) error {
+	bytesRead int, cmd core.Cmd[T], proxy core.Proxy,
+) error {
 	return cmd.Exec(ctx, seq, at, i.receiver, proxy)
 }

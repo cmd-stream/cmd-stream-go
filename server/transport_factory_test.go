@@ -11,12 +11,11 @@ import (
 )
 
 func TestTransportFactory(t *testing.T) {
-
 	t.Run("New should work correctly", func(t *testing.T) {
 		var (
 			wantCodec = tmock.NewServerCodec()
 			wantConn  = cmock.NewConn()
-			factory   = NewTransportFactory[any](
+			factory   = NewTransportFactory(
 				wantCodec,
 				[]transport.SetOption{
 					transport.WithWriterBufSize(10),
@@ -37,5 +36,4 @@ func TestTransportFactory(t *testing.T) {
 		// 		10, serTran.ReaderBufSize())
 		// }
 	})
-
 }

@@ -12,7 +12,8 @@ type keepaliveCodecAdapter[T any] struct {
 }
 
 func (c keepaliveCodecAdapter[T]) Encode(seq core.Seq, cmd core.Cmd[T],
-	w transport.Writer) (n int, err error) {
+	w transport.Writer,
+) (n int, err error) {
 	if n, err = codec.SeqMUS.Marshal(seq, w); err != nil {
 		return
 	}
@@ -26,7 +27,8 @@ func (c keepaliveCodecAdapter[T]) Encode(seq core.Seq, cmd core.Cmd[T],
 }
 
 func (c keepaliveCodecAdapter[T]) Decode(r transport.Reader) (seq core.Seq,
-	result core.Result, n int, err error) {
+	result core.Result, n int, err error,
+) {
 	if seq, n, err = codec.SeqMUS.Unmarshal(r); err != nil {
 		return
 	}

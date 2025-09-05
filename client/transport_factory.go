@@ -9,7 +9,8 @@ import (
 
 // NewTransportFactory creates a new TransportFactory.
 func NewTransportFactory[T any](codec transport.Codec[core.Cmd[T], core.Result],
-	factory ConnFactory, ops ...transport.SetOption) *TransportFactory[T] {
+	factory ConnFactory, ops ...transport.SetOption,
+) *TransportFactory[T] {
 	return &TransportFactory[T]{
 		codec:   codec,
 		factory: factory,
@@ -31,7 +32,8 @@ type TransportFactory[T any] struct {
 //
 // Returns an error if connection creation fails.
 func (f TransportFactory[T]) New() (transport dcln.Transport[T],
-	err error) {
+	err error,
+) {
 	conn, err := f.factory.New()
 	if err != nil {
 		return

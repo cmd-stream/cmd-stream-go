@@ -6,7 +6,8 @@ import "sync/atomic"
 type RoundRobinStrategyFactory[T any] struct{}
 
 func (RoundRobinStrategyFactory[T]) New(
-	clients []Client[T]) DispatchStrategy[Client[T]] {
+	clients []Client[T],
+) DispatchStrategy[Client[T]] {
 	return NewRoundRobinStrategy(clients)
 }
 

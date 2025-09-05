@@ -12,7 +12,8 @@ import (
 // The returned group monitors all clients and automatically closes its Done()
 // channel once all clients have finished.
 func NewClientGroup[T any](strategy DispatchStrategy[Client[T]]) (
-	group ClientGroup[T]) {
+	group ClientGroup[T],
+) {
 	group = ClientGroup[T]{strategy, make(chan struct{})}
 	go func() {
 		sl := strategy.Slice()
@@ -50,7 +51,8 @@ type ClientGroup[T any] struct {
 // client it was sent through, the number of bytes written, and any error
 // encountered (non-nil if the Command was not sent successfully).
 func (s ClientGroup[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
-	seq core.Seq, clientID ClientID, n int, err error) {
+	seq core.Seq, clientID ClientID, n int, err error,
+) {
 	client, index := s.strategy.Next()
 	clientID = ClientID(index)
 	seq, n, err = client.Send(cmd, results)

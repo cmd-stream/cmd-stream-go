@@ -26,7 +26,8 @@ import (
 //
 // Returns an error if setup fails at any step (e.g., delegate creation).
 func MakeClient[T any](codec cln.Codec[T], conn net.Conn, ops ...cln.SetOption) (
-	client *ccln.Client[T], err error) {
+	client *ccln.Client[T], err error,
+) {
 	o := cln.Options{
 		Info: srv.ServerInfo,
 	}
@@ -61,7 +62,8 @@ func MakeClient[T any](codec cln.Codec[T], conn net.Conn, ops ...cln.SetOption) 
 //
 // Returns an error if setup fails at any step (e.g., during delegate creation).
 func MakeReconnectClient[T any](codec cln.Codec[T], factory cln.ConnFactory,
-	ops ...cln.SetOption) (client *ccln.Client[T], err error) {
+	ops ...cln.SetOption,
+) (client *ccln.Client[T], err error) {
 	o := cln.Options{
 		Info: srv.ServerInfo,
 	}
@@ -130,7 +132,8 @@ func MakeClientGroup[T any](clientsCount int, codec cln.Codec[T],
 //
 // Returns a fully initialized server.
 func MakeServer[T any](codec srv.Codec[T], invoker handler.Invoker[T],
-	ops ...srv.SetOption) *csrv.Server {
+	ops ...srv.SetOption,
+) *csrv.Server {
 	o := srv.Options{
 		Info: srv.ServerInfo,
 	}
@@ -144,7 +147,8 @@ func MakeServer[T any](codec srv.Codec[T], invoker handler.Invoker[T],
 }
 
 func makeClients[T any](count int, codec cln.Codec[T], factory cln.ConnFactory,
-	ops ...cln.SetOption) (clients []grp.Client[T], err error) {
+	ops ...cln.SetOption,
+) (clients []grp.Client[T], err error) {
 	clients = make([]grp.Client[T], 0, count)
 	var conn net.Conn
 	for range count {
@@ -165,7 +169,8 @@ func makeClients[T any](count int, codec cln.Codec[T], factory cln.ConnFactory,
 }
 
 func makeReconnectClients[T any](count int, codec cln.Codec[T],
-	factory cln.ConnFactory, ops ...cln.SetOption) (c []grp.Client[T], err error) {
+	factory cln.ConnFactory, ops ...cln.SetOption,
+) (c []grp.Client[T], err error) {
 	c = make([]grp.Client[T], 0, count)
 	for range count {
 		var client *ccln.Client[T]

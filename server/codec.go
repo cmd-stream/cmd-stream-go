@@ -25,7 +25,8 @@ type codecAdapter[T any] struct {
 }
 
 func (c codecAdapter[T]) Encode(seq core.Seq, result core.Result,
-	w transport.Writer) (n int, err error) {
+	w transport.Writer,
+) (n int, err error) {
 	if _, err = codec.SeqMUS.Marshal(seq, w); err != nil {
 		return
 	}
@@ -37,7 +38,8 @@ func (c codecAdapter[T]) Encode(seq core.Seq, result core.Result,
 }
 
 func (c codecAdapter[T]) Decode(r transport.Reader) (seq core.Seq,
-	cmd core.Cmd[T], n int, err error) {
+	cmd core.Cmd[T], n int, err error,
+) {
 	if seq, _, err = codec.SeqMUS.Unmarshal(r); err != nil {
 		return
 	}
