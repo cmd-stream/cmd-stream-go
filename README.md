@@ -74,6 +74,7 @@ and executed over the network:
 
 ```go
 // Calc represents the Receiver (application layer).
+// A struct is used instead of an interface for brevity.
 type Calc struct{}
 func (c Calc) Add(a, b int) int { return a + b }
 func (c Calc) Sub(a, b int) int { return a - b }
@@ -176,4 +177,3 @@ the [RPC example](https://github.com/cmd-stream/examples-go/tree/main/rpc).
 
 `cmd-stream-go` was designed in such a way that you can easily replace any part
 of it.
-
