@@ -73,7 +73,7 @@ Here's a minimal end-to-end example showing how Commands can be defined, sent,
 and executed over the network:
 
 ```go
-// Calc represents the Receiver (application layer) 
+// Calc represents the Receiver (application layer).
 type Calc struct{}
 func (c Calc) Add(a, b int) int { return a + b }
 func (c Calc) Sub(a, b int) int { return a - b }
@@ -129,9 +129,9 @@ func main() {
 The full, runnable example, including codec definitions, is available in the
 [calc](https://github.com/cmd-stream/examples-go/tree/main/calc).
 
----
+For further learning, see the additional resources below.
 
-For more details, explore the following resources:
+### Additional Resources
 
 - [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
 - [OpenTelemetry Instrumentation](https://ymz-ncnk.medium.com/cmd-stream-go-with-opentelemetry-adeecfbe7987)
