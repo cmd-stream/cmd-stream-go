@@ -81,7 +81,7 @@ func (c Calc) Sub(a, b int) int { return a - b }
 // AddCmd is a Command that uses Calc to perform addition.
 type AddCmd struct {A, B int}
 func (c AddCmd) Exec(ctx context.Context, seq core.Seq, at time.Time,
- calc rcvr.Calc, proxy core.Proxy,
+  calc rcvr.Calc, proxy core.Proxy,
 ) (err error) {
   result := CalcResult(calc.Add(c.A, c.B))
   _, err = proxy.Send(seq, result) // send result back
@@ -91,7 +91,7 @@ func (c AddCmd) Exec(ctx context.Context, seq core.Seq, at time.Time,
 // SubCmd is a Command that uses Calc to perform subtraction.
 type SubCmd struct {A, B int}
 func (c SubCmd) Exec(ctx context.Context, seq core.Seq, at time.Time,
- calc rcvr.Calc, proxy core.Proxy,
+  calc rcvr.Calc, proxy core.Proxy,
 ) (err error) {
   result := CalcResult(calc.Sub(c.A, c.B))
   _, err = proxy.Send(seq, result)  // send result back
