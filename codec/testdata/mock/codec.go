@@ -5,8 +5,10 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-type Encode[T any] = func(t T, w transport.Writer) (n int, err error)
-type Decode[V any] = func(r transport.Reader) (v V, n int, err error)
+type (
+	Encode[T any] = func(t T, w transport.Writer) (n int, err error)
+	Decode[V any] = func(r transport.Reader) (v V, n int, err error)
+)
 
 type Codec[T, V any] struct {
 	*mok.Mock

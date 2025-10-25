@@ -164,7 +164,8 @@ func TestCommunication(t *testing.T) {
 }
 
 func startServer(addr string, wg *sync.WaitGroup) (server *csrv.Server,
-	err error) {
+	err error,
+) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		return
@@ -187,7 +188,8 @@ func keepaliveClient(conn net.Conn) (client grp.Client[struct{}], err error) {
 }
 
 func receiveResult(results <-chan core.AsyncResult) (result core.AsyncResult,
-	err error) {
+	err error,
+) {
 	select {
 	case <-time.NewTimer(time.Second).C:
 		err = errors.New("test lasts too long")

@@ -11,7 +11,8 @@ import (
 type ServerCodec struct{}
 
 func (c ServerCodec) Encode(result core.Result, w transport.Writer) (
-	n int, err error) {
+	n int, err error,
+) {
 	if m, ok := result.(exts.MarshallerTypedMUS); ok {
 		n, err = m.MarshalTypedMUS(w)
 		return
@@ -20,7 +21,8 @@ func (c ServerCodec) Encode(result core.Result, w transport.Writer) (
 }
 
 func (c ServerCodec) Decode(r transport.Reader) (cmd core.Cmd[struct{}],
-	n int, err error) {
+	n int, err error,
+) {
 	dtm, n, err := dts.DTMSer.Unmarshal(r)
 	if err != nil {
 		return

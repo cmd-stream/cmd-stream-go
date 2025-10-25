@@ -10,7 +10,8 @@ import (
 type ClientCodec struct{}
 
 func (c ClientCodec) Encode(cmd core.Cmd[struct{}],
-	w transport.Writer) (n int, err error) {
+	w transport.Writer,
+) (n int, err error) {
 	if m, ok := cmd.(exts.MarshallerTypedMUS); ok {
 		n, err = m.MarshalTypedMUS(w)
 		return
@@ -19,7 +20,8 @@ func (c ClientCodec) Encode(cmd core.Cmd[struct{}],
 }
 
 func (c ClientCodec) Decode(r transport.Reader) (result core.Result, n int,
-	err error) {
+	err error,
+) {
 	result, n, err = results.ResultMUS.Unmarshal(r)
 	return
 }

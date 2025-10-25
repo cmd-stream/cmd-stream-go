@@ -5,8 +5,10 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-type NextFn[T any] = func() (cgrp.Client[T], int64)
-type SliceFn[T any] = func() []cgrp.Client[T]
+type (
+	NextFn[T any]  = func() (cgrp.Client[T], int64)
+	SliceFn[T any] = func() []cgrp.Client[T]
+)
 
 func NewDispatchStrategy[T any]() DispatchStrategy[T] {
 	return DispatchStrategy[T]{mok.New("DispatchStrategy")}

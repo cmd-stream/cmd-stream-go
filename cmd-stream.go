@@ -1,3 +1,9 @@
+// Package cmdstream provides high-level factory functions for creating
+// cmd-stream client, server, and client group.
+//
+// It integrates components from core-go, delegate-go, handler-go, and
+// transport-go to assemble fully configured cmd-stream system with optional
+// support for reconnection, keepalive, and custom dispatch strategies.
 package cmdstream
 
 import (

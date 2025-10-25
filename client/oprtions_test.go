@@ -24,5 +24,4 @@ func TestOptions(t *testing.T) {
 	asserterror.EqualDeep(o.Delegate, wantDelegate, t)
 	asserterror.EqualDeep(o.Keepalive, wantKeepalive, t)
 	asserterror.EqualDeep(o.Transport, wantTransport, t)
-
 }

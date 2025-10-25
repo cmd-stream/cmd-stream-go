@@ -1,3 +1,14 @@
+// Package group provides client grouping and load-dispatching for
+// cmd-stream-go.
+//
+// It allows multiple cmd-stream clients to be combined into a single logical
+// unit, represented by ClientGroup. The group distributes Commands across
+// clients using a configurable DispatchStrategy, which can implement various
+// load-balancing or failover policies.
+//
+// Using a ClientGroup can improve throughput and connection resilience by
+// parallelizing requests and transparently handling multiple client
+// connections.
 package group
 
 import (

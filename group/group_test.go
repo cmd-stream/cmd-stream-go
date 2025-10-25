@@ -15,7 +15,6 @@ import (
 )
 
 func TestGroup(t *testing.T) {
-
 	t.Run("NewGroup", func(t *testing.T) {
 		wg := sync.WaitGroup{}
 		wg.Add(2)
@@ -138,7 +137,8 @@ func TestGroup(t *testing.T) {
 				})
 			client2 = mock.NewClient[any]().RegisterSendWithDeadline(
 				func(deadline time.Time, cmd core.Cmd[any],
-					results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
+					results chan<- core.AsyncResult,
+				) (seq core.Seq, n int, err error) {
 					asserterror.Equal(deadline, wantDeadline, t)
 					asserterror.Equal[any](cmd, wantCmd, t)
 					asserterror.Equal(results, wantResults, t)
@@ -410,5 +410,4 @@ func TestGroup(t *testing.T) {
 	// 	})
 
 	// })
-
 }
