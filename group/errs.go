@@ -1,9 +1,10 @@
 package group
 
-import "errors"
+import "fmt"
 
 const errorPrefix = "cmdstream group: "
 
-func WrapError(err error) error {
-	return errors.New(errorPrefix + err.Error())
+// NewGroupError creates a client group error.
+func NewGroupError(cause error) error {
+	return fmt.Errorf(errorPrefix+"%w", cause)
 }

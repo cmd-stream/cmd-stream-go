@@ -11,6 +11,7 @@ func NewMakeClientsError(count int, cause error) error {
 		cause)
 }
 
-func wrapErr(err error) error {
-	return fmt.Errorf(errorPrefix+"%w", err)
+// NewCmdStreamError creates a cmd-stream-go module error.
+func NewCmdStreamError(cause error) error {
+	return fmt.Errorf(errorPrefix+"%w", cause)
 }

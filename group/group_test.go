@@ -323,7 +323,7 @@ func TestGroup(t *testing.T) {
 		var (
 			wantErr1 = errors.New("client1 error")
 			wantErr2 = errors.New("client2 error")
-			wantErr  = grp.WrapError(errors.Join(wantErr1, wantErr2))
+			wantErr  = grp.NewGroupError(errors.Join(wantErr1, wantErr2))
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})

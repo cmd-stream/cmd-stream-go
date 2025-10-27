@@ -45,7 +45,7 @@ func MakeClient[T any](codec cln.Codec[T], conn net.Conn, ops ...cln.SetOption) 
 	)
 	delegate, err = dcln.New(o.Info, transport, o.Delegate...)
 	if err != nil {
-		err = wrapErr(err)
+		err = NewCmdStreamError(err)
 		return
 	}
 	if o.Keepalive != nil {
@@ -83,7 +83,7 @@ func MakeReconnectClient[T any](codec cln.Codec[T], factory cln.ConnFactory,
 	)
 	delegate, err = dcln.NewReconnect(o.Info, transportFactory, o.Delegate...)
 	if err != nil {
-		err = wrapErr(err)
+		err = NewCmdStreamError(err)
 		return
 	}
 	if o.Keepalive != nil {
@@ -122,7 +122,7 @@ func MakeClientGroup[T any](clientsCount int, codec cln.Codec[T],
 		clients, err = makeClients(clientsCount, codec, factory, o.ClientOps...)
 	}
 	if err != nil {
-		err = wrapErr(err)
+		err = NewCmdStreamError(err)
 	}
 	strategy := o.Factory.New(clients)
 	group = grp.NewClientGroup(strategy)
