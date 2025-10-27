@@ -65,7 +65,7 @@ func TestGroup(t *testing.T) {
 		var (
 			wantErr      error        = nil
 			wantSeq      core.Seq     = 10
-			wantN        int          = 1
+			wantN                     = 1
 			wantClientID grp.ClientID = 1
 			wantCmd                   = cmock.NewCmd()
 			wantResults               = make(chan core.AsyncResult)
@@ -122,7 +122,7 @@ func TestGroup(t *testing.T) {
 		var (
 			wantErr      error        = nil
 			wantSeq      core.Seq     = 10
-			wantN        int          = 2
+			wantN                     = 2
 			wantClientID grp.ClientID = 1
 			wantDeadline              = time.Now().Add(time.Second)
 			wantCmd                   = cmock.NewCmd()
@@ -271,9 +271,9 @@ func TestGroup(t *testing.T) {
 		wg.Add(2)
 
 		var (
-			wantErr1 error = errors.New("client1 error")
-			wantErr2 error = errors.New("client2 error")
-			wantErr        = errors.Join(wantErr1, wantErr2)
+			wantErr1 = errors.New("client1 error")
+			wantErr2 = errors.New("client2 error")
+			wantErr  = errors.Join(wantErr1, wantErr2)
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
@@ -321,9 +321,9 @@ func TestGroup(t *testing.T) {
 		wg.Add(2)
 
 		var (
-			wantErr1 error = errors.New("client1 error")
-			wantErr2 error = errors.New("client2 error")
-			wantErr        = errors.Join(wantErr1, wantErr2)
+			wantErr1 = errors.New("client1 error")
+			wantErr2 = errors.New("client2 error")
+			wantErr  = grp.WrapError(errors.Join(wantErr1, wantErr2))
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})

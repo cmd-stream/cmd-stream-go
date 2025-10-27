@@ -67,6 +67,9 @@ func (s ClientGroup[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
 	client, index := s.strategy.Next()
 	clientID = ClientID(index)
 	seq, n, err = client.Send(cmd, results)
+	if err != nil {
+		err = WrapError(err)
+	}
 	return
 }
 
@@ -79,6 +82,9 @@ func (s ClientGroup[T]) SendWithDeadline(cmd core.Cmd[T],
 	client, index := s.strategy.Next()
 	clientID = ClientID(index)
 	seq, n, err = client.SendWithDeadline(cmd, results, deadline)
+	if err != nil {
+		err = WrapError(err)
+	}
 	return
 }
 
@@ -121,6 +127,9 @@ func (s ClientGroup[T]) Err() (err error) {
 func (s ClientGroup[T]) Close() (err error) {
 	for _, client := range s.strategy.Slice() {
 		err = errors.Join(err, client.Close())
+	}
+	if err != nil {
+		err = WrapError(err)
 	}
 	return
 }
