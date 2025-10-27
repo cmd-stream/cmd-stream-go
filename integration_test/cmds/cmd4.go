@@ -6,8 +6,8 @@ import (
 
 	"github.com/cmd-stream/cmd-stream-go/integration_test/results"
 	"github.com/cmd-stream/core-go"
-	dts "github.com/mus-format/dts-stream-go"
-	muss "github.com/mus-format/mus-stream-go"
+	"github.com/mus-format/dts-stream-go"
+	"github.com/mus-format/mus-stream-go"
 )
 
 type Cmd4 struct{}
@@ -20,7 +20,7 @@ func (c Cmd4) Exec(ctx context.Context, seq core.Seq, at time.Time,
 	return
 }
 
-func (c Cmd4) MarshalTypedMUS(w muss.Writer) (n int, err error) {
+func (c Cmd4) MarshalTypedMUS(w mus.Writer) (n int, err error) {
 	return dts.DTMSer.Marshal(Cmd4DTM, w)
 }
 

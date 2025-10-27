@@ -1,6 +1,6 @@
 package results
 
-import muss "github.com/mus-format/mus-stream-go"
+import "github.com/mus-format/mus-stream-go"
 
 func NewResult(lastOne bool) Result {
 	return Result{lastOne: lastOne}
@@ -14,7 +14,7 @@ func (r Result) LastOne() bool {
 	return r.lastOne
 }
 
-func (r Result) MarshalTypedMUS(w muss.Writer) (n int, err error) {
+func (r Result) MarshalTypedMUS(w mus.Writer) (n int, err error) {
 	return ResultMUS.Marshal(r, w)
 }
 

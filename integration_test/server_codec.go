@@ -4,8 +4,8 @@ import (
 	"github.com/cmd-stream/cmd-stream-go/integration_test/cmds"
 	"github.com/cmd-stream/core-go"
 	"github.com/cmd-stream/transport-go"
-	dts "github.com/mus-format/dts-stream-go"
-	exts "github.com/mus-format/ext-mus-stream-go"
+	"github.com/mus-format/dts-stream-go"
+	"github.com/mus-format/ext-stream-go"
 )
 
 type ServerCodec struct{}
@@ -13,11 +13,11 @@ type ServerCodec struct{}
 func (c ServerCodec) Encode(result core.Result, w transport.Writer) (
 	n int, err error,
 ) {
-	if m, ok := result.(exts.MarshallerTypedMUS); ok {
+	if m, ok := result.(ext.MarshallerTypedMUS); ok {
 		n, err = m.MarshalTypedMUS(w)
 		return
 	}
-	panic("result doesn't implement the MarshallerMUS interface")
+	panic("cmdstream server codec: result doesn't implement the MarshallerMUS interface")
 }
 
 func (c ServerCodec) Decode(r transport.Reader) (cmd core.Cmd[struct{}],
