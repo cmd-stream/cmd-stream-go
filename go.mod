@@ -3,14 +3,14 @@ module github.com/cmd-stream/cmd-stream-go
 go 1.23.0
 
 require (
-	github.com/cmd-stream/core-go v0.0.0-20251025143037-f2b47196c1b1
-	github.com/cmd-stream/delegate-go v0.0.0-20251025143849-1b423bededca
-	github.com/cmd-stream/handler-go v0.0.0-20251025144418-a9a0e0370589
-	github.com/cmd-stream/transport-go v0.0.0-20251025144238-22e4510f3b91
-	github.com/mus-format/common-go v0.0.0-20250307125743-867bbd6eb59c
-	github.com/mus-format/dts-stream-go v0.9.0
-	github.com/mus-format/ext-mus-stream-go v0.0.0-20250424190117-02f7e9442021
-	github.com/mus-format/mus-stream-go v0.7.0
+	github.com/cmd-stream/core-go v0.0.0-20251027162750-48e25877ff59
+	github.com/cmd-stream/delegate-go v0.0.0-20251027163210-4c50873ff799
+	github.com/cmd-stream/handler-go v0.0.0-20251027163327-4489834f899a
+	github.com/cmd-stream/transport-go v0.0.0-20251027163445-7f9c67094eb0
+	github.com/mus-format/common-go v0.0.0-20251026152644-9f5ac6728d8a
+	github.com/mus-format/dts-stream-go v0.9.1
+	github.com/mus-format/ext-stream-go v0.0.0-20251026170954-22b4f4ae6a9b
+	github.com/mus-format/mus-stream-go v0.7.2
 	github.com/ymz-ncnk/assert v0.0.0-20250528151733-c41b2fca7933
 	github.com/ymz-ncnk/mok v0.2.1
 )
