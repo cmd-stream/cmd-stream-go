@@ -65,7 +65,16 @@ for detailed performance comparisons.
 Getting started is easy:
 
 1. Implement the Command Pattern.
-2. Generate the serialization code.
+2. Use one of the codecs:
+   - [codec-json-go](https://github.com/cmd-stream/codec-json-go) - simple and
+   easy-to-use JSON codec (ideal for prototyping).
+   - [codec-protobuf-go](https://github.com/cmd-stream/codec-protobuf-go) -
+   Protobuf-based codec (requires code generation).
+   - [codec-mus-stream-go](https://github.com/cmd-stream/codec-mus-stream-go) -
+   high-performance MUS codec (requires code generation).
+
+**Tip:** Start with JSON for simplicity, and switch to MUS later for maximum
+performance.
 
 ### Quick Look
 
@@ -107,8 +116,15 @@ func main() {
   const addr = "127.0.0.1:9000"
   var (
     invoker     = srv.NewInvoker(Calc{})
-    serverCodec = ...
-    clientCodec = ...
+    cmdTypes = []reflect.Type{
+      reflect.TypeFor[AddCmd](),
+      reflect.TypeFor[SubCmd](),
+    }
+    resultTypes = []reflect.Type{
+      reflect.TypeFor[CalcResult](),
+    }
+    serverCodec = codecjson.NewServerCodec[Calc](cmdTypes, resultTypes)
+    clientCodec = codecjson.NewClientCodec[Calc](cmdTypes, resultTypes)
   )
   // Start server.
   go func() {
@@ -127,10 +143,9 @@ func main() {
 }
 ```
 
-The full, runnable example, including codec definitions, is available in the
-[calc](https://github.com/cmd-stream/examples-go/tree/main/calc).
+The full, runnable example is available in the [calc_json](https://github.com/cmd-stream/examples-go/tree/main/calc_json).
 
-For further learning, see the additional resources below.
+For further learning, see the resources below.
 
 ### Additional Resources
 
