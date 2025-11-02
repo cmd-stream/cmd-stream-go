@@ -189,6 +189,8 @@ the [RPC example](https://github.com/cmd-stream/examples-go/tree/main/rpc).
   uses a handler to receive and process Commands.
 - [transport-go](https://github.com/cmd-stream/transport-go): Responsible for
   Commands/Results delivery.
+- [testkit-go](https://github.com/cmd-stream/testkit-go): Mocks and test
+  utilities.
 
 `cmd-stream-go` was designed in such a way that you can easily replace any part
 of it.
