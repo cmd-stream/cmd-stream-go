@@ -1,7 +1,6 @@
-package intest
+package integration_test
 
 import (
-	"github.com/cmd-stream/cmd-stream-go/integration_test/results"
 	"github.com/cmd-stream/core-go"
 	"github.com/cmd-stream/transport-go"
 	"github.com/mus-format/ext-stream-go"
@@ -22,6 +21,6 @@ func (c ClientCodec) Encode(cmd core.Cmd[struct{}],
 func (c ClientCodec) Decode(r transport.Reader) (result core.Result, n int,
 	err error,
 ) {
-	result, n, err = results.ResultMUS.Unmarshal(r)
+	result, n, err = ResultMUS.Unmarshal(r)
 	return
 }

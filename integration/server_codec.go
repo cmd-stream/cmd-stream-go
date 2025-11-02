@@ -1,7 +1,6 @@
-package intest
+package integration_test
 
 import (
-	"github.com/cmd-stream/cmd-stream-go/integration_test/cmds"
 	"github.com/cmd-stream/core-go"
 	"github.com/cmd-stream/transport-go"
 	"github.com/mus-format/dts-stream-go"
@@ -28,14 +27,14 @@ func (c ServerCodec) Decode(r transport.Reader) (cmd core.Cmd[struct{}],
 		return
 	}
 	switch dtm {
-	case cmds.Cmd1DTM:
-		cmd = cmds.Cmd1{}
-	case cmds.Cmd2DTM:
-		cmd = cmds.Cmd2{}
-	case cmds.Cmd3DTM:
-		cmd = cmds.Cmd3{}
-	case cmds.Cmd4DTM:
-		cmd = cmds.Cmd4{}
+	case Cmd1DTM:
+		cmd = Cmd1{}
+	case Cmd2DTM:
+		cmd = Cmd2{}
+	case Cmd3DTM:
+		cmd = Cmd3{}
+	case Cmd4DTM:
+		cmd = Cmd4{}
 	}
 	return
 }
