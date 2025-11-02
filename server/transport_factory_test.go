@@ -3,18 +3,18 @@ package server
 import (
 	"testing"
 
-	cmock "github.com/cmd-stream/core-go/testdata/mock"
+	cmocks "github.com/cmd-stream/testkit-go/mocks/core"
+	tmocks "github.com/cmd-stream/testkit-go/mocks/transport"
 	"github.com/cmd-stream/transport-go"
 	tsrv "github.com/cmd-stream/transport-go/server"
-	tmock "github.com/cmd-stream/transport-go/testdata/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestTransportFactory(t *testing.T) {
 	t.Run("New should work correctly", func(t *testing.T) {
 		var (
-			wantCodec = tmock.NewServerCodec()
-			wantConn  = cmock.NewConn()
+			wantCodec = tmocks.NewServerCodec()
+			wantConn  = cmocks.NewConn()
 			factory   = NewTransportFactory(
 				wantCodec,
 				[]transport.SetOption{

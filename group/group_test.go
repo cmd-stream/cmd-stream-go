@@ -7,9 +7,9 @@ import (
 	"time"
 
 	grp "github.com/cmd-stream/cmd-stream-go/group"
-	"github.com/cmd-stream/cmd-stream-go/group/testdata/mock"
 	"github.com/cmd-stream/core-go"
-	cmock "github.com/cmd-stream/core-go/testdata/mock"
+	mocks "github.com/cmd-stream/testkit-go/mocks/cmdstream/group"
+	cmocks "github.com/cmd-stream/testkit-go/mocks/core"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -22,19 +22,19 @@ func TestGroup(t *testing.T) {
 		var (
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
-			client1 = mock.NewClient[any]().RegisterDone(
+			client1 = mocks.NewClient[any]().RegisterDone(
 				func() <-chan struct{} {
 					defer wg.Done()
 					return done1
 				},
 			)
-			client2 = mock.NewClient[any]().RegisterDone(
+			client2 = mocks.NewClient[any]().RegisterDone(
 				func() <-chan struct{} {
 					defer wg.Done()
 					return done2
 				},
 			)
-			strategy = mock.NewDispatchStrategy[any]().RegisterSlice(
+			strategy = mocks.NewDispatchStrategy[any]().RegisterSlice(
 				func() []grp.Client[any] {
 					return []grp.Client[any]{client1, client2}
 				},
@@ -67,17 +67,17 @@ func TestGroup(t *testing.T) {
 			wantSeq      core.Seq     = 10
 			wantN                     = 1
 			wantClientID grp.ClientID = 1
-			wantCmd                   = cmock.NewCmd()
+			wantCmd                   = cmocks.NewCmd()
 			wantResults               = make(chan core.AsyncResult)
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
-			client1 = mock.NewClient[any]().RegisterDone(
+			client1 = mocks.NewClient[any]().RegisterDone(
 				func() <-chan struct{} {
 					defer wg.Done()
 					return done1
 				})
-			client2 = mock.NewClient[any]().RegisterSend(
+			client2 = mocks.NewClient[any]().RegisterSend(
 				func(cmd core.Cmd[any], results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
 					asserterror.Equal[any](cmd, wantCmd, t)
 					asserterror.Equal(results, wantResults, t)
@@ -87,7 +87,7 @@ func TestGroup(t *testing.T) {
 				defer wg.Done()
 				return done2
 			})
-			strategy = mock.NewDispatchStrategy[any]().RegisterNext(
+			strategy = mocks.NewDispatchStrategy[any]().RegisterNext(
 				func() (grp.Client[any], int64) {
 					return client2, 1
 				},
@@ -125,17 +125,17 @@ func TestGroup(t *testing.T) {
 			wantN                     = 2
 			wantClientID grp.ClientID = 1
 			wantDeadline              = time.Now().Add(time.Second)
-			wantCmd                   = cmock.NewCmd()
+			wantCmd                   = cmocks.NewCmd()
 			wantResults               = make(chan core.AsyncResult)
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
-			client1 = mock.NewClient[any]().RegisterDone(
+			client1 = mocks.NewClient[any]().RegisterDone(
 				func() <-chan struct{} {
 					defer wg.Done()
 					return done1
 				})
-			client2 = mock.NewClient[any]().RegisterSendWithDeadline(
+			client2 = mocks.NewClient[any]().RegisterSendWithDeadline(
 				func(deadline time.Time, cmd core.Cmd[any],
 					results chan<- core.AsyncResult,
 				) (seq core.Seq, n int, err error) {
@@ -148,7 +148,7 @@ func TestGroup(t *testing.T) {
 				defer wg.Done()
 				return done2
 			})
-			strategy = mock.NewDispatchStrategy[any]().RegisterNext(
+			strategy = mocks.NewDispatchStrategy[any]().RegisterNext(
 				func() (grp.Client[any], int64) {
 					return client2, 1
 				},
@@ -188,12 +188,12 @@ func TestGroup(t *testing.T) {
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
-			client1 = mock.NewClient[any]().RegisterDone(
+			client1 = mocks.NewClient[any]().RegisterDone(
 				func() <-chan struct{} {
 					defer wg.Done()
 					return done1
 				})
-			client2 = mock.NewClient[any]().RegisterHas(
+			client2 = mocks.NewClient[any]().RegisterHas(
 				func(seq core.Seq) bool {
 					asserterror.Equal(seq, wantSeq, t)
 					return wantResult
@@ -202,7 +202,7 @@ func TestGroup(t *testing.T) {
 				defer wg.Done()
 				return done2
 			})
-			strategy = mock.NewDispatchStrategy[any]().RegisterNSlice(2,
+			strategy = mocks.NewDispatchStrategy[any]().RegisterNSlice(2,
 				func() []grp.Client[any] {
 					return []grp.Client[any]{client1, client2}
 				},
@@ -233,12 +233,12 @@ func TestGroup(t *testing.T) {
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
-			client1 = mock.NewClient[any]().RegisterDone(
+			client1 = mocks.NewClient[any]().RegisterDone(
 				func() <-chan struct{} {
 					defer wg.Done()
 					return done1
 				})
-			client2 = mock.NewClient[any]().RegisterForget(
+			client2 = mocks.NewClient[any]().RegisterForget(
 				func(seq core.Seq) {
 					asserterror.Equal(seq, wantSeq, t)
 				},
@@ -246,7 +246,7 @@ func TestGroup(t *testing.T) {
 				defer wg.Done()
 				return done2
 			})
-			strategy = mock.NewDispatchStrategy[any]().RegisterNSlice(2,
+			strategy = mocks.NewDispatchStrategy[any]().RegisterNSlice(2,
 				func() []grp.Client[any] {
 					return []grp.Client[any]{client1, client2}
 				},
@@ -277,7 +277,7 @@ func TestGroup(t *testing.T) {
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
-			client1 = mock.NewClient[any]().RegisterErr(
+			client1 = mocks.NewClient[any]().RegisterErr(
 				func() (err error) {
 					return wantErr1
 				},
@@ -287,7 +287,7 @@ func TestGroup(t *testing.T) {
 					return done1
 				},
 			)
-			client2 = mock.NewClient[any]().RegisterErr(
+			client2 = mocks.NewClient[any]().RegisterErr(
 				func() (err error) {
 					return wantErr2
 				},
@@ -295,7 +295,7 @@ func TestGroup(t *testing.T) {
 				defer wg.Done()
 				return done2
 			})
-			strategy = mock.NewDispatchStrategy[any]().RegisterNSlice(2,
+			strategy = mocks.NewDispatchStrategy[any]().RegisterNSlice(2,
 				func() []grp.Client[any] {
 					return []grp.Client[any]{client1, client2}
 				},
@@ -327,7 +327,7 @@ func TestGroup(t *testing.T) {
 
 			done1   = make(chan struct{})
 			done2   = make(chan struct{})
-			client1 = mock.NewClient[any]().RegisterClose(
+			client1 = mocks.NewClient[any]().RegisterClose(
 				func() (err error) {
 					return wantErr1
 				},
@@ -337,7 +337,7 @@ func TestGroup(t *testing.T) {
 					return done1
 				},
 			)
-			client2 = mock.NewClient[any]().RegisterClose(
+			client2 = mocks.NewClient[any]().RegisterClose(
 				func() (err error) {
 					return wantErr2
 				},
@@ -345,7 +345,7 @@ func TestGroup(t *testing.T) {
 				defer wg.Done()
 				return done2
 			})
-			strategy = mock.NewDispatchStrategy[any]().RegisterNSlice(2,
+			strategy = mocks.NewDispatchStrategy[any]().RegisterNSlice(2,
 				func() []grp.Client[any] {
 					return []grp.Client[any]{client1, client2}
 				},
