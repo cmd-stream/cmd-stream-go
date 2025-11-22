@@ -6,7 +6,7 @@ require (
 	github.com/cmd-stream/core-go v0.0.0-20251102020427-f23e62426486
 	github.com/cmd-stream/delegate-go v0.0.0-20251102020741-164e6005aadf
 	github.com/cmd-stream/handler-go v0.0.0-20251102020950-33189f2d8d28
-	github.com/cmd-stream/testkit-go v0.0.0-20251104174517-69a762db9155
+	github.com/cmd-stream/testkit-go v0.0.0-20251122130859-27b372d2b32f
 	github.com/cmd-stream/transport-go v0.0.0-20251102021115-2f2d348f4122
 	github.com/mus-format/mus-stream-go v0.7.2
 	github.com/ymz-ncnk/assert v0.0.0-20250528151733-c41b2fca7933

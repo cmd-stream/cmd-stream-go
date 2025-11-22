@@ -6,6 +6,8 @@ github.com/cmd-stream/handler-go v0.0.0-20251102020950-33189f2d8d28 h1:at6kjkcRK
 github.com/cmd-stream/handler-go v0.0.0-20251102020950-33189f2d8d28/go.mod h1:rnSMSCSjbXDmMld+YeSvHBmPYKMIloMKjCXzoIwOy9A=
 github.com/cmd-stream/testkit-go v0.0.0-20251104174517-69a762db9155 h1:MGOYBQyYmdQsPN66Z5hhUij/wj1u+aswI2ziqDulJgQ=
 github.com/cmd-stream/testkit-go v0.0.0-20251104174517-69a762db9155/go.mod h1:NaB3y2DDkYMZRin2Z8XbpZ1BN9K7PDHPvavTlNVuBEw=
+github.com/cmd-stream/testkit-go v0.0.0-20251122130859-27b372d2b32f h1:6POe0Tt/6kH5fHY3xCVFZ0mHAqDJai3PdbmMM471Y98=
+github.com/cmd-stream/testkit-go v0.0.0-20251122130859-27b372d2b32f/go.mod h1:M0wmGpVt7W+jxettA4zoIJfzHrOgYXX8+xHppfHlL98=
 github.com/cmd-stream/transport-go v0.0.0-20251102021115-2f2d348f4122 h1:ZLp7/NHm7bp/QhIqgYg2bqguoYkFYE4oyYXA4b6dzUk=
 github.com/cmd-stream/transport-go v0.0.0-20251102021115-2f2d348f4122/go.mod h1:0/rIfxXHFLKW1GrMHKs8MtjMMo93KIZUkhUN5Ycg494=
 github.com/mus-format/common-go v0.0.0-20251026152644-9f5ac6728d8a h1:tLF20eBk2jdZHOy3Kyv8Wh3KdhxnIDadmrmXYE7sprc=
