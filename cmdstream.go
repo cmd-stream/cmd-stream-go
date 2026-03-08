@@ -1,9 +1,9 @@
-// Package cmdstream provides high-level factory functions for creating
-// cmd-stream client, server, and client group.
+// Package cmdstream provides high-level factory functions for creating a
+// cmd-stream client, server or client group.
 //
 // It integrates components from core-go, delegate-go, handler-go, and
-// transport-go to assemble fully configured cmd-stream system with optional
-// support for reconnection, keepalive, and custom dispatch strategies.
+// transport-go modules to assemble fully configured cmd-stream system with
+// optional support for reconnection and keepalive.
 package cmdstream
 
 import (
@@ -22,22 +22,19 @@ import (
 
 // MakeClient creates and initializes a new cmd-stream client.
 //
-// It adapts the provided codec and applies optional configuration for transport,
-// delegation, and keepalive behavior.
-//
 // Parameters:
 //   - codec: Codec used for encoding Commands / decoding Results.
 //   - conn: The underlying network connection.
-//   - ops: Optional configuration settings.
+//   - opts: Optional configuration settings.
 //
 // Returns an error if setup fails at any step (e.g., delegate creation).
-func MakeClient[T any](codec cln.Codec[T], conn net.Conn, ops ...cln.SetOption) (
+func MakeClient[T any](codec cln.Codec[T], conn net.Conn, opts ...cln.SetOption) (
 	client *ccln.Client[T], err error,
 ) {
 	o := cln.Options{
 		Info: srv.ServerInfo,
 	}
-	cln.Apply(ops, &o)
+	cln.Apply(opts, &o)
 	var (
 		delegate     ccln.Delegate[T]
 		adaptedCodec = cln.AdaptCodec(codec, o)
@@ -56,25 +53,21 @@ func MakeClient[T any](codec cln.Codec[T], conn net.Conn, ops ...cln.SetOption) 
 }
 
 // MakeReconnectClient creates a new cmd-stream client with support for
-// automatic reconnection (which occurs if the Codec.Decode method encounters a
-// network error).
-//
-// It sets up a reconnect-aware delegate using the provided codec, connection
-// factory, and optional configuration settings.
+// automatic reconnection.
 //
 // Parameters:
 //   - codec: Codec used for encoding Commands and decoding Results.
 //   - factory: Connection factory used to establish new connections.
-//   - ops: Optional client configuration settings.
+//   - opts: Optional client configuration settings.
 //
 // Returns an error if setup fails at any step (e.g., during delegate creation).
 func MakeReconnectClient[T any](codec cln.Codec[T], factory cln.ConnFactory,
-	ops ...cln.SetOption,
+	opts ...cln.SetOption,
 ) (client *ccln.Client[T], err error) {
 	o := cln.Options{
 		Info: srv.ServerInfo,
 	}
-	cln.Apply(ops, &o)
+	cln.Apply(opts, &o)
 	var (
 		delegate         ccln.Delegate[T]
 		adaptedCodec     = cln.AdaptCodec(codec, o)
@@ -93,7 +86,8 @@ func MakeReconnectClient[T any](codec cln.Codec[T], factory cln.ConnFactory,
 	return
 }
 
-// MakeClientGroup creates a new ClientGroup with the specified number of clients.
+// MakeClientGroup creates a new group.ClientGroup with the specified number of
+// clients.
 //
 // If the Reconnect option is enabled, reconnect-capable clients are created.
 // The default dispatch strategy is round-robin.
@@ -102,19 +96,19 @@ func MakeReconnectClient[T any](codec cln.Codec[T], factory cln.ConnFactory,
 //   - clientsCount: Number of clients to create.
 //   - codec: Codec used for encoding Commands and decoding Results.
 //   - factory: Connection factory for establishing client connections.
-//   - ops: Optional group-level configuration (e.g., dispatch strategy,
+//   - opts: Optional group-level configuration (e.g., dispatch strategy,
 //     reconnect, client options).
 //
 // If client creation fails, the function returns an error along with a group
 // containing the successfully created clients.
 func MakeClientGroup[T any](clientsCount int, codec cln.Codec[T],
 	factory cln.ConnFactory,
-	ops ...grp.SetOption[T],
+	opts ...grp.SetOption[T],
 ) (group grp.ClientGroup[T], err error) {
 	o := grp.Options[T]{
 		Factory: grp.RoundRobinStrategyFactory[T]{},
 	}
-	grp.ApplyGroup(ops, &o)
+	grp.ApplyGroup(opts, &o)
 	var clients []grp.Client[T]
 	if o.Reconnect {
 		clients, err = makeReconnectClients(clientsCount, codec, factory, o.ClientOps...)
@@ -131,24 +125,21 @@ func MakeClientGroup[T any](clientsCount int, codec cln.Codec[T],
 
 // MakeServer creates a new cmd-stream server.
 //
-// It applies optional configuration to initialize transport, handler, and
-// delegate components before creating the server instance.
-//
 // Parameters:
 //   - codec: Codec used for decoding incoming Commands and encoding outgoing
 //     Results.
 //   - invoker: Executes the Commands.
-//   - ops: Optional server configuration (e.g., transport, handler, delegate,
+//   - opts: Optional server configuration (e.g., transport, handler, delegate,
 //     core settings).
 //
 // Returns a fully initialized server.
 func MakeServer[T any](codec srv.Codec[T], invoker handler.Invoker[T],
-	ops ...srv.SetOption,
+	opts ...srv.SetOption,
 ) *csrv.Server {
 	o := srv.Options{
 		Info: srv.ServerInfo,
 	}
-	srv.Apply(ops, &o)
+	srv.Apply(opts, &o)
 	var (
 		f = srv.NewTransportFactory(srv.AdaptCodec(codec, o), o.Transport...)
 		h = handler.New(invoker, o.Handler...)

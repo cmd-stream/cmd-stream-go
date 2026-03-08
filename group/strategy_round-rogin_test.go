@@ -26,7 +26,7 @@ func TestRoundRobinStrategy(t *testing.T) {
 	)
 	for i := range 9 {
 		e, index := s.Next()
-		asserterror.Equal(e, testCases[i].elem, t)
-		asserterror.Equal(index, testCases[i].index, t)
+		asserterror.Equal(t, e, testCases[i].elem)
+		asserterror.Equal(t, index, testCases[i].index)
 	}
 }

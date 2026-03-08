@@ -19,6 +19,6 @@ func TestOptions(t *testing.T) {
 		WithClient[any](wantClientOps...),
 	}, &o)
 
-	asserterror.EqualDeep(o.Factory, wantFactory, t)
-	asserterror.EqualDeep(o.ClientOps, wantClientOps, t)
+	asserterror.EqualDeep(t, o.Factory, wantFactory)
+	asserterror.EqualDeep(t, o.ClientOps, wantClientOps)
 }

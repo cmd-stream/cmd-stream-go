@@ -1,5 +1,6 @@
-// Package server provides server-side components for cmd-stream-go.
+// Package server provides configuration and infrastructure for a cmd-stream
+// server.
 //
-// It defines abstractions and utilities for creating cmd-stream server,
-// including transport factory, delegate, and configuration options.
+// It defines the types and utilities needed to create, configure, and manage a
+// server.
 package server

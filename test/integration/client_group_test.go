@@ -13,12 +13,12 @@ import (
 	grp "github.com/cmd-stream/cmd-stream-go/group"
 	srv "github.com/cmd-stream/cmd-stream-go/server"
 	"github.com/cmd-stream/core-go"
-	cmds "github.com/cmd-stream/testkit-go/fixtures/cmdstream/cmds"
-	helpers "github.com/cmd-stream/testkit-go/helpers"
+	cmds "github.com/cmd-stream/testkit-go/cmds"
+	"github.com/cmd-stream/testkit-go/exch"
 
-	codecs "github.com/cmd-stream/testkit-go/fixtures/cmdstream/codecs"
-	rcvr "github.com/cmd-stream/testkit-go/fixtures/cmdstream/receiver"
-	results "github.com/cmd-stream/testkit-go/fixtures/cmdstream/results"
+	codecs "github.com/cmd-stream/testkit-go/codecs"
+	rcvr "github.com/cmd-stream/testkit-go/receiver"
+	results "github.com/cmd-stream/testkit-go/results"
 
 	cln "github.com/cmd-stream/cmd-stream-go/client"
 
@@ -33,12 +33,12 @@ func TestClientGroup(t *testing.T) {
 			invoker = srv.NewInvoker(rcvr.Receiver{})
 			server  = cmdstream.MakeServer(codecs.ServerCodec{}, invoker)
 		)
-		server.ListenAndServe(addr)
+		_ = server.ListenAndServe(addr)
 	}()
 	time.Sleep(100 * time.Millisecond)
 
 	group, err := makeClientGroup(addr)
-	assertfatal.EqualError(err, nil, t)
+	assertfatal.EqualError(t, err, nil)
 
 	var (
 		sendFn = func(cmd core.Cmd[rcvr.Receiver], results chan<- core.AsyncResult) (
@@ -61,44 +61,44 @@ func TestClientGroup(t *testing.T) {
 		cmd1               = cmds.Cmd{}
 		cmdSeq1   core.Seq = 1
 		results1           = make(chan core.AsyncResult, 1)
-		wantSend1          = helpers.WantSendGrp{
+		wantSend1          = exch.WantSendGrp{
 			Seq:      cmdSeq1,
 			ClientID: grp.ClientID(0),
 			N:        codecs.CmdSize(cmdSeq1, cmd1),
 		}
 	)
-	err = helpers.SendGrp(cmd1, results1, sendFn, wantSend1)
-	assertfatal.EqualError(err, nil, t)
+	err = exch.SendGrp(cmd1, results1, sendFn, wantSend1)
+	assertfatal.EqualError(t, err, nil)
 
 	// Second send.
 	var (
 		cmd2               = cmds.Cmd{}
 		cmdSeq2   core.Seq = 1
 		results2           = make(chan core.AsyncResult, 1)
-		wantSend2          = helpers.WantSendGrp{
+		wantSend2          = exch.WantSendGrp{
 			Seq:      cmdSeq2,
 			ClientID: grp.ClientID(1),
 			N:        codecs.CmdSize(cmdSeq2, cmd2),
 		}
 	)
-	err = helpers.SendGrp(cmd2, results2, sendFn, wantSend2)
-	assertfatal.EqualError(err, nil, t)
+	err = exch.SendGrp(cmd2, results2, sendFn, wantSend2)
+	assertfatal.EqualError(t, err, nil)
 
 	// Receive from results1.
-	wantReceive1 := helpers.WantReceive{
+	wantReceive1 := exch.WantReceive{
 		AsyncResult: codecs.AsyncResult(cmdSeq1, results.Result{LastOneFlag: true}),
 	}
 
-	err = helpers.Receive[rcvr.Receiver](results1, receiveFn, wantReceive1)
-	assertfatal.EqualError(err, nil, t)
+	err = exch.Receive[rcvr.Receiver](results1, receiveFn, wantReceive1)
+	assertfatal.EqualError(t, err, nil)
 
 	// Receive from results2.
-	wantReceive2 := helpers.WantReceive{
+	wantReceive2 := exch.WantReceive{
 		AsyncResult: codecs.AsyncResult(cmdSeq2, results.Result{LastOneFlag: true}),
 	}
 
-	err = helpers.Receive[rcvr.Receiver](results2, receiveFn, wantReceive2)
-	assertfatal.EqualError(err, nil, t)
+	err = exch.Receive[rcvr.Receiver](results2, receiveFn, wantReceive2)
+	assertfatal.EqualError(t, err, nil)
 }
 
 func makeClientGroup(addr string) (grp.ClientGroup[rcvr.Receiver], error) {

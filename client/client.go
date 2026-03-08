@@ -1,5 +1,6 @@
-// Package client provides easy-to-use client-side factories and utilities
-// for cmd-stream-go. It lets you create, configure, and manage a client that
-// send Commands and receive Results from a cmd-stream server, supporting
-// features like reconnection and keep-alive.
+// Package client provides configuration and infrastructure for a cmd-stream
+// client.
+//
+// It includes utilities for client creation, transport configuration,
+// keep-alive handling, and automatic reconnection.
 package client

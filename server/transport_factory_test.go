@@ -3,18 +3,18 @@ package server
 import (
 	"testing"
 
-	cmocks "github.com/cmd-stream/testkit-go/mocks/core"
-	tmocks "github.com/cmd-stream/testkit-go/mocks/transport"
+	cmock "github.com/cmd-stream/core-go/test/mock"
 	"github.com/cmd-stream/transport-go"
 	tsrv "github.com/cmd-stream/transport-go/server"
+	tsrvmock "github.com/cmd-stream/transport-go/test/mock/server"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestTransportFactory(t *testing.T) {
 	t.Run("New should work correctly", func(t *testing.T) {
 		var (
-			wantCodec = tmocks.NewServerCodec()
-			wantConn  = cmocks.NewConn()
+			wantCodec = tsrvmock.NewServerCodec()
+			wantConn  = cmock.NewConn()
 			factory   = NewTransportFactory(
 				wantCodec,
 				[]transport.SetOption{
@@ -24,8 +24,8 @@ func TestTransportFactory(t *testing.T) {
 			tran    = factory.New(wantConn)
 			serTran = tran.(*tsrv.Transport[any])
 		)
-		asserterror.Equal(serTran.WriterBufSize(), 10, t)
-		asserterror.Equal(serTran.ReaderBufSize(), 20, t)
+		asserterror.Equal(t, serTran.WriterBufSize(), 10)
+		asserterror.Equal(t, serTran.ReaderBufSize(), 20)
 
 		// if serTran.WriterBufSize() != 10 || serTran.ReaderBufSize() != 20 {
 		// 	t.Errorf("unexpected Transport.WriterBufSize(), want '%v' actual '%v'",
