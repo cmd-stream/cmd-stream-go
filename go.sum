@@ -4,6 +4,8 @@ github.com/cmd-stream/delegate-go v0.0.0-20260308140853-81d810b4c662 h1:agkCh9Z0
 github.com/cmd-stream/delegate-go v0.0.0-20260308140853-81d810b4c662/go.mod h1:s5XC5w5k7lU/4q9VSTYvm376rgGtCIdW4ia0urW0jU8=
 github.com/cmd-stream/handler-go v0.0.0-20260308162944-3e190d687853 h1:6tYRIRLwsfYblWBvj6MfQlKqAkdFOrpMLJqK7fMKld0=
 github.com/cmd-stream/handler-go v0.0.0-20260308162944-3e190d687853/go.mod h1:zrcat0fDchJHI72zxhWaTd06tFBSUtSxQwptrnJGWRQ=
+github.com/cmd-stream/testkit-go v0.0.0-20260308171610-2c8b3508e8e6 h1:8xiL3NmrcqM7WV0q1nSdiFZlypRhWSQdpQ6aLlS5aiU=
+github.com/cmd-stream/testkit-go v0.0.0-20260308171610-2c8b3508e8e6/go.mod h1:8ezPJfsKSrE2A4qhkfAMaPAtzE/zAtlSvGg+STqgSAY=
 github.com/cmd-stream/transport-go v0.0.0-20260308162028-cda69b948c47 h1:y9thHvVR6U6aWBZlj99lMuW1FDMywUvGlhfN+Z0CN+M=
 github.com/cmd-stream/transport-go v0.0.0-20260308162028-cda69b948c47/go.mod h1:msL9vuZoxGBYeHv20M9rcQekaBquQmYj8rPNpKkS9iY=
 github.com/mus-format/common-go v0.0.0-20260225152706-590b1bf7cb37 h1:d8d/XP3jBr8lC//l9MpIQ9jCzr49Hq6X65AH1FYk+TA=
