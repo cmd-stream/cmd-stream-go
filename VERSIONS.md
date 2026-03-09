@@ -6,3 +6,4 @@ Release: 2026.03.a
 - github.com/cmd-stream/codec-protobuf-go    v0.0.0-20260308185934-e00216d16c01
 - github.com/cmd-stream/otelcmd-stream-go    v0.1.1-0.20260308200245-0b3f3f2bbc60
 - github.com/cmd-stream/sender-go            v0.0.0-20260308193800-49a78cc4f245
+- github.com/mus-format/mus-stream-go        v0.8.0
