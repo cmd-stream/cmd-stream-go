@@ -25,10 +25,13 @@ communication?  Check out [this series of posts](https://medium.com/p/f9e53442c8
   - [Tests](#tests)
   - [Benchmarks](#benchmarks)
   - [How To](#how-to)
+    - [Quick Look](#quick-look)
+    - [Additional Resources](#additional-resources)
   - [Network Protocols Support](#network-protocols-support)
   - [High-performance Communication Channel](#high-performance-communication-channel)
   - [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
   - [Architecture](#architecture)
+  - [Version Compatibility](#version-compatibility)
 
 ## Why cmd-stream-go?
 
@@ -194,3 +197,7 @@ the [RPC example](https://github.com/cmd-stream/examples-go/tree/main/rpc).
 
 `cmd-stream-go` was designed in such a way that you can easily replace any part
 of it.
+
+## Version Compatibility
+
+For a complete list of compatible module versions, see [VERSIONS.md](VERSIONS.md).
