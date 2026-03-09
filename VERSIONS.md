@@ -1,6 +1,6 @@
 Release: 2026.03.a
 
-- github.com/cmd-stream/cmd-stream-go        v0.4.6
+- github.com/cmd-stream/cmd-stream-go        v0.4.5
 - github.com/cmd-stream/codec-json-go        v0.0.0-20260308185555-01f8ed7a75ef
 - github.com/cmd-stream/codec-mus-stream-go  v0.0.0-20260308190432-c3731a6834e0
 - github.com/cmd-stream/codec-protobuf-go    v0.0.0-20260308185934-e00216d16c01
