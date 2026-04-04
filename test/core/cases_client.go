@@ -176,11 +176,13 @@ func SendSuccessTestCase() ClientTestCase[any] {
 		wantN               = 1
 		wantResult          = mock.NewResult()
 		cmd                 = mock.NewCmd[any]()
+		sendDone            = make(chan struct{})
 		delegate            = mock.NewClientDelegate()
 	)
 
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+			close(sendDone)
 			return wantN, nil
 		},
 	).RegisterFlush(
@@ -189,6 +191,7 @@ func SendSuccessTestCase() ClientTestCase[any] {
 		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-sendDone
 			return wantSeq, wantResult, 10, nil
 		},
 	).RegisterReceive(
@@ -664,18 +667,26 @@ func MultiSuccessTestCase() MultiSendTestCase[any] {
 		wantResult2          = mock.NewResult()
 		cmd1                 = mock.NewCmd[any]()
 		cmd2                 = mock.NewCmd[any]()
+		sendDone             = make(chan struct{}, 2)
 		delegate             = mock.NewClientDelegate()
 	)
 	delegate.RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) { return 1, nil },
+		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+			sendDone <- struct{}{}
+			return 1, nil
+		},
 	).RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) { return 1, nil },
+		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+			sendDone <- struct{}{}
+			return 1, nil
+		},
 	).RegisterFlush(
 		func() (err error) { return nil },
 	).RegisterFlush(
 		func() (err error) { return nil },
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-sendDone
 			return wantSeq1, wantResult1, 10, nil
 		},
 	).RegisterReceive(
@@ -780,11 +791,13 @@ func MultiResultSuccessTestCase() MultiSendTestCase[any] {
 		wantResult1          = mock.NewResult()
 		wantResult2          = mock.NewResult()
 		cmd                  = mock.NewCmd[any]()
+		sendDone             = make(chan struct{})
 		delegate             = mock.NewClientDelegate()
 	)
 
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+			close(sendDone)
 			return 1, nil
 		},
 	).RegisterFlush(
@@ -793,6 +806,7 @@ func MultiResultSuccessTestCase() MultiSendTestCase[any] {
 		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-sendDone
 			return wantSeq, wantResult1, 10, nil
 		},
 	).RegisterReceive(
