@@ -1,10 +1,11 @@
 package client
 
 import (
-	ccln "github.com/cmd-stream/core-go/client"
-	"github.com/cmd-stream/delegate-go"
-	dcln "github.com/cmd-stream/delegate-go/client"
-	"github.com/cmd-stream/transport-go"
+	ccln "github.com/cmd-stream/cmd-stream-go/core/cln"
+	"github.com/cmd-stream/cmd-stream-go/delegate"
+	dcln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
+	srv "github.com/cmd-stream/cmd-stream-go/server"
+	tspt "github.com/cmd-stream/cmd-stream-go/transport"
 )
 
 // Options defines the configuration settings for initializing a client.
@@ -15,9 +16,15 @@ import (
 type Options struct {
 	Info      delegate.ServerInfo
 	Base      []ccln.SetOption
-	Transport []transport.SetOption
+	Transport []tspt.SetOption
 	Delegate  []dcln.SetOption
 	Keepalive []dcln.SetKeepaliveOption
+}
+
+func DefaultOptions() Options {
+	return Options{
+		Info: srv.ServerInfo,
+	}
 }
 
 type SetOption func(o *Options)
@@ -37,7 +44,7 @@ func WithCore(ops ...ccln.SetOption) SetOption {
 // WithTransport applies transport-specific options.
 //
 // These options configure the transport layer.
-func WithTransport(ops ...transport.SetOption) SetOption {
+func WithTransport(ops ...tspt.SetOption) SetOption {
 	return func(o *Options) { o.Transport = ops }
 }
 
@@ -56,10 +63,10 @@ func WithKeepalive(ops ...dcln.SetKeepaliveOption) SetOption {
 	return func(o *Options) { o.Keepalive = ops }
 }
 
-func Apply(ops []SetOption, o *Options) {
-	for i := range ops {
-		if ops[i] != nil {
-			ops[i](o)
+func Apply(o *Options, opts ...SetOption) {
+	for _, opt := range opts {
+		if opt != nil {
+			opt(o)
 		}
 	}
 }

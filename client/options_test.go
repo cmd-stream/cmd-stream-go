@@ -3,25 +3,23 @@ package client
 import (
 	"testing"
 
-	dcln "github.com/cmd-stream/delegate-go/client"
-	"github.com/cmd-stream/transport-go"
+	dcln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
+	tspt "github.com/cmd-stream/cmd-stream-go/transport"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestOptions(t *testing.T) {
 	var (
 		o             = Options{}
-		wantDelegate  = []dcln.SetOption{}
-		wantKeepalive = []dcln.SetKeepaliveOption{}
-		wantTransport = []transport.SetOption{}
+		wantDelegate  = []dcln.SetOption{func(o *dcln.Options) {}}
+		wantKeepalive = []dcln.SetKeepaliveOption{func(o *dcln.KeepaliveOptions) {}}
+		wantTransport = []tspt.SetOption{func(o *tspt.Options) {}}
 	)
-	Apply([]SetOption{
-		WithDelegate(wantDelegate...),
+	Apply(&o, WithDelegate(wantDelegate...),
 		WithKeepalive(wantKeepalive...),
 		WithTransport(wantTransport...),
-	}, &o)
-
-	asserterror.EqualDeep(t, o.Delegate, wantDelegate)
-	asserterror.EqualDeep(t, o.Keepalive, wantKeepalive)
-	asserterror.EqualDeep(t, o.Transport, wantTransport)
+	)
+	asserterror.Equal(t, len(o.Delegate), len(wantDelegate))
+	asserterror.Equal(t, len(o.Keepalive), len(wantKeepalive))
+	asserterror.Equal(t, len(o.Transport), len(wantTransport))
 }

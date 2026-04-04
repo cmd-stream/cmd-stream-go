@@ -2,12 +2,13 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/cmd-stream/cmd-stream-go.svg)](https://pkg.go.dev/github.com/cmd-stream/cmd-stream-go)
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
+[![codecov](https://codecov.io/gh/cmd-stream/cmd-stream-go/graph/badge.svg?token=RXPJ6ZIPK7)](https://codecov.io/gh/cmd-stream/cmd-stream-go)
 [![Follow on X](https://img.shields.io/twitter/url?url=https%3A%2F%2Fx.com%2Fcmdstream_lib)](https://x.com/cmdstream_lib)
 
-**cmd-stream-go** is a high-performance, modular client–server library for Go,
-based on the [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern).
-It's designed for efficient, low-latency communication over TCP/TLS, with
-support for streaming and observability.
+**cmd-stream** is a high-performance client–server library for Go, based on 
+the [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern). It's 
+designed for efficient, low-latency communication over TCP/TLS, with support for
+streaming and observability.
 
 In short, the concept is simple: a client sends Commands to the server, where an
 Invoker executes them, and a Receiver provides the actual server-side
@@ -20,20 +21,19 @@ communication?  Check out [this series of posts](https://medium.com/p/f9e53442c8
 
 - [cmd-stream-go](#cmd-stream-go)
   - [Contents](#contents)
-  - [Why cmd-stream-go?](#why-cmd-stream-go)
+  - [Why cmd-stream?](#why-cmd-stream)
   - [Overview](#overview)
-  - [Tests](#tests)
   - [Benchmarks](#benchmarks)
   - [How To](#how-to)
     - [Quick Look](#quick-look)
     - [Additional Resources](#additional-resources)
   - [Network Protocols Support](#network-protocols-support)
   - [High-performance Communication Channel](#high-performance-communication-channel)
-  - [cmd-stream-go and RPC](#cmd-stream-go-and-rpc)
+  - [cmd-stream and RPC](#cmd-stream-and-rpc)
   - [Architecture](#architecture)
   - [Version Compatibility](#version-compatibility)
 
-## Why cmd-stream-go?
+## Why cmd-stream?
 
 It delivers high-performance and resource efficiency, helping reduce
 infrastructure costs and scale more effectively.
@@ -49,12 +49,6 @@ infrastructure costs and scale more effectively.
 - Has OpenTelemetry integration.
 - Can work with various serialization formats.
 - Follows a modular design.
-
-## Tests
-
-The main `cmd-stream-go` module contains basic integration tests, while each
-submodule (see [Architecture](#architecture)) has approximately 90% code
-coverage.
 
 ## Benchmarks
 
@@ -131,11 +125,11 @@ func main() {
   )
   // Start server.
   go func() {
-    server := cmdstream.MakeServer(serverCodec, invoker)
+    server, _ := cmdstream.NewServer(Calc{}, serverCodec)
     server.ListenAndServe(addr)
   }()
-  // Make sender.
-  sender, _ := sndr.Make(addr, clientCodec)
+  // New sender.
+  sender, _ := cmdstream.NewSender(addr, clientCodec)
 
   // Send AddCmd.
   sum, _ := sender.Send(context.Background(), AddCmd{A: 2, B: 3})
@@ -158,7 +152,7 @@ For further learning, see the resources below.
 
 ## Network Protocols Support
 
-Built on Go’s standard `net` package, `cmd-stream-go` supports
+Built on Go’s standard `net` package, `cmd-stream` supports
 connection-oriented protocols, such as TCP, TLS, and mutual TLS (for client
 authentication).
 
@@ -171,31 +165,28 @@ To maximize performance between services:
 2. Pre-establish all connections instead of opening them on-demand.
 3. Keep connections alive to avoid the overhead from reconnections.
 
-These practices, implemented via the [ClientGroup](group/group.go), can
-significantly enhance throughput and reduce latency between your services.
+These practices, implemented via the [Group](group/), can significantly
+enhance throughput and reduce latency between your services.
 
-## cmd-stream-go and RPC
+## cmd-stream and RPC
 
-Already using RPC? You can use `cmd-stream-go` as a faster transport layer. See
+Already using RPC? You can use `cmd-stream` as a faster transport layer. See
 the [RPC example](https://github.com/cmd-stream/examples-go/tree/main/rpc).
 
 ## Architecture
 
-`cmd-stream-go` is split into the following submodules:
+`cmd-stream` is built on a layered architecture that ensures clear separation of 
+concerns while maintaining maximum performance:
 
-- [core-go](https://github.com/cmd-stream/core-go): The core module that includes
-  client and server definitions.
-- [delegate-go](https://github.com/cmd-stream/delegate-go): The client delegates
-  all communication-related tasks to its delegate, the server follows the same
-  approach. The connection is also initialized at this level.
-- [handler-go](https://github.com/cmd-stream/handler-go): The server delegate
-  uses a handler to receive and process Commands.
-- [transport-go](https://github.com/cmd-stream/transport-go): Responsible for
-  Commands/Results delivery.
-- [testkit-go](https://github.com/cmd-stream/testkit-go): Mocks and test
-  utilities.
+- [core](core/): The core client and server definitions.
+- [delegate](delegate/): All communication-related tasks and connection
+  initialization.
+- [handler](handler/): Server-side Command processing.
+- [transport](transport/): Delivery of Commands and Results over the network.
+- [sender](sender/): High-level sender implementation.
+- [testkit](testkit/): Data and foundations for integration tests.
 
-`cmd-stream-go` was designed in such a way that you can easily replace any part
+`cmd-stream` was designed in such a way that you can easily replace any part
 of it.
 
 ## Version Compatibility

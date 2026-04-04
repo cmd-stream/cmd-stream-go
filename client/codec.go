@@ -2,8 +2,8 @@ package client
 
 import (
 	"github.com/cmd-stream/cmd-stream-go/codec"
-	"github.com/cmd-stream/core-go"
-	"github.com/cmd-stream/transport-go"
+	"github.com/cmd-stream/cmd-stream-go/core"
+	tdpt "github.com/cmd-stream/cmd-stream-go/transport"
 )
 
 // Codec defines a generic client codec interface for encoding Commands and
@@ -15,7 +15,7 @@ import (
 type Codec[T any] codec.Codec[core.Cmd[T], core.Result]
 
 // AdaptCodec adapts the provided Codec.
-func AdaptCodec[T any](codec Codec[T], o Options) transport.Codec[core.Cmd[T], core.Result] {
+func AdaptCodec[T any](codec Codec[T], o Options) tdpt.Codec[core.Cmd[T], core.Result] {
 	if o.Keepalive != nil {
 		return keepaliveCodecAdapter[T]{codec}
 	}
@@ -27,9 +27,9 @@ type codecAdapter[T any] struct {
 }
 
 func (c codecAdapter[T]) Encode(seq core.Seq, cmd core.Cmd[T],
-	w transport.Writer,
+	w tdpt.Writer,
 ) (n int, err error) {
-	if n, err = codec.SeqMUS.Marshal(seq, w); err != nil {
+	if n, err = core.SeqMUS.Marshal(seq, w); err != nil {
 		return
 	}
 	var n1 int
@@ -38,10 +38,10 @@ func (c codecAdapter[T]) Encode(seq core.Seq, cmd core.Cmd[T],
 	return
 }
 
-func (c codecAdapter[T]) Decode(r transport.Reader) (seq core.Seq,
+func (c codecAdapter[T]) Decode(r tdpt.Reader) (seq core.Seq,
 	result core.Result, n int, err error,
 ) {
-	if seq, n, err = codec.SeqMUS.Unmarshal(r); err != nil {
+	if seq, n, err = core.SeqMUS.Unmarshal(r); err != nil {
 		return
 	}
 	var n1 int

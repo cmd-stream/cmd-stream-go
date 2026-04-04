@@ -1,47 +1,36 @@
 package server
 
 import (
-	"reflect"
 	"testing"
+	"time"
 
-	csrv "github.com/cmd-stream/core-go/server"
-	dsrv "github.com/cmd-stream/delegate-go/server"
-	"github.com/cmd-stream/handler-go"
-	"github.com/cmd-stream/transport-go"
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
+	"github.com/cmd-stream/cmd-stream-go/delegate"
+	dsrv "github.com/cmd-stream/cmd-stream-go/delegate/srv"
+	hdlr "github.com/cmd-stream/cmd-stream-go/handler"
+	tspt "github.com/cmd-stream/cmd-stream-go/transport"
+	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestOptions(t *testing.T) {
 	var (
 		o             = Options{}
-		wantCore      = []csrv.SetOption{}
-		wantDelegate  = []dsrv.SetOption{}
-		wantHandler   = []handler.SetOption{}
-		wantTransport = []transport.SetOption{}
+		wantInfo      = delegate.ServerInfo("info")
+		wantCore      = []csrv.SetOption{csrv.WithWorkersCount(10)}
+		wantDelegate  = []dsrv.SetOption{dsrv.WithServerInfoSendDuration(time.Second)}
+		wantHandler   = []hdlr.SetOption{hdlr.WithAt()}
+		wantTransport = []tspt.SetOption{tspt.WithWriterBufSize(1024)}
 	)
-	Apply([]SetOption{
+	Apply(&o,
+		WithServerInfo(wantInfo),
 		WithCore(wantCore...),
 		WithDelegate(wantDelegate...),
 		WithHandler(wantHandler...),
 		WithTransport(wantTransport...),
-	}, &o)
-
-	if !reflect.DeepEqual(o.Base, wantCore) {
-		t.Errorf("unexpected Base, want %v actual %v", wantCore, o.Base)
-	}
-
-	if !reflect.DeepEqual(o.Delegate, wantDelegate) {
-		t.Errorf("unexpected Delegate, want %v actual %v", wantDelegate,
-			o.Delegate)
-	}
-
-	if !reflect.DeepEqual(o.Handler, wantHandler) {
-		t.Errorf("unexpected Handler, want %v actual %v", wantHandler,
-			o.Handler)
-	}
-
-	if !reflect.DeepEqual(o.Transport, wantTransport) {
-		t.Errorf("unexpected Transport, want %v actual %v", wantTransport,
-			o.Transport)
-	}
-
+	)
+	asserterror.EqualDeep(t, o.Info, wantInfo)
+	asserterror.Equal(t, len(o.Core), len(wantCore))
+	asserterror.Equal(t, len(o.Delegate), len(wantDelegate))
+	asserterror.Equal(t, len(o.Handler), len(wantHandler))
+	asserterror.Equal(t, len(o.Transport), len(wantTransport))
 }

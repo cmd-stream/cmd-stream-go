@@ -1,6 +1,9 @@
 package group
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 const errorPrefix = "cmdstream group: "
 
@@ -8,3 +11,7 @@ const errorPrefix = "cmdstream group: "
 func NewGroupError(cause error) error {
 	return fmt.Errorf(errorPrefix+"%w", cause)
 }
+
+// ErrInvalidClientsCount is returned when the number of clients is less than or
+// equal to 0.
+var ErrInvalidClientsCount = errors.New(errorPrefix + "invalid clients count")

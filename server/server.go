@@ -1,6 +1,6 @@
-// Package server provides configuration and infrastructure for a cmd-stream
-// server.
-//
-// It defines the types and utilities needed to create, configure, and manage a
-// server.
+// Package server defines the types, utilities needed to create, configure, and
+// manage a server.
 package server
+
+// ServerInfo is the default ServerInfo.
+var ServerInfo = []byte("default")

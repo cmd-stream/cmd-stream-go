@@ -2,26 +2,17 @@ package group
 
 import "sync/atomic"
 
-// RoundRobinStrategyFactory is a factory for a round-robin dispatch strategy.
-type RoundRobinStrategyFactory[T any] struct{}
-
-func (RoundRobinStrategyFactory[T]) New(
-	clients []Client[T],
-) DispatchStrategy[Client[T]] {
-	return NewRoundRobinStrategy(clients)
+// RoundRobinStrategy implements a round-robin dispatch strategy.
+type RoundRobinStrategy[T any] struct {
+	sl     []T
+	length int64
+	i      *int64
 }
 
 // NewRoundRobinStrategy creates a new RoundRobinStrategy.
 func NewRoundRobinStrategy[T any](sl []T) RoundRobinStrategy[T] {
 	var i int64
 	return RoundRobinStrategy[T]{sl: sl, length: int64(len(sl)), i: &i}
-}
-
-// RoundRobinStrategy implements a round-robin dispatch strategy.
-type RoundRobinStrategy[T any] struct {
-	sl     []T
-	length int64
-	i      *int64
 }
 
 // Next returns the next element and its index in the slice, following a
@@ -35,4 +26,13 @@ func (s RoundRobinStrategy[T]) Next() (t T, index int64) {
 // Slice returns the slice of elements underlying this RoundRobinStrategy.
 func (s RoundRobinStrategy[T]) Slice() []T {
 	return s.sl
+}
+
+// RoundRobinStrategyFactory is a factory for a round-robin dispatch strategy.
+type RoundRobinStrategyFactory[T any] struct{}
+
+func (RoundRobinStrategyFactory[T]) New(
+	clients []GroupClient[T],
+) DispatchStrategy[GroupClient[T]] {
+	return NewRoundRobinStrategy(clients)
 }

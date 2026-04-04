@@ -1,11 +1,11 @@
 package server
 
 import (
-	csrv "github.com/cmd-stream/core-go/server"
-	"github.com/cmd-stream/delegate-go"
-	dsrv "github.com/cmd-stream/delegate-go/server"
-	"github.com/cmd-stream/handler-go"
-	"github.com/cmd-stream/transport-go"
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
+	"github.com/cmd-stream/cmd-stream-go/delegate"
+	dsrv "github.com/cmd-stream/cmd-stream-go/delegate/srv"
+	hdlr "github.com/cmd-stream/cmd-stream-go/handler"
+	"github.com/cmd-stream/cmd-stream-go/transport"
 )
 
 // Options defines the configuration settings for initializing a server.
@@ -15,10 +15,16 @@ import (
 // and base server setup.
 type Options struct {
 	Info      delegate.ServerInfo
-	Base      []csrv.SetOption
+	Core      []csrv.SetOption
 	Delegate  []dsrv.SetOption
-	Handler   []handler.SetOption
+	Handler   []hdlr.SetOption
 	Transport []transport.SetOption
+}
+
+func DefaultOptions() Options {
+	return Options{
+		Info: ServerInfo,
+	}
 }
 
 type SetOption func(o *Options)
@@ -31,35 +37,35 @@ func WithServerInfo(info delegate.ServerInfo) SetOption {
 }
 
 // WithCore applies core-level configuration options.
-func WithCore(ops ...csrv.SetOption) SetOption {
-	return func(o *Options) { o.Base = ops }
+func WithCore(opts ...csrv.SetOption) SetOption {
+	return func(o *Options) { o.Core = append(o.Core, opts...) }
 }
 
 // WithDelegate applies delegate-specific options.
 //
 // These options customize the behavior of the server delegate.
-func WithDelegate(ops ...dsrv.SetOption) SetOption {
-	return func(o *Options) { o.Delegate = ops }
+func WithDelegate(opts ...dsrv.SetOption) SetOption {
+	return func(o *Options) { o.Delegate = append(o.Delegate, opts...) }
 }
 
 // WithHandler sets options for the connection handler.
 //
 // These options customize the behavior of the connection handler.
-func WithHandler(ops ...handler.SetOption) SetOption {
-	return func(o *Options) { o.Handler = ops }
+func WithHandler(opts ...hdlr.SetOption) SetOption {
+	return func(o *Options) { o.Handler = append(o.Handler, opts...) }
 }
 
 // WithTransport applies transport-specific options.
 //
 // These options configure the transport layer.
-func WithTransport(ops ...transport.SetOption) SetOption {
-	return func(o *Options) { o.Transport = ops }
+func WithTransport(opts ...transport.SetOption) SetOption {
+	return func(o *Options) { o.Transport = append(o.Transport, opts...) }
 }
 
-func Apply(ops []SetOption, o *Options) {
-	for i := range ops {
-		if ops[i] != nil {
-			ops[i](o)
+func Apply(o *Options, opts ...SetOption) {
+	for _, opt := range opts {
+		if opt != nil {
+			opt(o)
 		}
 	}
 }

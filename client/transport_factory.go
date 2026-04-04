@@ -1,15 +1,25 @@
 package client
 
 import (
-	"github.com/cmd-stream/core-go"
-	dcln "github.com/cmd-stream/delegate-go/client"
-	"github.com/cmd-stream/transport-go"
-	tcln "github.com/cmd-stream/transport-go/client"
+	"github.com/cmd-stream/cmd-stream-go/core"
+	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
+	tspt "github.com/cmd-stream/cmd-stream-go/transport"
+	tcln "github.com/cmd-stream/cmd-stream-go/transport/cln"
 )
 
+// TransportFactory creates new Transport instances.
+//
+// It encapsulates the logic for establishing a new connection and applying
+// optional transport-level configuration.
+type TransportFactory[T any] struct {
+	codec   tspt.Codec[core.Cmd[T], core.Result]
+	factory ConnFactory
+	ops     []tspt.SetOption
+}
+
 // NewTransportFactory creates a new TransportFactory.
-func NewTransportFactory[T any](codec transport.Codec[core.Cmd[T], core.Result],
-	factory ConnFactory, ops ...transport.SetOption,
+func NewTransportFactory[T any](codec tspt.Codec[core.Cmd[T], core.Result],
+	factory ConnFactory, ops ...tspt.SetOption,
 ) *TransportFactory[T] {
 	return &TransportFactory[T]{
 		codec:   codec,
@@ -18,20 +28,10 @@ func NewTransportFactory[T any](codec transport.Codec[core.Cmd[T], core.Result],
 	}
 }
 
-// TransportFactory creates new Transport instances.
-//
-// It encapsulates the logic for establishing a new connection and applying
-// optional transport-level configuration.
-type TransportFactory[T any] struct {
-	codec   transport.Codec[core.Cmd[T], core.Result]
-	factory ConnFactory
-	ops     []transport.SetOption
-}
-
 // New creates a Transport by establishing a new connection.
 //
 // Returns an error if connection creation fails.
-func (f TransportFactory[T]) New() (transport dcln.Transport[T],
+func (f TransportFactory[T]) New() (transport dlgt.ClientTransport[T],
 	err error,
 ) {
 	conn, err := f.factory.New()

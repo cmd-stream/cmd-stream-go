@@ -1,10 +1,9 @@
 package client
 
 import (
-	"github.com/cmd-stream/cmd-stream-go/codec"
-	"github.com/cmd-stream/core-go"
-	"github.com/cmd-stream/delegate-go"
-	"github.com/cmd-stream/transport-go"
+	"github.com/cmd-stream/cmd-stream-go/core"
+	"github.com/cmd-stream/cmd-stream-go/delegate"
+	tspt "github.com/cmd-stream/cmd-stream-go/transport"
 )
 
 type keepaliveCodecAdapter[T any] struct {
@@ -12,9 +11,9 @@ type keepaliveCodecAdapter[T any] struct {
 }
 
 func (c keepaliveCodecAdapter[T]) Encode(seq core.Seq, cmd core.Cmd[T],
-	w transport.Writer,
+	w tspt.Writer,
 ) (n int, err error) {
-	if n, err = codec.SeqMUS.Marshal(seq, w); err != nil {
+	if n, err = core.SeqMUS.Marshal(seq, w); err != nil {
 		return
 	}
 	if seq == 0 { // It is a delegate.PingCmd.
@@ -26,10 +25,10 @@ func (c keepaliveCodecAdapter[T]) Encode(seq core.Seq, cmd core.Cmd[T],
 	return
 }
 
-func (c keepaliveCodecAdapter[T]) Decode(r transport.Reader) (seq core.Seq,
+func (c keepaliveCodecAdapter[T]) Decode(r tspt.Reader) (seq core.Seq,
 	result core.Result, n int, err error,
 ) {
-	if seq, n, err = codec.SeqMUS.Unmarshal(r); err != nil {
+	if seq, n, err = core.SeqMUS.Unmarshal(r); err != nil {
 		return
 	}
 	if seq == 0 {

@@ -1,14 +1,29 @@
 package group
 
 import (
+	"errors"
+
 	cln "github.com/cmd-stream/cmd-stream-go/client"
 )
 
 // Options defines the configuration settings for creating a ClientGroup.
 type Options[T any] struct {
-	Factory   DispatchStrategyFactory[T]
-	Reconnect bool
-	ClientOps []cln.SetOption
+	Factory    DispatchStrategyFactory[T]
+	Reconnect  bool
+	ClientOpts []cln.SetOption
+}
+
+func DefaultOptions[T any]() Options[T] {
+	return Options[T]{
+		Factory: RoundRobinStrategyFactory[T]{},
+	}
+}
+
+func (o Options[T]) Validate() error {
+	if o.Factory == nil {
+		return errors.New("factory is nil")
+	}
+	return nil
 }
 
 type SetOption[T any] func(o *Options[T])
@@ -31,14 +46,15 @@ func WithReconnect[T any]() SetOption[T] {
 
 // WithClient sets client-specific options to be applied when initializing
 // each client in the group.
-func WithClient[T any](ops ...cln.SetOption) SetOption[T] {
-	return func(o *Options[T]) { o.ClientOps = ops }
+func WithClient[T any](opts ...cln.SetOption) SetOption[T] {
+	return func(o *Options[T]) { o.ClientOpts = append(o.ClientOpts, opts...) }
 }
 
-func ApplyGroup[T any](ops []SetOption[T], o *Options[T]) {
-	for i := range ops {
-		if ops[i] != nil {
-			ops[i](o)
+func Apply[T any](o *Options[T], opts ...SetOption[T]) error {
+	for _, opt := range opts {
+		if opt != nil {
+			opt(o)
 		}
 	}
+	return o.Validate()
 }
