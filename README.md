@@ -146,9 +146,8 @@ For further learning, see the resources below.
 
 ### Additional Resources
 
-- [Tutorial](https://ymz-ncnk.medium.com/cmd-stream-go-tutorial-0276d39c91e8)
 - [Examples](https://github.com/cmd-stream/examples-go)
-- [OpenTelemetry Instrumentation](https://ymz-ncnk.medium.com/cmd-stream-go-with-opentelemetry-adeecfbe7987)
+- [OpenTelemetry Instrumentation](https://github.com/cmd-stream/otelcmd-stream-go)
 
 ## Network Protocols Support
 
