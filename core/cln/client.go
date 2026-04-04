@@ -295,7 +295,7 @@ Start:
 	err := client.receive(ctx)
 	if err != nil {
 		err = client.correctErr(err)
-		if _, ok := err.(net.Error); ok || err == io.EOF { // TODO Test EOF.
+		if _, ok := err.(net.Error); ok || err == io.EOF {
 			if reconnectDelegate, ok := client.delegate.(core.ReconnectDelegate[T]); ok {
 				if err = reconnectDelegate.Reconnect(); err == nil {
 					goto Start

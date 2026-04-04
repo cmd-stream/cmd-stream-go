@@ -9,6 +9,7 @@ import (
 func TestInit(t *testing.T) {
 	for _, tc := range []test.ClientTestCase[any]{
 		test.ReconnectTestCase(),
+		test.ReconnectOnEOFTestCase(),
 		test.NoReconnectOnCloseTestCase(),
 		test.ReconnectFailTestCase(),
 		test.KeepaliveTestCase(),
@@ -18,22 +19,22 @@ func TestInit(t *testing.T) {
 }
 
 func TestSend(t *testing.T) {
-	// for _, tc := range []test.ClientTestCase[any]{
-	// 	test.SendSuccessTestCase(),
-	// 	test.HasTestCase(),
-	// 	test.ForgetTestCase(),
-	// 	test.ForgetOnFailTestCase(),
-	// 	test.ClosedOnReceiveErrorTestCase(),
-	// } {
-	// 	test.RunClientTestCase(t, tc)
-	// }
+	for _, tc := range []test.ClientTestCase[any]{
+		test.SendSuccessTestCase(),
+		test.HasTestCase(),
+		test.ForgetTestCase(),
+		test.ForgetOnFailTestCase(),
+		test.ClosedOnReceiveErrorTestCase(),
+	} {
+		test.RunClientTestCase(t, tc)
+	}
 
 	for _, tc := range []test.MultiSendTestCase[any]{
-		// test.MultiSuccessTestCase(),
-		// test.IncrementSeqTestCase(),
-		// test.MultiResultSuccessTestCase(),
-		// test.PartialResultsTestCase(),
-		// test.IncrementSeqAfterFailTestCase(),
+		test.MultiSuccessTestCase(),
+		test.IncrementSeqTestCase(),
+		test.MultiResultSuccessTestCase(),
+		test.PartialResultsTestCase(),
+		test.IncrementSeqAfterFailTestCase(),
 		test.ErrForAllCmdsOnFlushFailTestCase(),
 	} {
 		test.RunMultiSendTestCase(t, tc)

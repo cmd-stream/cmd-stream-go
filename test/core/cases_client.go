@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"io"
 	"net"
 	"sync"
 	"testing"
@@ -23,6 +24,36 @@ func ReconnectTestCase() ClientTestCase[any] {
 	delegate.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
 			return 0, nil, 0, net.ErrClosed
+		},
+	).RegisterReconnect(
+		func() error { return nil },
+	).RegisterReceive(
+		func() (seq core.Seq, result core.Result, n int, err error) {
+			return 0, nil, 0, errors.New("receive error")
+		},
+	).RegisterClose(
+		func() (err error) { return nil },
+	)
+	return ClientTestCase[any]{
+		Name: name,
+		Setup: ClientSetup[any]{
+			Delegate: delegate,
+			Opts:     []cln.SetOption{},
+		},
+		Mocks: []*mok.Mock{delegate.Mock},
+	}
+}
+
+// -----------------------------------------------------------------------------
+
+func ReconnectOnEOFTestCase() ClientTestCase[any] {
+	name := "If the client received EOF it should try to reconnect"
+
+	var delegate = mock.NewReconnectDelegate()
+
+	delegate.RegisterReceive(
+		func() (seq core.Seq, result core.Result, n int, err error) {
+			return 0, nil, 0, io.EOF
 		},
 	).RegisterReconnect(
 		func() error { return nil },
