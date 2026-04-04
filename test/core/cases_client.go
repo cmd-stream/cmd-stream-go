@@ -182,11 +182,11 @@ func SendSuccessTestCase() ClientTestCase[any] {
 
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
-			close(sendDone)
 			return wantN, nil
 		},
 	).RegisterFlush(
 		func() (err error) {
+			close(sendDone)
 			return nil
 		},
 	).RegisterReceive(
@@ -672,18 +672,22 @@ func MultiSuccessTestCase() MultiSendTestCase[any] {
 	)
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
-			sendDone <- struct{}{}
 			return 1, nil
 		},
 	).RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
-			sendDone <- struct{}{}
 			return 1, nil
 		},
 	).RegisterFlush(
-		func() (err error) { return nil },
+		func() (err error) {
+			sendDone <- struct{}{}
+			return nil
+		},
 	).RegisterFlush(
-		func() (err error) { return nil },
+		func() (err error) {
+			sendDone <- struct{}{}
+			return nil
+		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
 			<-sendDone
@@ -797,11 +801,11 @@ func MultiResultSuccessTestCase() MultiSendTestCase[any] {
 
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
-			close(sendDone)
 			return 1, nil
 		},
 	).RegisterFlush(
 		func() (err error) {
+			close(sendDone)
 			return nil
 		},
 	).RegisterReceive(
