@@ -19,16 +19,23 @@ import (
 func ReconnectTestCase() ClientTestCase[any] {
 	name := "If the client has lost a connection it should try to reconnect"
 
-	var delegate = mock.NewReconnectDelegate()
+	var (
+		reconnectDone = make(chan struct{})
+		delegate      = mock.NewReconnectDelegate()
+	)
 
 	delegate.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
 			return 0, nil, 0, net.ErrClosed
 		},
 	).RegisterReconnect(
-		func() error { return nil },
+		func() error {
+			close(reconnectDone)
+			return nil
+		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-reconnectDone
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -49,16 +56,23 @@ func ReconnectTestCase() ClientTestCase[any] {
 func ReconnectOnEOFTestCase() ClientTestCase[any] {
 	name := "If the client received EOF it should try to reconnect"
 
-	var delegate = mock.NewReconnectDelegate()
+	var (
+		reconnectDone = make(chan struct{})
+		delegate      = mock.NewReconnectDelegate()
+	)
 
 	delegate.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
 			return 0, nil, 0, io.EOF
 		},
 	).RegisterReconnect(
-		func() error { return nil },
+		func() error {
+			close(reconnectDone)
+			return nil
+		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-reconnectDone
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -145,12 +159,18 @@ func ReconnectFailTestCase() ClientTestCase[any] {
 func KeepaliveTestCase() ClientTestCase[any] {
 	name := "Upon creation, the client should call KeepaliveDelegate.Keepalive()"
 
-	var delegate = mock.NewKeepaliveDelegate()
+	var (
+		keepaliveDone = make(chan struct{})
+		delegate      = mock.NewKeepaliveDelegate()
+	)
 
 	delegate.RegisterKeepalive(
-		func(muSn *sync.Mutex) {},
+		func(muSn *sync.Mutex) {
+			close(keepaliveDone)
+		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-keepaliveDone
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -323,14 +343,17 @@ func ForgetOnFailTestCase() ClientTestCase[any] {
 		wantSeq  core.Seq = 1
 		wantErr           = errors.New("send error")
 		cmd               = mock.NewCmd[any]()
+		sendDone          = make(chan struct{})
 		delegate          = mock.NewClientDelegate()
 	)
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+			close(sendDone)
 			return 0, wantErr
 		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-sendDone
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -412,15 +435,18 @@ func SendWDFailSetDeadlineTestCase() ClientTestCase[any] {
 		wantSeq     core.Seq = 1
 		delegateErr          = errors.New("Delegate.SetSendDeadline error")
 		wantErr              = cln.NewClientError(delegateErr)
+		sendDone             = make(chan struct{})
 		delegate             = mock.NewClientDelegate()
 	)
 
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) (err error) {
+			close(sendDone)
 			return delegateErr
 		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-sendDone
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -450,6 +476,7 @@ func SendWDFailTestCase() ClientTestCase[any] {
 		wantSeq     core.Seq = 1
 		delegateErr          = errors.New("Delegate.Send error")
 		wantErr              = cln.NewClientError(delegateErr)
+		sendDone             = make(chan struct{})
 		delegate             = mock.NewClientDelegate()
 	)
 	delegate.RegisterSetSendDeadline(
@@ -458,10 +485,12 @@ func SendWDFailTestCase() ClientTestCase[any] {
 		},
 	).RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+			close(sendDone)
 			return 0, delegateErr
 		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-sendDone
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -488,11 +517,13 @@ func ClosedOnReceiveErrorTestCase() ClientTestCase[any] {
 	name := "If Receive fails with an error, further Send calls should return ErrClosed"
 
 	var (
-		cmd      = mock.NewCmd[any]()
-		delegate = mock.NewClientDelegate()
+		cmd         = mock.NewCmd[any]()
+		receiveDone = make(chan struct{})
+		delegate    = mock.NewClientDelegate()
 	)
 	delegate.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			close(receiveDone)
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -507,6 +538,7 @@ func ClosedOnReceiveErrorTestCase() ClientTestCase[any] {
 			Opts:     []cln.SetOption{},
 		},
 		Action: func(t *testing.T, client *cln.Client[any], results chan core.AsyncResult) {
+			<-receiveDone
 			AssertDone(t, client)
 			AssertSend(t, client, cmd, results, 0, 0, cln.ErrClosed)
 		},
@@ -523,14 +555,17 @@ func ForgetOnSendWDFailSetDeadlineTestCase() ClientTestCase[any] {
 		wantSeq     core.Seq = 1
 		delegateErr          = errors.New("Delegate.SetSendDeadline error")
 		wantErr              = cln.NewClientError(delegateErr)
+		sendDone             = make(chan struct{})
 		delegate             = mock.NewClientDelegate()
 	)
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) (err error) {
+			close(sendDone)
 			return delegateErr
 		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-sendDone
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -561,6 +596,7 @@ func ForgetOnSendWDFailSendTestCase() ClientTestCase[any] {
 		wantSeq     core.Seq = 1
 		delegateErr          = errors.New("Delegate.Send error")
 		wantErr              = cln.NewClientError(delegateErr)
+		sendDone             = make(chan struct{})
 		delegate             = mock.NewClientDelegate()
 	)
 	delegate.RegisterSetSendDeadline(
@@ -569,10 +605,12 @@ func ForgetOnSendWDFailSendTestCase() ClientTestCase[any] {
 		},
 	).RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+			close(sendDone)
 			return 0, delegateErr
 		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
+			<-sendDone
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
