@@ -58,28 +58,34 @@ func NewReconnectWithoutInfo[T any](factory dlgt.ClientTransportFactory[T],
 	}
 }
 
+// Options returns the delegate's options.
 func (d *ReconnectDelegate[T]) Options() Options {
 	return d.options
 }
 
+// LocalAddr returns the local network address.
 func (d *ReconnectDelegate[T]) LocalAddr() net.Addr {
 	return d.Transport().LocalAddr()
 }
 
+// RemoteAddr returns the remote network address.
 func (d *ReconnectDelegate[T]) RemoteAddr() net.Addr {
 	return d.Transport().RemoteAddr()
 }
 
+// SetSendDeadline sets the deadline for future Send calls.
 func (d *ReconnectDelegate[T]) SetSendDeadline(deadline time.Time) (err error) {
 	return d.Transport().SetSendDeadline(deadline)
 }
 
+// Send transmits a command to the server.
 func (d *ReconnectDelegate[T]) Send(seq core.Seq, cmd core.Cmd[T]) (n int,
 	err error,
 ) {
 	return d.Transport().Send(seq, cmd)
 }
 
+// Flush flushes the current transport's buffer.
 func (d *ReconnectDelegate[T]) Flush() (err error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -90,22 +96,26 @@ func (d *ReconnectDelegate[T]) Flush() (err error) {
 	return d.Transport().Flush()
 }
 
+// SetReceiveDeadline sets the deadline for future Receive calls.
 func (d *ReconnectDelegate[T]) SetReceiveDeadline(deadline time.Time) (
 	err error,
 ) {
 	return d.Transport().SetReceiveDeadline(deadline)
 }
 
+// Receive waits for and returns the next result from the server.
 func (d *ReconnectDelegate[T]) Receive() (seq core.Seq, result core.Result,
 	n int, err error,
 ) {
 	return d.Transport().Receive()
 }
 
+// Transport returns the current underlying transport.
 func (d *ReconnectDelegate[T]) Transport() dlgt.ClientTransport[T] {
 	return d.transport.Load().(dlgt.ClientTransport[T])
 }
 
+// Reconnect attempts to re-establish the connection.
 func (d *ReconnectDelegate[T]) Reconnect() (err error) {
 	var transport dlgt.ClientTransport[T]
 	for {
@@ -121,6 +131,7 @@ func (d *ReconnectDelegate[T]) Reconnect() (err error) {
 	return d.setTransport(transport)
 }
 
+// Close closes the current transport and stops reconnection attempts.
 func (d *ReconnectDelegate[T]) Close() (err error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()

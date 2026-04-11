@@ -42,38 +42,47 @@ func NewWithoutInfo[T any](transport dlgt.ClientTransport[T]) (d ClientInfoDeleg
 	return
 }
 
+// Options returns the delegate's options.
 func (d ClientInfoDelegate[T]) Options() Options {
 	return d.options
 }
 
+// LocalAddr returns the local network address.
 func (d ClientInfoDelegate[T]) LocalAddr() net.Addr {
 	return d.transport.LocalAddr()
 }
 
+// RemoteAddr returns the remote network address.
 func (d ClientInfoDelegate[T]) RemoteAddr() net.Addr {
 	return d.transport.RemoteAddr()
 }
 
+// SetSendDeadline sets the deadline for future Send calls.
 func (d ClientInfoDelegate[T]) SetSendDeadline(deadline time.Time) error {
 	return d.transport.SetSendDeadline(deadline)
 }
 
+// Send transmits a command to the server.
 func (d ClientInfoDelegate[T]) Send(seq core.Seq, cmd core.Cmd[T]) (n int, err error) {
 	return d.transport.Send(seq, cmd)
 }
 
+// Flush flushes the transport's buffer.
 func (d ClientInfoDelegate[T]) Flush() error {
 	return d.transport.Flush()
 }
 
+// SetReceiveDeadline sets the deadline for future Receive calls.
 func (d ClientInfoDelegate[T]) SetReceiveDeadline(deadline time.Time) error {
 	return d.transport.SetReceiveDeadline(deadline)
 }
 
+// Receive waits for and returns the next result from the server.
 func (d ClientInfoDelegate[T]) Receive() (seq core.Seq, result core.Result, n int, err error) {
 	return d.transport.Receive()
 }
 
+// Close closes the underlying transport.
 func (d ClientInfoDelegate[T]) Close() error {
 	return d.transport.Close()
 }

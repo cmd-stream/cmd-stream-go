@@ -10,6 +10,7 @@ type ConnFactory interface {
 // ConnFactoryFn is a function implementation of the ConnFactory.
 type ConnFactoryFn func() (net.Conn, error)
 
+// New establishes a new connection.
 func (f ConnFactoryFn) New() (net.Conn, error) {
 	return f()
 }

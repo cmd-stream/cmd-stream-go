@@ -76,7 +76,6 @@ func RunMultiSendTestCase[T any](t *testing.T, tc MultiSendTestCase[T]) {
 		if tc.Concurrent {
 			wg := sync.WaitGroup{}
 			for i, cmd := range tc.Params.Cmds {
-				i, cmd := i, cmd
 				wg.Add(1)
 				go func() {
 					defer wg.Done()

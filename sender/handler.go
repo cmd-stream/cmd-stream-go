@@ -12,6 +12,7 @@ type ResultHandler interface {
 // interface.
 type ResultHandlerFn func(result core.Result, err error) error
 
+// Handle invokes the underlying function to process the result.
 func (fn ResultHandlerFn) Handle(result core.Result, err error) error {
 	return fn(result, err)
 }

@@ -26,6 +26,7 @@ func NewTransportFactory[T any](codec tspt.Codec[core.Result, core.Cmd[T]],
 	return &TransportFactory[T]{codec, opts}
 }
 
+// New creates a new server transport.
 func (f TransportFactory[T]) New(conn net.Conn) dlgt.ServerTransport[T] {
 	return tsrv.New(conn, f.codec, f.opts...)
 }

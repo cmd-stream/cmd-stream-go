@@ -40,6 +40,7 @@ type ReconnectDelegate[T any] interface {
 	Reconnect() error
 }
 
+// ClientDelegateUnwrapper provides access to the underlying ClientDelegate.
 type ClientDelegateUnwrapper[T any] interface {
 	Unwrap() ClientDelegate[T]
 }

@@ -21,12 +21,14 @@ type Options struct {
 	Keepalive []dcln.SetKeepaliveOption
 }
 
+// DefaultOptions returns the default Client configuration.
 func DefaultOptions() Options {
 	return Options{
 		Info: srv.ServerInfo,
 	}
 }
 
+// SetOption defines a function for configuring Options.
 type SetOption func(o *Options)
 
 // WithServerInfo sets the ServerInfo for the client.
@@ -63,6 +65,7 @@ func WithKeepalive(ops ...dcln.SetKeepaliveOption) SetOption {
 	return func(o *Options) { o.Keepalive = ops }
 }
 
+// Apply applies the given options to the Options struct.
 func Apply(o *Options, opts ...SetOption) {
 	for _, opt := range opts {
 		if opt != nil {

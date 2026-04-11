@@ -21,12 +21,14 @@ type Options struct {
 	Transport []transport.SetOption
 }
 
+// DefaultOptions returns the default server configuration.
 func DefaultOptions() Options {
 	return Options{
 		Info: ServerInfo,
 	}
 }
 
+// SetOption defines a function for configuring Options.
 type SetOption func(o *Options)
 
 // WithServerInfo sets the ServerInfo for the server.
@@ -62,6 +64,7 @@ func WithTransport(opts ...transport.SetOption) SetOption {
 	return func(o *Options) { o.Transport = append(o.Transport, opts...) }
 }
 
+// Apply applies the given options to the Options struct.
 func Apply(o *Options, opts ...SetOption) {
 	for _, opt := range opts {
 		if opt != nil {

@@ -32,6 +32,7 @@ func New[T any](invoker Invoker[T], opts ...SetOption) *Handler[T] {
 	}
 }
 
+// Handle processes incoming commands on the given transport.
 func (h *Handler[T]) Handle(ctx context.Context, transport dlgt.ServerTransport[T]) error {
 	var (
 		wg             = &sync.WaitGroup{}

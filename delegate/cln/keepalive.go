@@ -37,6 +37,7 @@ func NewKeepalive[T any](delegate core.ClientDelegate[T],
 	}
 }
 
+// Receive waits for and returns the next result, filtering out pongs.
 func (d *KeepaliveDelegate[T]) Receive() (seq core.Seq, result core.Result,
 	n int, err error,
 ) {
@@ -51,6 +52,7 @@ func (d *KeepaliveDelegate[T]) Receive() (seq core.Seq, result core.Result,
 	}
 }
 
+// Flush flushes the underlying delegate's buffer.
 func (d *KeepaliveDelegate[T]) Flush() (err error) {
 	if err = d.ClientDelegate.Flush(); err != nil {
 		return
@@ -62,6 +64,7 @@ func (d *KeepaliveDelegate[T]) Flush() (err error) {
 	return
 }
 
+// Keepalive starts the keepalive loop in a separate goroutine.
 func (d *KeepaliveDelegate[T]) Keepalive(muSn *sync.Mutex) {
 	go keepalive(d, muSn)
 }
@@ -70,6 +73,7 @@ func (d *KeepaliveDelegate[T]) Unwrap() core.ClientDelegate[T] {
 	return d.ClientDelegate
 }
 
+// Close closes the underlying delegate and stops the keepalive loop.
 func (d *KeepaliveDelegate[T]) Close() (err error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()

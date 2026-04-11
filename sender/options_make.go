@@ -16,12 +16,14 @@ type MakeOptions[T any] struct {
 	ClientsCount int
 }
 
+// DefaultMakeOptions returns the default configuration for a new Sender.
 func DefaultMakeOptions[T any]() MakeOptions[T] {
 	return MakeOptions[T]{
 		ClientsCount: 1,
 	}
 }
 
+// Validate ensures the MakeOptions are sound.
 func (o MakeOptions[T]) Validate() error {
 	if o.ClientsCount <= 0 {
 		return errors.New("clients count must be positive")
@@ -29,6 +31,7 @@ func (o MakeOptions[T]) Validate() error {
 	return nil
 }
 
+// SetMakeOption defines a function for configuring MakeOptions.
 type SetMakeOption[T any] func(o *MakeOptions[T])
 
 // WithGroup adds options for the underlying client group.
@@ -51,6 +54,7 @@ func WithClientsCount[T any](count int) SetMakeOption[T] {
 	return func(o *MakeOptions[T]) { o.ClientsCount = count }
 }
 
+// ApplyMake applies the given options to the MakeOptions struct.
 func ApplyMake[T any](o *MakeOptions[T], opts ...SetMakeOption[T]) error {
 	for _, opt := range opts {
 		if opt != nil {

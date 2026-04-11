@@ -13,12 +13,14 @@ type Options[T any] struct {
 	ClientOpts []cln.SetOption
 }
 
+// DefaultOptions returns the default group configuration.
 func DefaultOptions[T any]() Options[T] {
 	return Options[T]{
 		Factory: RoundRobinStrategyFactory[T]{},
 	}
 }
 
+// Validate ensures the group configuration is valid.
 func (o Options[T]) Validate() error {
 	if o.Factory == nil {
 		return errors.New("factory is nil")
@@ -26,6 +28,7 @@ func (o Options[T]) Validate() error {
 	return nil
 }
 
+// SetOption defines a function for configuring Options.
 type SetOption[T any] func(o *Options[T])
 
 // WithFactory sets the dispatch strategy factory for the client group.
@@ -50,6 +53,7 @@ func WithClient[T any](opts ...cln.SetOption) SetOption[T] {
 	return func(o *Options[T]) { o.ClientOpts = append(o.ClientOpts, opts...) }
 }
 
+// Apply applies the given options to the Options struct.
 func Apply[T any](o *Options[T], opts ...SetOption[T]) error {
 	for _, opt := range opts {
 		if opt != nil {

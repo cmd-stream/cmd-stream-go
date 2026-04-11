@@ -21,6 +21,7 @@ func NewCircuitBreakerHooks[T any](cb CircuitBreaker,
 	return CircuitBreakerHooks[T]{cb, hooks}
 }
 
+// BeforeSend checks with the circuit breaker before sending.
 func (h CircuitBreakerHooks[T]) BeforeSend(ctx context.Context, cmd core.Cmd[T]) (
 	context.Context, error,
 ) {
@@ -30,6 +31,7 @@ func (h CircuitBreakerHooks[T]) BeforeSend(ctx context.Context, cmd core.Cmd[T])
 	return h.hooks.BeforeSend(ctx, cmd)
 }
 
+// OnError records a failure and calls the inner hook.
 func (h CircuitBreakerHooks[T]) OnError(ctx context.Context, sentCmd SentCmd[T],
 	err error,
 ) {
@@ -37,6 +39,7 @@ func (h CircuitBreakerHooks[T]) OnError(ctx context.Context, sentCmd SentCmd[T],
 	h.hooks.OnError(ctx, sentCmd, err)
 }
 
+// OnResult records a success and calls the inner hook.
 func (h CircuitBreakerHooks[T]) OnResult(ctx context.Context, sentCmd SentCmd[T],
 	recvResult ReceivedResult, err error,
 ) {
@@ -44,6 +47,7 @@ func (h CircuitBreakerHooks[T]) OnResult(ctx context.Context, sentCmd SentCmd[T]
 	h.hooks.OnResult(ctx, sentCmd, recvResult, err)
 }
 
+// OnTimeout records a failure and calls the inner hook.
 func (h CircuitBreakerHooks[T]) OnTimeout(ctx context.Context, sentCmd SentCmd[T],
 	err error,
 ) {
@@ -67,6 +71,7 @@ func NewCircuitBreakerHooksFactory[T any](cb CircuitBreaker,
 	return CircuitBreakerHooksFactory[T]{cb, factory}
 }
 
+// New returns a new CircuitBreakerHooks instance.
 func (f CircuitBreakerHooksFactory[T]) New() Hooks[T] {
 	return NewCircuitBreakerHooks(f.cb, f.factory.New())
 }

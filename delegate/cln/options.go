@@ -3,7 +3,9 @@ package cln
 import "time"
 
 const (
+// KeepaliveTime is the default inactivity period before a ping is sent.
 	KeepaliveTime  = 3 * time.Second
+// KeepaliveIntvl is the default interval between pings.
 	KeepaliveIntvl = time.Second
 )
 
@@ -21,6 +23,7 @@ func WithServerInfoReceiveDuration(d time.Duration) SetOption {
 	return func(o *Options) { o.ServerInfoReceiveDuration = d }
 }
 
+// Apply applies the given options to the Options struct.
 func Apply(o *Options, opts ...SetOption) {
 	for _, opt := range opts {
 		if opt != nil {
@@ -58,6 +61,7 @@ func WithKeepaliveIntvl(d time.Duration) SetKeepaliveOption {
 	return func(o *KeepaliveOptions) { o.KeepaliveIntvl = d }
 }
 
+// ApplyKeepalive applies the given options to the KeepaliveOptions struct.
 func ApplyKeepalive(o *KeepaliveOptions, opts ...SetKeepaliveOption) {
 	for _, opt := range opts {
 		if opt != nil {

@@ -2,6 +2,7 @@ package handler
 
 import "time"
 
+// Options represents the handler configuration options.
 type Options struct {
 	CmdReceiveDuration time.Duration
 	At                 bool
@@ -20,8 +21,10 @@ func WithAt() SetOption {
 	return func(o *Options) { o.At = true }
 }
 
+// SetOption defines a function for configuring Options.
 type SetOption func(o *Options)
 
+// Apply applies the given options to the Options struct.
 func Apply(o *Options, opts ...SetOption) {
 	for _, opt := range opts {
 		if opt != nil {

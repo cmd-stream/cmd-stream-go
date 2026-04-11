@@ -281,7 +281,7 @@ func OptionCmdReceiveDurationTestCase(t *testing.T) HandlerTestCase[any] {
 }
 
 func CloseWhileInvokingCmdsTestCase(t *testing.T) HandlerTestCase[any] {
-	name := "We should be able to interupt Handler, while it invokes several Commands"
+	name := "We should be able to interrupt Handler, while it invokes several Commands"
 
 	var (
 		ctx, cancel = context.WithCancel(context.Background())

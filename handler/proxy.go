@@ -23,14 +23,17 @@ func NewProxy[T any](transport dlgt.ServerTransport[T]) Proxy[T] {
 	return Proxy[T]{transport, &flushFlag, &sync.Mutex{}}
 }
 
+// LocalAddr returns the local network address.
 func (p Proxy[T]) LocalAddr() net.Addr {
 	return p.transport.LocalAddr()
 }
 
+// RemoteAddr returns the remote network address.
 func (p Proxy[T]) RemoteAddr() net.Addr {
 	return p.transport.RemoteAddr()
 }
 
+// Send transmits a result to the client.
 func (p Proxy[T]) Send(seq core.Seq, result core.Result) (n int, err error) {
 	p.mu.Lock()
 	n, err = p.transport.Send(seq, result)
@@ -41,6 +44,7 @@ func (p Proxy[T]) Send(seq core.Seq, result core.Result) (n int, err error) {
 	return n, p.flush()
 }
 
+// SendWithDeadline transmits a result with a specified deadline.
 func (p Proxy[T]) SendWithDeadline(deadline time.Time, seq core.Seq, result core.Result,
 ) (n int, err error) {
 	p.mu.Lock()

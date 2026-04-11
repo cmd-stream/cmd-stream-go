@@ -28,6 +28,7 @@ type ServerCodecTransport[T any] struct {
 	w tspt.Writer
 }
 
+// SendServerInfo transmits the server info to the client.
 func (ct *ServerCodecTransport[T]) SendServerInfo(info dlgt.ServerInfo) (
 	err error,
 ) {
@@ -38,10 +39,12 @@ func (ct *ServerCodecTransport[T]) SendServerInfo(info dlgt.ServerInfo) (
 	return ct.Flush()
 }
 
+// WriterBufSize returns the transport's writer buffer size.
 func (ct *ServerCodecTransport[T]) WriterBufSize() int {
 	return ct.CodecTransport.W.(*bufio.Writer).Size()
 }
 
+// ReaderBufSize returns the transport's reader buffer size.
 func (ct *ServerCodecTransport[T]) ReaderBufSize() int {
 	return ct.CodecTransport.R.(*bufio.Reader).Size()
 }

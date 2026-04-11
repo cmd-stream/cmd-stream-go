@@ -1,3 +1,4 @@
+// Package hooks provides interfaces and implementations for customizing command execution lifecycle.
 package hooks
 
 import (
@@ -22,12 +23,14 @@ type HooksFactory[T any] interface {
 	New() Hooks[T]
 }
 
+// ReceivedResult represents a result received from the server with metadata.
 type ReceivedResult struct {
 	Seq    core.Seq
 	Size   int
 	Result core.Result
 }
 
+// SentCmd represents a command sent to the server with metadata.
 type SentCmd[T any] struct {
 	Seq  core.Seq
 	Size int

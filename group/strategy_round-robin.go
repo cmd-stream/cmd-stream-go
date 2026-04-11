@@ -31,6 +31,7 @@ func (s RoundRobinStrategy[T]) Slice() []T {
 // RoundRobinStrategyFactory is a factory for a round-robin dispatch strategy.
 type RoundRobinStrategyFactory[T any] struct{}
 
+// New creates a new round-robin dispatch strategy.
 func (RoundRobinStrategyFactory[T]) New(
 	clients []GroupClient[T],
 ) DispatchStrategy[GroupClient[T]] {

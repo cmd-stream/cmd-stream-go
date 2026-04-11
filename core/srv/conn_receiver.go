@@ -45,6 +45,7 @@ type ConnReceiver struct {
 	mu       sync.Mutex
 }
 
+// Run starts the connection acceptance loop.
 func (r *ConnReceiver) Run() (err error) {
 	defer func() {
 		err = r.resolveErr(err)

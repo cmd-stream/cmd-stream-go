@@ -23,5 +23,4 @@ func TestTransportFactory_New(t *testing.T) {
 	)
 	asserterror.Equal(t, transport.WriterBufSize(), 10)
 	asserterror.Equal(t, transport.ReaderBufSize(), 20)
-
 }

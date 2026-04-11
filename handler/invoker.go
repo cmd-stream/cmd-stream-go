@@ -21,6 +21,7 @@ type Invoker[T any] interface {
 type InvokerFn[T any] func(ctx context.Context, seq core.Seq, at time.Time,
 	bytesRead int, cmd core.Cmd[T], proxy core.Proxy) error
 
+// Invoke executes the given command.
 func (i InvokerFn[T]) Invoke(ctx context.Context, seq core.Seq, at time.Time,
 	bytesRead int, cmd core.Cmd[T], proxy core.Proxy,
 ) error {

@@ -52,6 +52,8 @@ func NewWorker(conns <-chan net.Conn, delegate core.ServerDelegate,
 	return worker
 }
 
+// Run starts the worker loop, processing connections from the channel until
+// closed.
 func (w *Worker) Run() (err error) {
 	var (
 		conn net.Conn
@@ -83,6 +85,7 @@ func (w *Worker) Run() (err error) {
 	}
 }
 
+// Stop terminates the worker by canceling its internal context.
 func (w *Worker) Stop() (err error) {
 	w.cancel()
 	return

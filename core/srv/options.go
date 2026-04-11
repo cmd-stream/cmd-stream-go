@@ -7,6 +7,7 @@ import (
 // WorkersCount defines the default number of workers.
 const WorkersCount = 8
 
+// Options represents the server configuration options.
 type Options struct {
 	WorkersCount     int
 	LostConnCallback LostConnCallback
@@ -14,12 +15,14 @@ type Options struct {
 	TLSConfig        *tls.Config
 }
 
+// DefaultOptions returns the default Server configuration.
 func DefaultOptions() Options {
 	return Options{
 		WorkersCount: WorkersCount,
 	}
 }
 
+// Validate ensures the Options are sound.
 func (o Options) Validate() error {
 	if o.WorkersCount <= 0 {
 		return ErrNoWorkers
@@ -27,6 +30,7 @@ func (o Options) Validate() error {
 	return nil
 }
 
+// SetOption defines a function for configuring Options.
 type SetOption func(o *Options)
 
 // WithWorkersCount sets the number of workers. Must be greater than 0.
@@ -50,6 +54,7 @@ func WithTLSConfig(conf *tls.Config) SetOption {
 	return func(o *Options) { o.TLSConfig = conf }
 }
 
+// Apply applies the given options to the Options struct.
 func Apply(o *Options, opts ...SetOption) {
 	for _, opt := range opts {
 		if opt != nil {

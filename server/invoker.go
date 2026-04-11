@@ -19,8 +19,9 @@ func NewInvoker[T any](receiver T) Invoker[T] {
 	return Invoker[T]{receiver}
 }
 
+// Invoke executes the given command.
 func (i Invoker[T]) Invoke(ctx context.Context, seq core.Seq, at time.Time,
-	bytesRead int, cmd core.Cmd[T], proxy core.Proxy,
+	_ int, cmd core.Cmd[T], proxy core.Proxy,
 ) error {
 	return cmd.Exec(ctx, seq, at, i.receiver, proxy)
 }

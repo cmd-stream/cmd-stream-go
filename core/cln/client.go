@@ -1,4 +1,4 @@
-// Package client provides a thread-safe, asynchronous cmd-stream client.
+// Package cln provides a thread-safe, asynchronous cmd-stream client.
 //
 // The Client uses a core.ClientDelegate for sending Commands, receiving Results, and
 // managing connection state.
@@ -28,7 +28,7 @@ func New[T any](delegate core.ClientDelegate[T], opts ...SetOption) *Client[T] {
 	var (
 		ctx     context.Context
 		success        = false
-		flagFl  uint32 = 0
+		flagFl  uint32
 		client         = &Client[T]{
 			delegate: delegate,
 			options:  o,
@@ -54,6 +54,8 @@ func New[T any](delegate core.ClientDelegate[T], opts ...SetOption) *Client[T] {
 	return client
 }
 
+// Client represents a thread-safe, asynchronous cmd-stream client.
+//
 // It utilizes core.ClientDelegate for communication tasks such as sending Commands,
 // receiving Results, and managing deadlines. If the connection is lost, the
 // client will close, and Client.Error() will return the corresponding connection

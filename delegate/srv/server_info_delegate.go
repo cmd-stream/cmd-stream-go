@@ -37,6 +37,7 @@ func New[T any](info dlgt.ServerInfo, factory dlgt.ServerTransportFactory[T],
 	}, nil
 }
 
+// Handle performs the initial handshake by sending ServerInfo to the client.
 func (d ServerInfoDelegate[T]) Handle(ctx context.Context, conn net.Conn) (err error) {
 	transport := d.factory.New(conn)
 	err = d.sendServerInfo(transport)

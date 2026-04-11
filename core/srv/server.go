@@ -51,6 +51,8 @@ func NewWithWorkers(delegate core.ServerDelegate, factory WorkersFactory, opts .
 	}, nil
 }
 
+// ListenAndServe establishes a TCP listener at the given address and starts
+// serving.
 func (s *Server) ListenAndServe(addr string) (err error) {
 	listener, err := makeListener(addr, s.options)
 	if err != nil {

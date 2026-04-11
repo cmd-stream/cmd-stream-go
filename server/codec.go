@@ -16,7 +16,8 @@ import (
 type Codec[T any] codec.Codec[core.Result, core.Cmd[T]]
 
 // AdaptCodec adapts the provided Codec.
-func AdaptCodec[T any](codec Codec[T], o Options) tspt.Codec[core.Result, core.Cmd[T]] {
+// AdaptCodec adapts the provided Codec.
+func AdaptCodec[T any](codec Codec[T], _ Options) tspt.Codec[core.Result, core.Cmd[T]] {
 	return codecAdapter[T]{codec}
 }
 

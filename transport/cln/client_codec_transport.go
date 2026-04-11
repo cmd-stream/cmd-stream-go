@@ -27,6 +27,7 @@ func New[T any](conn net.Conn, codec tspt.Codec[core.Cmd[T], core.Result],
 	return &ClientCodecTransport[T]{tspt.New(conn, w, r, codec)}
 }
 
+// ReceiveServerInfo waits for and returns the server info.
 func (t *ClientCodecTransport[T]) ReceiveServerInfo() (info dlgt.ServerInfo,
 	err error,
 ) {
@@ -34,10 +35,12 @@ func (t *ClientCodecTransport[T]) ReceiveServerInfo() (info dlgt.ServerInfo,
 	return
 }
 
+// WriterBufSize returns the transport's writer buffer size.
 func (t *ClientCodecTransport[T]) WriterBufSize() int {
 	return t.CodecTransport.W.(*bufio.Writer).Size()
 }
 
+// ReaderBufSize returns the transport's reader buffer size.
 func (t *ClientCodecTransport[T]) ReaderBufSize() int {
 	return t.CodecTransport.R.(*bufio.Reader).Size()
 }

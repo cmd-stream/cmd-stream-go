@@ -14,7 +14,7 @@ import (
 )
 
 func FirstSetDeadlineErrorTestCase(t *testing.T) ConnReceiverTestCase {
-	name := "Should return an error if the firts connection failed to set a deadline"
+	name := "Should return an error if the first connection failed to set a deadline"
 
 	var (
 		wantErr              = errors.New("SetDeadline error")
