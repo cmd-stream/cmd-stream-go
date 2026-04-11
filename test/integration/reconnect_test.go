@@ -13,7 +13,7 @@ import (
 )
 
 func TestReconnect(t *testing.T) {
-	const addr = "127.0.0.1:9004"
+	const addr = "127.0.0.1:9006"
 
 	startReconnectServer(addr)
 	factory := &reconnectFactory{addr: addr}

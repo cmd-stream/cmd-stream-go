@@ -66,6 +66,10 @@ func (d *KeepaliveDelegate[T]) Keepalive(muSn *sync.Mutex) {
 	go keepalive(d, muSn)
 }
 
+func (d *KeepaliveDelegate[T]) Unwrap() core.ClientDelegate[T] {
+	return d.ClientDelegate
+}
+
 func (d *KeepaliveDelegate[T]) Close() (err error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -88,10 +92,7 @@ func keepalive[T any](d *KeepaliveDelegate[T], muSn *sync.Mutex) {
 		case <-d.done:
 			return
 		case <-timer.C:
-			if _, err := ping(muSn, 0, d); err != nil {
-				d.Close()
-				return
-			}
+			_, _ = ping(muSn, 0, d)
 			timer.Reset(d.options.KeepaliveIntvl)
 		case <-d.alive:
 			if !timer.Stop() {

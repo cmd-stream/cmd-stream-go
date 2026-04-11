@@ -40,6 +40,10 @@ type ReconnectDelegate[T any] interface {
 	Reconnect() error
 }
 
+type ClientDelegateUnwrapper[T any] interface {
+	Unwrap() ClientDelegate[T]
+}
+
 // ServerDelegate helps the server handle incoming connections.
 //
 // Handle method should return context.Canceled error if the context is done.

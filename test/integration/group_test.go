@@ -15,7 +15,7 @@ import (
 )
 
 func TestGroup(t *testing.T) {
-	const addr = "127.0.0.1:9000"
+	const addr = "127.0.0.1:9001"
 
 	startGroupServer(t, addr)
 	group, err := makeGroup(addr)

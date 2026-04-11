@@ -14,7 +14,7 @@ import (
 )
 
 func TestSender(t *testing.T) {
-	const addr = "127.0.0.1:9005"
+	const addr = "127.0.0.1:9007"
 
 	startSenderServer(t, addr)
 	sender, err := makeSender(addr)
@@ -25,7 +25,7 @@ func TestSender(t *testing.T) {
 }
 
 func TestConcurrentSender(t *testing.T) {
-	const addr = "127.0.0.1:9006"
+	const addr = "127.0.0.1:9008"
 
 	startSenderServer(t, addr)
 	sender, err := makeSender(addr)

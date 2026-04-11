@@ -18,7 +18,7 @@ import (
 )
 
 func TestKeepalive(t *testing.T) {
-	const addr = "127.0.0.1:9001"
+	const addr = "127.0.0.1:9004"
 
 	startKeepaliveServer(t, addr)
 	client, err := makeKeepaliveClient(addr)

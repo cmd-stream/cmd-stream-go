@@ -15,7 +15,7 @@ import (
 )
 
 func TestConcurrent(t *testing.T) {
-	const addr = "127.0.0.1:9003"
+	const addr = "127.0.0.1:9000"
 
 	startConcurrentServer(t, addr)
 	client, err := makeConcurrentClient(addr)

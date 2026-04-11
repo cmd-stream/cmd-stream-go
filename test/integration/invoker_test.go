@@ -16,7 +16,7 @@ import (
 )
 
 func TestInvoker(t *testing.T) {
-	const addr = "127.0.0.1:9007"
+	const addr = "127.0.0.1:9002"
 	var (
 		receiver = testkit.Receiver{}
 		invoker  = hmock.NewInvoker[testkit.Receiver]()

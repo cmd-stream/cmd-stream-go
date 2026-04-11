@@ -14,7 +14,7 @@ import (
 )
 
 func TestMultiResult(t *testing.T) {
-	const addr = "127.0.0.1:9002"
+	const addr = "127.0.0.1:9005"
 
 	startMultiResultServer(t, addr)
 	client, err := makeMultiResultClient(addr)

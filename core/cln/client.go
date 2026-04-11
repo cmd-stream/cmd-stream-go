@@ -296,7 +296,7 @@ Start:
 	if err != nil {
 		err = client.correctErr(err)
 		if _, ok := err.(net.Error); ok || err == io.EOF {
-			if reconnectDelegate, ok := client.delegate.(core.ReconnectDelegate[T]); ok {
+			if reconnectDelegate, ok := findReconnectDelegate(client.delegate); ok {
 				if err = reconnectDelegate.Reconnect(); err == nil {
 					goto Start
 				}
@@ -304,4 +304,19 @@ Start:
 		}
 	}
 	client.exit(err)
+}
+
+func findReconnectDelegate[T any](d core.ClientDelegate[T]) (
+	core.ReconnectDelegate[T], bool,
+) {
+	for {
+		if rd, ok := d.(core.ReconnectDelegate[T]); ok {
+			return rd, true
+		}
+		if u, ok := d.(core.ClientDelegateUnwrapper[T]); ok {
+			d = u.Unwrap()
+			continue
+		}
+		return nil, false
+	}
 }

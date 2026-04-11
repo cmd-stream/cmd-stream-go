@@ -214,31 +214,42 @@ func KeepaliveCloseErrorTestCase(t *testing.T) KeepaliveTestCase {
 }
 
 func KeepaliveSendErrorTestCase(t *testing.T) KeepaliveTestCase {
-	name := "If ping sending fails with an error, connection should be closed"
+	name := "If ping sending fails with an error, connection should NOT be closed and ping should be retried"
 
 	var (
 		done     = make(chan struct{})
 		delegate = cmock.NewClientDelegate()
 	)
+	// First attempt fails.
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) error { return nil },
 	).RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
 			return 1, errors.New("send error")
 		},
-	).RegisterClose(
+	)
+	// Second attempt succeeds - proving the loop is still alive.
+	delegate.RegisterSetSendDeadline(
+		func(deadline time.Time) error { return nil },
+	).RegisterSend(
+		func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+			return 1, nil
+		},
+	).RegisterFlush(
 		func() error {
 			defer close(done)
 			return nil
 		},
+	).RegisterClose(
+		func() error { return nil },
 	)
 	return KeepaliveTestCase{
 		Name: name,
 		Setup: KeepaliveSetup{
 			Delegate: delegate,
 			Opts: []cln.SetKeepaliveOption{
-				cln.WithKeepaliveTime(200 * time.Millisecond),
-				cln.WithKeepaliveIntvl(200 * time.Millisecond),
+				cln.WithKeepaliveTime(100 * time.Millisecond),
+				cln.WithKeepaliveIntvl(100 * time.Millisecond),
 			},
 		},
 		Action: func(t *testing.T, d *cln.KeepaliveDelegate[any]) {
@@ -249,6 +260,8 @@ func KeepaliveSendErrorTestCase(t *testing.T) KeepaliveTestCase {
 			case <-time.After(time.Second):
 				t.Fatal("test lasts too long")
 			}
+			err := d.Close()
+			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{delegate.Mock},
 	}
