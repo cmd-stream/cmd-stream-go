@@ -33,7 +33,7 @@ type RoundRobinStrategyFactory[T any] struct{}
 
 // New creates a new round-robin dispatch strategy.
 func (RoundRobinStrategyFactory[T]) New(
-	clients []GroupClient[T],
-) DispatchStrategy[GroupClient[T]] {
+	clients []Client[T],
+) DispatchStrategy[Client[T]] {
 	return NewRoundRobinStrategy(clients)
 }

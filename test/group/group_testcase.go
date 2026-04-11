@@ -11,7 +11,7 @@ import (
 
 type GroupTestCase struct {
 	Name     string
-	Strategy grp.DispatchStrategy[grp.GroupClient[any]]
+	Strategy grp.DispatchStrategy[grp.Client[any]]
 	Action   func(t *testing.T, g grp.Group[any])
 	Mocks    []*mok.Mock
 }

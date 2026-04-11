@@ -18,8 +18,8 @@ type Hooks[T any] interface {
 	OnTimeout(ctx context.Context, sentCmd SentCmd[T], err error)
 }
 
-// HooksFactory provides a way to create new Hooks instances.
-type HooksFactory[T any] interface {
+// Factory provides a way to create new Hooks instances.
+type Factory[T any] interface {
 	New() Hooks[T]
 }
 

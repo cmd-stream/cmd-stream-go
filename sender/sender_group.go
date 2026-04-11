@@ -7,9 +7,9 @@ import (
 	grp "github.com/cmd-stream/cmd-stream-go/group"
 )
 
-// SenderGroup represents a group of clients used to send commands and receive
+// Group represents a group of clients used to send commands and receive
 // results.
-type SenderGroup[T any] interface {
+type Group[T any] interface {
 	Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
 		seq core.Seq, clientID grp.ClientID, n int, err error)
 	SendWithDeadline(deadline time.Time, cmd core.Cmd[T],

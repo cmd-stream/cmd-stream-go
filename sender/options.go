@@ -6,7 +6,7 @@ import (
 
 // Options represents the configurations for a Sender.
 type Options[T any] struct {
-	HooksFactory hks.HooksFactory[T]
+	HooksFactory hks.Factory[T]
 }
 
 // DefaultOptions returns the default Sender configuration.
@@ -22,7 +22,7 @@ type SetOption[T any] func(o *Options[T])
 // WithHooksFactory sets a factory that creates new hooks for each send
 // operation. Hooks can customize behavior during the sending process, such as
 // logging or instrumentation.
-func WithHooksFactory[T any](factory hks.HooksFactory[T]) SetOption[T] {
+func WithHooksFactory[T any](factory hks.Factory[T]) SetOption[T] {
 	return func(o *Options[T]) {
 		o.HooksFactory = factory
 	}

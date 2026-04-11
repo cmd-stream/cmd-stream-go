@@ -8,15 +8,15 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-type SenderGroup[T any] struct {
+type Group[T any] struct {
 	*mok.Mock
 }
 
-func NewSenderGroup[T any]() SenderGroup[T] {
-	return SenderGroup[T]{mok.New("SenderGroup")}
+func NewGroup[T any]() Group[T] {
+	return Group[T]{mok.New("Group")}
 }
 
-func (m SenderGroup[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
+func (m Group[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
 	seq core.Seq, clientID grp.ClientID, n int, err error,
 ) {
 	vals, err := m.Call("Send", cmd, results)
@@ -30,7 +30,7 @@ func (m SenderGroup[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
 	return
 }
 
-func (m SenderGroup[T]) SendWithDeadline(deadline time.Time, cmd core.Cmd[T],
+func (m Group[T]) SendWithDeadline(deadline time.Time, cmd core.Cmd[T],
 	results chan<- core.AsyncResult,
 ) (seq core.Seq, clientID grp.ClientID, n int, err error) {
 	vals, err := m.Call("SendWithDeadline", deadline, cmd, results)
@@ -44,7 +44,7 @@ func (m SenderGroup[T]) SendWithDeadline(deadline time.Time, cmd core.Cmd[T],
 	return
 }
 
-func (m SenderGroup[T]) Has(seq core.Seq, clientID grp.ClientID) (ok bool) {
+func (m Group[T]) Has(seq core.Seq, clientID grp.ClientID) (ok bool) {
 	vals, err := m.Call("Has", seq, clientID)
 	if err != nil {
 		return
@@ -53,11 +53,11 @@ func (m SenderGroup[T]) Has(seq core.Seq, clientID grp.ClientID) (ok bool) {
 	return
 }
 
-func (m SenderGroup[T]) Forget(seq core.Seq, clientID grp.ClientID) {
+func (m Group[T]) Forget(seq core.Seq, clientID grp.ClientID) {
 	_, _ = m.Call("Forget", seq, clientID)
 }
 
-func (m SenderGroup[T]) Done() <-chan struct{} {
+func (m Group[T]) Done() <-chan struct{} {
 	vals, err := m.Call("Done")
 	if err != nil {
 		return nil
@@ -65,7 +65,7 @@ func (m SenderGroup[T]) Done() <-chan struct{} {
 	return vals[0].(<-chan struct{})
 }
 
-func (m SenderGroup[T]) Error() (err error) {
+func (m Group[T]) Error() (err error) {
 	vals, err := m.Call("Error")
 	if err != nil {
 		return
@@ -74,7 +74,7 @@ func (m SenderGroup[T]) Error() (err error) {
 	return
 }
 
-func (m SenderGroup[T]) Close() (err error) {
+func (m Group[T]) Close() (err error) {
 	vals, err := m.Call("Close")
 	if err != nil {
 		return
@@ -83,48 +83,48 @@ func (m SenderGroup[T]) Close() (err error) {
 	return
 }
 
-func (m SenderGroup[T]) RegisterSend(
+func (m Group[T]) RegisterSend(
 	fn func(cmd core.Cmd[T], results chan<- core.AsyncResult) (
 		seq core.Seq, clientID grp.ClientID, n int, err error),
-) SenderGroup[T] {
+) Group[T] {
 	m.Register("Send", fn)
 	return m
 }
 
-func (m SenderGroup[T]) RegisterSendWithDeadline(
+func (m Group[T]) RegisterSendWithDeadline(
 	fn func(deadline time.Time, cmd core.Cmd[T],
 		results chan<- core.AsyncResult,
 	) (seq core.Seq, clientID grp.ClientID, n int, err error),
-) SenderGroup[T] {
+) Group[T] {
 	m.Register("SendWithDeadline", fn)
 	return m
 }
 
-func (m SenderGroup[T]) RegisterHas(fn func(seq core.Seq,
+func (m Group[T]) RegisterHas(fn func(seq core.Seq,
 	clientID grp.ClientID) (ok bool),
-) SenderGroup[T] {
+) Group[T] {
 	m.Register("Has", fn)
 	return m
 }
 
-func (m SenderGroup[T]) RegisterForget(fn func(seq core.Seq,
+func (m Group[T]) RegisterForget(fn func(seq core.Seq,
 	clientID grp.ClientID),
-) SenderGroup[T] {
+) Group[T] {
 	m.Register("Forget", fn)
 	return m
 }
 
-func (m SenderGroup[T]) RegisterDone(fn func() <-chan struct{}) SenderGroup[T] {
+func (m Group[T]) RegisterDone(fn func() <-chan struct{}) Group[T] {
 	m.Register("Done", fn)
 	return m
 }
 
-func (m SenderGroup[T]) RegisterError(fn func() (err error)) SenderGroup[T] {
+func (m Group[T]) RegisterError(fn func() (err error)) Group[T] {
 	m.Register("Error", fn)
 	return m
 }
 
-func (m SenderGroup[T]) RegisterClose(fn func() (err error)) SenderGroup[T] {
+func (m Group[T]) RegisterClose(fn func() (err error)) Group[T] {
 	m.Register("Close", fn)
 	return m
 }

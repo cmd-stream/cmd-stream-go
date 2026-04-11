@@ -10,7 +10,7 @@ import (
 )
 
 type SenderSetup[T any] struct {
-	Group   smock.SenderGroup[T]
+	Group   smock.Group[T]
 	Options []sender.SetOption[T]
 }
 

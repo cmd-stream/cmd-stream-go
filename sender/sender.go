@@ -13,15 +13,15 @@ import (
 )
 
 // Sender provides a high-level abstraction for sending Commands and processing
-// Results. It uses a SenderGroup to communicate with the server and a
+// Results. It uses a Group to communicate with the server and a
 // hooks factory to customize behavior.
 type Sender[T any] struct {
-	group   SenderGroup[T]
+	group   Group[T]
 	options Options[T]
 }
 
 // New creates a new Sender with the given client group and options.
-func New[T any](group SenderGroup[T], opts ...SetOption[T]) Sender[T] {
+func New[T any](group Group[T], opts ...SetOption[T]) Sender[T] {
 	o := DefaultOptions[T]()
 	Apply(&o, opts...)
 	return Sender[T]{

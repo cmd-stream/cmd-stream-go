@@ -17,85 +17,85 @@ type (
 	Done             func() <-chan struct{}
 )
 
-func NewGroupClient[T any]() GroupClient[T] {
-	return GroupClient[T]{Mock: mok.New("GroupClient")}
+func NewClient[T any]() Client[T] {
+	return Client[T]{Mock: mok.New("Client")}
 }
 
-type GroupClient[T any] struct {
+type Client[T any] struct {
 	*mok.Mock
 }
 
-func (m GroupClient[T]) RegisterSendN(n int, fn Send) GroupClient[T] {
+func (m Client[T]) RegisterSendN(n int, fn Send) Client[T] {
 	m.RegisterN("Send", n, fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterSend(fn Send) GroupClient[T] {
+func (m Client[T]) RegisterSend(fn Send) Client[T] {
 	m.Register("Send", fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterSendWithDeadlineN(n int, fn SendWithDeadline) GroupClient[T] {
+func (m Client[T]) RegisterSendWithDeadlineN(n int, fn SendWithDeadline) Client[T] {
 	m.RegisterN("SendWithDeadline", n, fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterSendWithDeadline(fn SendWithDeadline) GroupClient[T] {
+func (m Client[T]) RegisterSendWithDeadline(fn SendWithDeadline) Client[T] {
 	m.Register("SendWithDeadline", fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterHasN(n int, fn Has) GroupClient[T] {
+func (m Client[T]) RegisterHasN(n int, fn Has) Client[T] {
 	m.RegisterN("Has", n, fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterHas(fn Has) GroupClient[T] {
+func (m Client[T]) RegisterHas(fn Has) Client[T] {
 	m.Register("Has", fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterForgetN(n int, fn Forget) GroupClient[T] {
+func (m Client[T]) RegisterForgetN(n int, fn Forget) Client[T] {
 	m.RegisterN("Forget", n, fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterForget(fn Forget) GroupClient[T] {
+func (m Client[T]) RegisterForget(fn Forget) Client[T] {
 	m.Register("Forget", fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterErrorN(n int, fn Error) GroupClient[T] {
+func (m Client[T]) RegisterErrorN(n int, fn Error) Client[T] {
 	m.RegisterN("Error", n, fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterError(fn Error) GroupClient[T] {
+func (m Client[T]) RegisterError(fn Error) Client[T] {
 	m.Register("Error", fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterCloseN(n int, fn Close) GroupClient[T] {
+func (m Client[T]) RegisterCloseN(n int, fn Close) Client[T] {
 	m.RegisterN("Close", n, fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterClose(fn Close) GroupClient[T] {
+func (m Client[T]) RegisterClose(fn Close) Client[T] {
 	m.Register("Close", fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterDoneN(n int, fn Done) GroupClient[T] {
+func (m Client[T]) RegisterDoneN(n int, fn Done) Client[T] {
 	m.RegisterN("Done", n, fn)
 	return m
 }
 
-func (m GroupClient[T]) RegisterDone(fn Done) GroupClient[T] {
+func (m Client[T]) RegisterDone(fn Done) Client[T] {
 	m.Register("Done", fn)
 	return m
 }
 
-func (m GroupClient[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
+func (m Client[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
 	vals, err := m.Call("Send", cmd, results)
 	if err != nil {
 		panic(err)
@@ -106,7 +106,7 @@ func (m GroupClient[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
 	return
 }
 
-func (m GroupClient[T]) SendWithDeadline(deadline time.Time, cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
+func (m Client[T]) SendWithDeadline(deadline time.Time, cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
 	vals, err := m.Call("SendWithDeadline", deadline, cmd, results)
 	if err != nil {
 		panic(err)
@@ -117,7 +117,7 @@ func (m GroupClient[T]) SendWithDeadline(deadline time.Time, cmd core.Cmd[T], re
 	return
 }
 
-func (m GroupClient[T]) Has(seq core.Seq) bool {
+func (m Client[T]) Has(seq core.Seq) bool {
 	vals, err := m.Call("Has", seq)
 	if err != nil {
 		panic(err)
@@ -125,14 +125,14 @@ func (m GroupClient[T]) Has(seq core.Seq) bool {
 	return vals[0].(bool)
 }
 
-func (m GroupClient[T]) Forget(seq core.Seq) {
+func (m Client[T]) Forget(seq core.Seq) {
 	_, err := m.Call("Forget", seq)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (m GroupClient[T]) Error() (err error) {
+func (m Client[T]) Error() (err error) {
 	vals, err := m.Call("Error")
 	if err != nil {
 		panic(err)
@@ -141,7 +141,7 @@ func (m GroupClient[T]) Error() (err error) {
 	return
 }
 
-func (m GroupClient[T]) Close() (err error) {
+func (m Client[T]) Close() (err error) {
 	vals, err := m.Call("Close")
 	if err != nil {
 		panic(err)
@@ -150,7 +150,7 @@ func (m GroupClient[T]) Close() (err error) {
 	return
 }
 
-func (m GroupClient[T]) Done() <-chan struct{} {
+func (m Client[T]) Done() <-chan struct{} {
 	vals, err := m.Call("Done")
 	if err != nil {
 		panic(err)

@@ -6,7 +6,7 @@ import (
 	"github.com/cmd-stream/cmd-stream-go/core"
 )
 
-// NoopHooksFactory implements HooksFactory with NoopHooks.
+// NoopHooksFactory implements Factory with NoopHooks.
 type NoopHooksFactory[T any] struct {
 	hooks NoopHooks[T]
 }

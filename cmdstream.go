@@ -114,7 +114,7 @@ func NewGroup[T any](clientsCount int, codec cln.Codec[T],
 		return
 	}
 
-	var clients []grp.GroupClient[T]
+	var clients []grp.Client[T]
 	if o.Reconnect {
 		clients, err = makeReconnectClients(clientsCount, codec, factory,
 			o.ClientOpts...)
@@ -163,8 +163,8 @@ func NewSender[T any](addr string, codec cln.Codec[T],
 
 func makeClients[T any](count int, codec cln.Codec[T],
 	factory cln.ConnFactory, opts ...cln.SetOption,
-) (clients []grp.GroupClient[T], err error) {
-	clients = make([]grp.GroupClient[T], 0, count)
+) (clients []grp.Client[T], err error) {
+	clients = make([]grp.Client[T], 0, count)
 	var conn net.Conn
 	for range count {
 		conn, err = factory.New()
@@ -183,8 +183,8 @@ func makeClients[T any](count int, codec cln.Codec[T],
 
 func makeReconnectClients[T any](count int, codec cln.Codec[T],
 	factory cln.ConnFactory, opts ...cln.SetOption,
-) (sl []grp.GroupClient[T], err error) {
-	sl = make([]grp.GroupClient[T], 0, count)
+) (sl []grp.Client[T], err error) {
+	sl = make([]grp.Client[T], 0, count)
 	for range count {
 		var c *ccln.Client[T]
 		c, err = NewReconnectClient(codec, factory, opts...)

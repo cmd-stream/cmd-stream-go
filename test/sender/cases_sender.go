@@ -24,7 +24,7 @@ func SendSuccessTestCase(t *testing.T) SenderTestCase[any] {
 		wantCmd    = core.Cmd[any](nil)
 		seq        = core.Seq(1)
 		wantResult = core.Result(nil)
-		group      = smock.NewSenderGroup[any]()
+		group      = smock.NewGroup[any]()
 	)
 	group.RegisterSend(
 		func(c core.Cmd[any], r chan<- core.AsyncResult) (
@@ -59,7 +59,7 @@ func SendBeforeSendErrorTestCase() SenderTestCase[any] {
 				return c, wantErr
 			},
 		)
-		factory = hmock.NewHooksFactory[any]()
+		factory = hmock.NewFactory[any]()
 	)
 	factory.RegisterNew(
 		func() hks.Hooks[any] { return hooks },
@@ -67,7 +67,7 @@ func SendBeforeSendErrorTestCase() SenderTestCase[any] {
 	return SenderTestCase[any]{
 		Name: name,
 		Setup: SenderSetup[any]{
-			Group:   smock.NewSenderGroup[any](),
+			Group:   smock.NewGroup[any](),
 			Options: []sndr.SetOption[any]{sndr.WithHooksFactory(factory)},
 		},
 		Action: func(t *testing.T, s sndr.Sender[any]) {
@@ -79,11 +79,11 @@ func SendBeforeSendErrorTestCase() SenderTestCase[any] {
 }
 
 func SendGroupErrorTestCase() SenderTestCase[any] {
-	name := "Send should return an error if SenderGroup.Send fails"
+	name := "Send should return an error if Group.Send fails"
 
 	var (
 		wantErr = errors.New("send error")
-		group   = smock.NewSenderGroup[any]()
+		group   = smock.NewGroup[any]()
 	)
 	group.RegisterSend(
 		func(c core.Cmd[any], r chan<- core.AsyncResult) (
@@ -110,7 +110,7 @@ func SendTimeoutTestCase() SenderTestCase[any] {
 
 	var (
 		wantCmd = core.Cmd[any](nil)
-		group   = smock.NewSenderGroup[any]()
+		group   = smock.NewGroup[any]()
 	)
 	group.RegisterSend(
 		func(c core.Cmd[any], r chan<- core.AsyncResult) (
@@ -144,7 +144,7 @@ func SendWithDeadlineSuccessTestCase(t *testing.T) SenderTestCase[any] {
 		wantCmd      = core.Cmd[any](nil)
 		seq          = core.Seq(1)
 		wantResult   = core.Result(nil)
-		group        = smock.NewSenderGroup[any]()
+		group        = smock.NewGroup[any]()
 	)
 	group.RegisterSendWithDeadline(
 		func(d time.Time, c core.Cmd[any], r chan<- core.AsyncResult) (
@@ -181,10 +181,10 @@ func SendWithDeadlineBeforeSendErrorTestCase() SenderTestCase[any] {
 				return c, wantErr
 			},
 		)
-		factory = hmock.NewHooksFactory[any]().RegisterNew(
+		factory = hmock.NewFactory[any]().RegisterNew(
 			func() hks.Hooks[any] { return hooks },
 		)
-		group = smock.NewSenderGroup[any]()
+		group = smock.NewGroup[any]()
 	)
 	return SenderTestCase[any]{
 		Name: name,
@@ -201,12 +201,12 @@ func SendWithDeadlineBeforeSendErrorTestCase() SenderTestCase[any] {
 }
 
 func SendWithDeadlineGroupErrorTestCase() SenderTestCase[any] {
-	name := "SendWithDeadline should return an error if SenderGroup.SendWithDeadline fails"
+	name := "SendWithDeadline should return an error if Group.SendWithDeadline fails"
 
 	var (
 		wantDeadline = time.Now().Add(time.Hour)
 		wantErr      = errors.New("SendWithDeadline error")
-		group        = smock.NewSenderGroup[any]().RegisterSendWithDeadline(
+		group        = smock.NewGroup[any]().RegisterSendWithDeadline(
 			func(d time.Time, c core.Cmd[any], r chan<- core.AsyncResult) (
 				core.Seq, grp.ClientID, int, error,
 			) {
@@ -233,7 +233,7 @@ func SendWithDeadlineTimeoutTestCase() SenderTestCase[any] {
 	var (
 		wantDeadline = time.Now().Add(time.Hour)
 		seq          = core.Seq(1)
-		group        = smock.NewSenderGroup[any]().RegisterSendWithDeadline(
+		group        = smock.NewGroup[any]().RegisterSendWithDeadline(
 			func(d time.Time, c core.Cmd[any], r chan<- core.AsyncResult) (
 				core.Seq, grp.ClientID, int, error,
 			) {
@@ -265,7 +265,7 @@ func SendMultiSuccessTestCase(t *testing.T) SenderTestCase[any] {
 		seq2        = core.Seq(2)
 		wantResult1 = cmock.NewResult().RegisterLastOne(func() bool { return false })
 		wantResult2 = cmock.NewResult().RegisterLastOne(func() bool { return true })
-		group       = smock.NewSenderGroup[any]()
+		group       = smock.NewGroup[any]()
 		wantResults = []core.Result{wantResult1, wantResult2}
 		count       = 0
 		handler     = sndr.ResultHandlerFn(
@@ -305,7 +305,7 @@ func SendMultiBeforeSendErrorTestCase() SenderTestCase[any] {
 	var (
 		wantErr = errors.New("BeforeSend error")
 		hooks   = hmock.NewHooks[any]()
-		factory = hmock.NewHooksFactory[any]()
+		factory = hmock.NewFactory[any]()
 	)
 	hooks.RegisterBeforeSend(
 		func(c context.Context, cm core.Cmd[any]) (context.Context, error) {
@@ -318,7 +318,7 @@ func SendMultiBeforeSendErrorTestCase() SenderTestCase[any] {
 	return SenderTestCase[any]{
 		Name: name,
 		Setup: SenderSetup[any]{
-			Group:   smock.NewSenderGroup[any](),
+			Group:   smock.NewGroup[any](),
 			Options: []sndr.SetOption[any]{sndr.WithHooksFactory(factory)},
 		},
 		Action: func(t *testing.T, s sndr.Sender[any]) {
@@ -330,11 +330,11 @@ func SendMultiBeforeSendErrorTestCase() SenderTestCase[any] {
 }
 
 func SendMultiGroupErrorTestCase() SenderTestCase[any] {
-	name := "SendMulti should return an error if SenderGroup.Send fails"
+	name := "SendMulti should return an error if Group.Send fails"
 
 	var (
 		wantErr = errors.New("send error")
-		group   = smock.NewSenderGroup[any]()
+		group   = smock.NewGroup[any]()
 	)
 	group.RegisterSend(
 		func(c core.Cmd[any], r chan<- core.AsyncResult) (
@@ -362,7 +362,7 @@ func SendMultiTimeoutTestCase(t *testing.T) SenderTestCase[any] {
 	var (
 		wantCmd = core.Cmd[any](nil)
 		seq     = core.Seq(1)
-		group   = smock.NewSenderGroup[any]()
+		group   = smock.NewGroup[any]()
 		handler = sndr.ResultHandlerFn(
 			func(result core.Result, err error) error {
 				asserterror.EqualDeep(t, err, sndr.ErrTimeout)
@@ -402,7 +402,7 @@ func SendMultiWithDeadlineSuccessTestCase(t *testing.T) SenderTestCase[any] {
 		seq2        = core.Seq(2)
 		wantResult1 = cmock.NewResult().RegisterLastOne(func() bool { return false })
 		wantResult2 = cmock.NewResult().RegisterLastOne(func() bool { return true })
-		group       = smock.NewSenderGroup[any]()
+		group       = smock.NewGroup[any]()
 		wantResults = []core.Result{wantResult1, wantResult2}
 		count       = 0
 		handler     = sndr.ResultHandlerFn(
@@ -449,7 +449,7 @@ func SendMultiWithDeadlineBeforeSendErrorTestCase() SenderTestCase[any] {
 				return c, wantErr
 			},
 		)
-		factory = hmock.NewHooksFactory[any]()
+		factory = hmock.NewFactory[any]()
 	)
 	factory.RegisterNew(
 		func() hks.Hooks[any] { return hooks },
@@ -457,7 +457,7 @@ func SendMultiWithDeadlineBeforeSendErrorTestCase() SenderTestCase[any] {
 	return SenderTestCase[any]{
 		Name: name,
 		Setup: SenderSetup[any]{
-			Group:   smock.NewSenderGroup[any](),
+			Group:   smock.NewGroup[any](),
 			Options: []sndr.SetOption[any]{sndr.WithHooksFactory(factory)},
 		},
 		Action: func(t *testing.T, s sndr.Sender[any]) {
@@ -469,11 +469,11 @@ func SendMultiWithDeadlineBeforeSendErrorTestCase() SenderTestCase[any] {
 }
 
 func SendMultiWithDeadlineGroupErrorTestCase() SenderTestCase[any] {
-	name := "SendMultiWithDeadline should return an error if SenderGroup.SendWithDeadline fails"
+	name := "SendMultiWithDeadline should return an error if Group.SendWithDeadline fails"
 
 	var (
 		wantErr = errors.New("SendWithDeadline error")
-		group   = smock.NewSenderGroup[any]()
+		group   = smock.NewGroup[any]()
 	)
 	group.RegisterSendWithDeadline(
 		func(d time.Time, c core.Cmd[any], r chan<- core.AsyncResult) (
@@ -500,7 +500,7 @@ func SendMultiWithDeadlineTimeoutTestCase(t *testing.T) SenderTestCase[any] {
 	name := "SendMultiWithDeadline should report ErrTimeout to the ResultHandler if no result was received within the timeout"
 
 	var (
-		group   = smock.NewSenderGroup[any]()
+		group   = smock.NewGroup[any]()
 		handler = sndr.ResultHandlerFn(
 			func(result core.Result, err error) error {
 				asserterror.EqualDeep(t, err, sndr.ErrTimeout)

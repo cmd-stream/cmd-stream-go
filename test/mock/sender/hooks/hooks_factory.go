@@ -7,20 +7,20 @@ import (
 
 type New[T any] func() hks.Hooks[T]
 
-func NewHooksFactory[T any]() HooksFactory[T] {
-	return HooksFactory[T]{mok.New("HooksFactory")}
+func NewFactory[T any]() Factory[T] {
+	return Factory[T]{mok.New("Factory")}
 }
 
-type HooksFactory[T any] struct {
+type Factory[T any] struct {
 	*mok.Mock
 }
 
-func (m HooksFactory[T]) RegisterNew(fn New[T]) HooksFactory[T] {
+func (m Factory[T]) RegisterNew(fn New[T]) Factory[T] {
 	m.Register("New", fn)
 	return m
 }
 
-func (m HooksFactory[T]) New() hks.Hooks[T] {
+func (m Factory[T]) New() hks.Hooks[T] {
 	vals, err := m.Call("New")
 	if err != nil {
 		panic(err)

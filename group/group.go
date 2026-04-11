@@ -12,12 +12,12 @@ import (
 // Group represents a group of clients that distributes the load across multiple
 // connections using a dispatch strategy.
 type Group[T any] struct {
-	strategy DispatchStrategy[GroupClient[T]]
+	strategy DispatchStrategy[Client[T]]
 	done     chan struct{}
 }
 
 // New creates a new Group.
-func New[T any](strategy DispatchStrategy[GroupClient[T]]) Group[T] {
+func New[T any](strategy DispatchStrategy[Client[T]]) Group[T] {
 	group := Group[T]{strategy, make(chan struct{})}
 	go func() {
 		sl := strategy.Slice()

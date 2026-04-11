@@ -17,11 +17,11 @@ func GroupSendTestCase(t *testing.T) GroupTestCase {
 	name := "Should successfully send command using Group"
 
 	var (
-		client1         = gmock.NewGroupClient[any]()
+		client1         = gmock.NewClient[any]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewGroupClient[any]()
+		client2         = gmock.NewClient[any]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.GroupClient[any]]()
+		strategy        = gmock.NewDispatchStrategy[group.Client[any]]()
 		wantCmd         = cmock.NewCmd[any]()
 		results         = make(chan core.AsyncResult, 1)
 		wantSeq         = core.Seq(1)
@@ -30,7 +30,7 @@ func GroupSendTestCase(t *testing.T) GroupTestCase {
 	strategy.RegisterNext(
 		func() (t any, index int64) { return client1, 0 },
 	).RegisterSliceN(2,
-		func() any { return []group.GroupClient[any]{client1, client2} },
+		func() any { return []group.Client[any]{client1, client2} },
 	)
 	// client1 is first in round-robin
 	client1.RegisterSend(
@@ -76,11 +76,11 @@ func GroupSendWithDeadlineTestCase(t *testing.T) GroupTestCase {
 	name := "Should successfully send command with deadline using Group"
 
 	var (
-		client1         = gmock.NewGroupClient[any]()
+		client1         = gmock.NewClient[any]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewGroupClient[any]()
+		client2         = gmock.NewClient[any]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.GroupClient[any]]()
+		strategy        = gmock.NewDispatchStrategy[group.Client[any]]()
 		wantCmd         = cmock.NewCmd[any]()
 		results         = make(chan core.AsyncResult, 1)
 		wantSeq         = core.Seq(1)
@@ -90,7 +90,7 @@ func GroupSendWithDeadlineTestCase(t *testing.T) GroupTestCase {
 	strategy.RegisterNext(
 		func() (t any, index int64) { return client1, 0 },
 	).RegisterSliceN(2,
-		func() any { return []group.GroupClient[any]{client1, client2} },
+		func() any { return []group.Client[any]{client1, client2} },
 	)
 	// client1 is first in round-robin
 	client1.RegisterSendWithDeadline(
@@ -130,15 +130,15 @@ func GroupHasTestCase(t *testing.T) GroupTestCase {
 	name := "Group.Has should return true when client has cmd"
 
 	var (
-		client1         = gmock.NewGroupClient[any]()
+		client1         = gmock.NewClient[any]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewGroupClient[any]()
+		client2         = gmock.NewClient[any]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.GroupClient[any]]()
+		strategy        = gmock.NewDispatchStrategy[group.Client[any]]()
 		seq             = core.Seq(1)
 	)
 	strategy.RegisterSliceN(3,
-		func() any { return []group.GroupClient[any]{client1, client2} },
+		func() any { return []group.Client[any]{client1, client2} },
 	)
 	client1.RegisterHas(
 		func(s core.Seq) bool { return true },
@@ -172,15 +172,15 @@ func GroupForgetTestCase(t *testing.T) GroupTestCase {
 	name := "Group.Forget should call Forget on the correct client"
 
 	var (
-		client1         = gmock.NewGroupClient[any]()
+		client1         = gmock.NewClient[any]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewGroupClient[any]()
+		client2         = gmock.NewClient[any]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.GroupClient[any]]()
+		strategy        = gmock.NewDispatchStrategy[group.Client[any]]()
 		seq             = core.Seq(1)
 	)
 	strategy.RegisterSliceN(3,
-		func() any { return []group.GroupClient[any]{client1, client2} },
+		func() any { return []group.Client[any]{client1, client2} },
 	)
 	client1.RegisterForget(
 		func(s core.Seq) {},
@@ -216,14 +216,14 @@ func GroupErrorTestCase(t *testing.T) GroupTestCase {
 	var (
 		err1            = errors.New("error 1")
 		err2            = errors.New("error 2")
-		client1         = gmock.NewGroupClient[any]()
+		client1         = gmock.NewClient[any]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewGroupClient[any]()
+		client2         = gmock.NewClient[any]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.GroupClient[any]]()
+		strategy        = gmock.NewDispatchStrategy[group.Client[any]]()
 	)
 	strategy.RegisterSliceN(3,
-		func() any { return []group.GroupClient[any]{client1, client2} },
+		func() any { return []group.Client[any]{client1, client2} },
 	)
 	client1.RegisterError(
 		func() error { return err1 },
@@ -260,14 +260,14 @@ func GroupCloseTestCase(t *testing.T) GroupTestCase {
 	name := "Should successfully close all clients in Group"
 
 	var (
-		client1         = gmock.NewGroupClient[any]()
+		client1         = gmock.NewClient[any]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewGroupClient[any]()
+		client2         = gmock.NewClient[any]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.GroupClient[any]]()
+		strategy        = gmock.NewDispatchStrategy[group.Client[any]]()
 	)
 	strategy.RegisterSliceN(2,
-		func() any { return []group.GroupClient[any]{client1, client2} },
+		func() any { return []group.Client[any]{client1, client2} },
 	)
 	client1.RegisterClose(
 		func() error {

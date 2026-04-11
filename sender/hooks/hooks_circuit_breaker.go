@@ -61,12 +61,12 @@ func (h CircuitBreakerHooks[T]) OnTimeout(ctx context.Context, sentCmd SentCmd[T
 // circuit breaker logic during the command sending process.
 type CircuitBreakerHooksFactory[T any] struct {
 	cb      CircuitBreaker
-	factory HooksFactory[T]
+	factory Factory[T]
 }
 
 // NewCircuitBreakerHooksFactory creates a new CircuitBreakerHooksFactory.
 func NewCircuitBreakerHooksFactory[T any](cb CircuitBreaker,
-	factory HooksFactory[T],
+	factory Factory[T],
 ) CircuitBreakerHooksFactory[T] {
 	return CircuitBreakerHooksFactory[T]{cb, factory}
 }
