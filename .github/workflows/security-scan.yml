@@ -10,6 +10,9 @@ jobs:
   gosec:
     name: Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
       - name: Run Gosec Security Scanner
@@ -19,5 +22,7 @@ jobs:
           args: '-fmt sarif -out results.sarif ./...'
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
+        if: ${{ !env.ACT }}
         with:
           sarif_file: results.sarif
+          token: ${{ secrets.GITHUB_TOKEN }}

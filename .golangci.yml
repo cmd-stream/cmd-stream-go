@@ -1,9 +1,6 @@
-version: "2"
 
 run:
   timeout: 5m
-  # Automatically fix safe issues like whitespace and unconversions
-  fix: true
   # Analyze all packages including tests
   tests: true
 
