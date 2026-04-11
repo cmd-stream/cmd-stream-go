@@ -28,17 +28,17 @@ linters:
     - goconst        # Identifies repeated strings that should be constants
     - revive         # Fast, configurable style linter (Modern golint)
 
+    
   exclusions:
-    # 1. Use 'paths' for entire directories.
-    paths:
-      - test/
-      - testkit/
-      
-    # 2. Use 'rules' for file patterns that are scattered across the repo.
     rules:
-      - path: '.*_test\.go$'
+      # This rule catches: 
+      # 1. Anything in the test/ folder
+      # 2. Anything in the testkit/ folder
+      # 3. Any file ending in _test.go
+      - path: '^(test/|testkit/|.*_test\.go$)'
         linters:
-          - "*"
+          - revive
+          - goconst
 
 linters-settings:
   prealloc:
