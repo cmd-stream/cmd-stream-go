@@ -154,7 +154,8 @@ func SecondAcceptErrorTestCase(t *testing.T) ConnReceiverTestCase {
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
 			select {
 			case conn := <-conns:
-				conn.Close()
+				err := conn.Close()
+				asserterror.EqualError(t, err, nil)
 			case <-time.After(time.Second):
 				t.Error("timeout waiting for the first connection")
 			}
@@ -214,13 +215,15 @@ func RunSeveralConnectionsTestCase(t *testing.T) ConnReceiverTestCase {
 						t.Errorf("channel closed unexpectedly at connection %v", i+1)
 						return
 					}
-					conn.Close()
+					err := conn.Close()
+					asserterror.EqualError(t, err, nil)
 				case <-time.After(time.Second):
 					t.Errorf("timeout waiting for connection %v", i+1)
 					return
 				}
 			}
-			receiver.Stop()
+			err := receiver.Stop()
+			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{wantConn1.Mock, wantConn2.Mock, wantConn3.Mock, listener.Mock},
 	}
@@ -256,7 +259,8 @@ func StopWhileAcceptingTestCase(t *testing.T) ConnReceiverTestCase {
 		},
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
 			time.Sleep(test.TimeDelta)
-			receiver.Stop()
+			err := receiver.Stop()
+			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{listener.Mock},
 	}
@@ -292,7 +296,8 @@ func ShutdownWhileAcceptingTestCase(t *testing.T) ConnReceiverTestCase {
 		},
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
 			time.Sleep(test.TimeDelta)
-			receiver.Shutdown()
+			err := receiver.Shutdown()
+			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{listener.Mock},
 	}
@@ -322,7 +327,8 @@ func StopWhileQueuingTestCase(t *testing.T) ConnReceiverTestCase {
 		},
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
 			time.Sleep(test.TimeDelta)
-			receiver.Stop()
+			err := receiver.Stop()
+			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{wantConn.Mock, listener.Mock},
 	}
@@ -352,7 +358,8 @@ func ShutdownWhileQueuingTestCase(t *testing.T) ConnReceiverTestCase {
 		},
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
 			time.Sleep(test.TimeDelta)
-			receiver.Shutdown()
+			err := receiver.Shutdown()
+			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{wantConn.Mock, listener.Mock},
 	}

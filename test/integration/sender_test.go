@@ -19,8 +19,10 @@ func TestSender(t *testing.T) {
 	startSenderServer(t, addr)
 	sender, err := makeSender(addr)
 	assertfatal.EqualError(t, err, nil)
-	defer sender.Close()
-
+	defer func() {
+		err := sender.Close()
+		asserterror.EqualError(t, err, nil)
+	}()
 	exchangeSender(t, sender)
 }
 
@@ -30,7 +32,10 @@ func TestConcurrentSender(t *testing.T) {
 	startSenderServer(t, addr)
 	sender, err := makeSender(addr)
 	assertfatal.EqualError(t, err, nil)
-	defer sender.Close()
+	defer func() {
+		err := sender.Close()
+		asserterror.EqualError(t, err, nil)
+	}()
 
 	exchangeConcurrentSender(t, sender)
 }

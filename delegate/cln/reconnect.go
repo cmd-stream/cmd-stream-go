@@ -33,7 +33,7 @@ func NewReconnect[T any](info dlgt.ServerInfo, factory dlgt.ClientTransportFacto
 	Apply(&o, opts...)
 	err = checkServerInfo(o.ServerInfoReceiveDuration, transport, info)
 	if err != nil {
-		transport.Close()
+		_ = transport.Close()
 		return
 	}
 	delegate = &ReconnectDelegate[T]{

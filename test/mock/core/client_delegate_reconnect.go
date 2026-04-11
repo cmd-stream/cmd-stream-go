@@ -96,7 +96,7 @@ func (m ReconnectDelegate) SetSendDeadline(deadline time.Time) (err error) {
 }
 
 func (m ReconnectDelegate) Send(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
-	vals, err := m.Call("Send", seq, mok.SafeVal[core.Cmd[any]](cmd))
+	vals, err := m.Call("Send", seq, cmd)
 	if err != nil {
 		panic(err)
 	}

@@ -1,12 +1,11 @@
 package sender
 
 import (
-	"github.com/cmd-stream/cmd-stream-go/sender/hooks"
 	hks "github.com/cmd-stream/cmd-stream-go/sender/hooks"
 )
 
 type Options[T any] struct {
-	HooksFactory hooks.HooksFactory[T]
+	HooksFactory hks.HooksFactory[T]
 }
 
 func DefaultOptions[T any]() Options[T] {
@@ -20,7 +19,7 @@ type SetOption[T any] func(o *Options[T])
 // WithHooksFactory sets a factory that creates new hooks for each send
 // operation. Hooks can customize behavior during the sending process, such as
 // logging or instrumentation.
-func WithHooksFactory[T any](factory hooks.HooksFactory[T]) SetOption[T] {
+func WithHooksFactory[T any](factory hks.HooksFactory[T]) SetOption[T] {
 	return func(o *Options[T]) {
 		o.HooksFactory = factory
 	}

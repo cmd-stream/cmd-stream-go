@@ -65,7 +65,7 @@ func (m Hooks[T]) RegisterOnTimeout(fn OnTimeout) Hooks[T] {
 }
 
 func (m Hooks[T]) BeforeSend(ctx context.Context, cmd core.Cmd[T]) (context.Context, error) {
-	vals, err := m.Call("BeforeSend", ctx, mok.SafeVal[core.Cmd[T]](cmd))
+	vals, err := m.Call("BeforeSend", ctx, cmd)
 	if err != nil {
 		panic(err)
 	}

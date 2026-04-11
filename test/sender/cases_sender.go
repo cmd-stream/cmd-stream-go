@@ -82,7 +82,7 @@ func SendGroupErrorTestCase() SenderTestCase[any] {
 	name := "Send should return an error if SenderGroup.Send fails"
 
 	var (
-		wantErr = errors.New("Send error")
+		wantErr = errors.New("send error")
 		group   = smock.NewSenderGroup[any]()
 	)
 	group.RegisterSend(
@@ -333,7 +333,7 @@ func SendMultiGroupErrorTestCase() SenderTestCase[any] {
 	name := "SendMulti should return an error if SenderGroup.Send fails"
 
 	var (
-		wantErr = errors.New("Send error")
+		wantErr = errors.New("send error")
 		group   = smock.NewSenderGroup[any]()
 	)
 	group.RegisterSend(

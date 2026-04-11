@@ -113,7 +113,8 @@ func WorkerStopTestCase(t *testing.T) WorkerTestCase {
 			WantErr:  srv.ErrClosed,
 		},
 		During: func(t *testing.T, w *srv.Worker, conns chan net.Conn) {
-			w.Stop()
+			err := w.Stop()
+			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{delegate.Mock},
 	}

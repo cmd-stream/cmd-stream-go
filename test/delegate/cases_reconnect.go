@@ -217,7 +217,8 @@ func ReconnectCycleCloseTestCase() ReconnectTestCase {
 			asserterror.EqualError(t, initErr, nil)
 			go func() {
 				time.Sleep(50 * time.Millisecond)
-				d.Close()
+				err := d.Close()
+				asserterror.EqualError(t, err, nil)
 			}()
 			err := d.Reconnect()
 			asserterror.EqualError(t, err, ccln.ErrClosed)
@@ -379,7 +380,7 @@ func ReconnectCloseErrorTestCase() ReconnectTestCase {
 	name := "If Transport.Close fails with an error, Close should return it"
 
 	var (
-		wantErr    = errors.New("Close error")
+		wantErr    = errors.New("close error")
 		transport  = mockcln.NewClientTransport[any]()
 		factory    = mockcln.NewClientTransportFactory[any]()
 		serverInfo = dlgt.ServerInfo("server-1")
@@ -568,7 +569,7 @@ func ReconnectSendErrorTestCase() ReconnectTestCase {
 	name := "If Transport.Send fails with an error, Send should return it"
 
 	var (
-		wantErr    = errors.New("Send error")
+		wantErr    = errors.New("send error")
 		transport  = mockcln.NewClientTransport[any]()
 		factory    = mockcln.NewClientTransportFactory[any]()
 		serverInfo = dlgt.ServerInfo("server-1")
@@ -645,7 +646,7 @@ func ReconnectReceiveErrorTestCase() ReconnectTestCase {
 	name := "If Transport.Receive fails with an error, Receive should return it"
 
 	var (
-		wantErr    = errors.New("Receive error")
+		wantErr    = errors.New("receive error")
 		transport  = mockcln.NewClientTransport[any]()
 		factory    = mockcln.NewClientTransportFactory[any]()
 		serverInfo = dlgt.ServerInfo("server-1")

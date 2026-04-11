@@ -116,7 +116,8 @@ func NoReconnectOnCloseTestCase() ClientTestCase[any] {
 			Opts:     []cln.SetOption{},
 		},
 		Action: func(t *testing.T, client *cln.Client[any], results chan core.AsyncResult) {
-			client.Close()
+			err := client.Close()
+			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{delegate.Mock},
 	}
@@ -1147,11 +1148,12 @@ func CloseDuringQueueResultTestCase() ClientTestCase[any] {
 			Opts:     []cln.SetOption{},
 		},
 		Action: func(t *testing.T, client *cln.Client[any], res chan core.AsyncResult) {
-			client.Send(wantCmd, results)
+			_, _, err := client.Send(wantCmd, results)
+			asserterror.EqualError(t, err, nil)
 			// give the receive goroutine time to block on sending to results
 			time.Sleep(test.TimeDelta)
 
-			err := client.Close()
+			err = client.Close()
 			asserterror.EqualError(t, err, nil)
 		},
 		Mocks: []*mok.Mock{wantCmd.Mock, wantResult.Mock, delegate.Mock},

@@ -96,7 +96,7 @@ func (m GroupClient[T]) RegisterDone(fn Done) GroupClient[T] {
 }
 
 func (m GroupClient[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
-	vals, err := m.Call("Send", mok.SafeVal[core.Cmd[T]](cmd), results)
+	vals, err := m.Call("Send", cmd, results)
 	if err != nil {
 		panic(err)
 	}
@@ -107,7 +107,7 @@ func (m GroupClient[T]) Send(cmd core.Cmd[T], results chan<- core.AsyncResult) (
 }
 
 func (m GroupClient[T]) SendWithDeadline(deadline time.Time, cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error) {
-	vals, err := m.Call("SendWithDeadline", deadline, mok.SafeVal[core.Cmd[T]](cmd), results)
+	vals, err := m.Call("SendWithDeadline", deadline, cmd, results)
 	if err != nil {
 		panic(err)
 	}
