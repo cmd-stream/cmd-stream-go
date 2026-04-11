@@ -34,8 +34,22 @@ type Worker struct {
 func NewWorker(conns <-chan net.Conn, delegate core.ServerDelegate,
 	callback LostConnCallback,
 ) *Worker {
-	ctx, cancel := context.WithCancel(context.Background())
-	return &Worker{ctx, cancel, conns, delegate, callback}
+	var (
+		success = false
+		worker  = &Worker{
+			conns:    conns,
+			delegate: delegate,
+			callback: callback,
+		}
+	)
+	worker.ctx, worker.cancel = context.WithCancel(context.Background())
+	defer func() {
+		if !success {
+			worker.cancel()
+		}
+	}()
+	success = true
+	return worker
 }
 
 func (w *Worker) Run() (err error) {

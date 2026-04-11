@@ -1,0 +1,71 @@
+version: "2"
+
+run:
+  timeout: 5m
+  # Automatically fix safe issues like whitespace and unconversions
+  fix: true
+  # Analyze all packages including tests
+  tests: true
+
+linters:
+  disable-all: true
+  enable:
+    # --- Performance & Efficiency (Your Core Value) ---
+    - prealloc       # Finds slices that can be preallocated to save RAM/CPU
+    - perfsprint     # Replaces slow fmt.Sprintf with faster alternatives
+    - unconvert      # Removes redundant type conversions to keep hot paths lean
+    - bodyclose      # Prevents resource/socket leaks in stream handling
+    - copyloopvar    # Prevents memory/pointer issues in Go 1.22+ loops
+    
+    # --- Security & Safety ---
+    # - gosec          # Scans for security vulnerabilities (CWE mappings)
+    - errcheck       # Ensures all errors are handled (Critical for reliability)
+    - staticcheck    # Deep logic analysis (The gold standard)
+    
+    # --- Professionalism & Style ---
+    - misspell       # Fixes typos in docs/errors (Founders must look polished)
+    - whitespace     # Enforces clean, consistent formatting
+    - goconst        # Identifies repeated strings that should be constants
+    - revive         # Fast, configurable style linter (Modern golint)
+
+  exclusions:
+    # 1. Use 'paths' for entire directories.
+    paths:
+      - test/
+      - testkit/
+      
+    # 2. Use 'rules' for file patterns that are scattered across the repo.
+    rules:
+      - path: '.*_test\.go$'
+        linters:
+          - "*"
+
+linters-settings:
+  prealloc:
+    simple: true      # Report preallocation for simple loops
+    range-loops: true # Report for range loops
+    for-loops: true   # Report for standard for loops
+  
+  # gosec:
+  #   # Exclude G104 if you intentionally ignore some errors in high-speed paths
+  #   excludes:
+  #     - G104
+  
+  revive:
+    # Enforces idiomatic Go naming and documentation
+    rules:
+      - name: exported
+      - name: var-naming
+      - name: package-comments
+
+  perfsprint:
+    # High-performance string optimization
+    int-conversion: true
+    err-error: true
+
+issues:
+  # Do not limit the number of issues; you want to see everything in the core logic
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  # Ensure you don't repeat old issues if you have a legacy base
+  new: false

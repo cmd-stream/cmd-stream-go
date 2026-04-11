@@ -26,10 +26,10 @@ func New[T any](delegate core.ClientDelegate[T], opts ...SetOption) *Client[T] {
 	o := Options{}
 	Apply(&o, opts...)
 	var (
-		ctx, cancel        = context.WithCancel(context.Background())
-		flagFl      uint32 = 0
-		client             = &Client[T]{
-			cancel:   cancel,
+		ctx     context.Context
+		success        = false
+		flagFl  uint32 = 0
+		client         = &Client[T]{
 			delegate: delegate,
 			options:  o,
 			pending: pending[T]{
@@ -40,10 +40,17 @@ func New[T any](delegate core.ClientDelegate[T], opts ...SetOption) *Client[T] {
 			chFl:   make(chan error, 1),
 		}
 	)
+	ctx, client.cancel = context.WithCancel(context.Background())
+	defer func() {
+		if !success {
+			client.cancel()
+		}
+	}()
 	if keepaliveDelegate, ok := delegate.(core.KeepaliveDelegate[T]); ok {
 		keepaliveDelegate.Keepalive(&client.muSn)
 	}
 	go receive(ctx, client)
+	success = true
 	return client
 }
 
