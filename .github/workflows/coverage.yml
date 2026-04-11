@@ -23,6 +23,6 @@ jobs:
         run: go test -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -vE "test|testkit" | tr '\n' ',' | sed 's/,$//') ./...
 
       - name: Upload results to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
