@@ -1,5 +1,3 @@
-// Package transport provides a generic, codec-driven abstraction for sending
-// and receiving messages over a network connection.
 package transport
 
 import (

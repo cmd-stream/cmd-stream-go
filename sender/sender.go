@@ -1,5 +1,6 @@
 // Package sender provides a high-level abstraction for sending Commands and
-// processing Results across a group of clients.
+// processing Results across a group of clients, with built-in support for hooks,
+// deadlines, and multi-result handling.
 package sender
 
 import (

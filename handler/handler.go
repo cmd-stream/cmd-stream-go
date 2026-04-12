@@ -1,5 +1,9 @@
-// Package handler provides a server-side connection handler for cmd-stream
-// library.
+// Package handler provides a connection handler for the cmd-stream server.
+//
+// # Implementation
+//
+// It implements the ServerTransportHandler interface from the delegate package
+// and executes each Command concurrently using the Invoker.
 package handler
 
 import (
