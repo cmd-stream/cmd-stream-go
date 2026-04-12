@@ -31,6 +31,7 @@ communication?  Check out [this series of posts](https://medium.com/p/f9e53442c8
   - [High-performance Communication Channel](#high-performance-communication-channel)
   - [cmd-stream and RPC](#cmd-stream-and-rpc)
   - [Architecture](#architecture)
+  - [Contributing \& Security](#contributing--security)
   - [Version Compatibility](#version-compatibility)
 
 ## Why cmd-stream?
@@ -187,6 +188,14 @@ concerns while maintaining maximum performance:
 
 `cmd-stream` was designed in such a way that you can easily replace any part
 of it.
+
+## Contributing & Security
+
+We welcome contributions of all kinds! Please see [CONTRIBUTING.md](CONTRIBUTING.md) 
+for details on how to get involved.
+
+If you find a security vulnerability, please refer to 
+[Security Policy](SECURITY.md) for instructions on how to report it privately.
 
 ## Version Compatibility
 
