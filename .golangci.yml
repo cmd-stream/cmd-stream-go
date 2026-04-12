@@ -35,10 +35,7 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
+    paths: []
     rules:
       - path: '^(test/|testkit/|.*_test\.go$)'
         linters:
@@ -48,12 +45,3 @@ issues:
   max-issues-per-linter: 0
   max-same-issues: 0
   new: false
-formatters:
-  exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
-      - test/
-      - testkit/

@@ -37,13 +37,4 @@ issue, and coordinate a public disclosure once a fix is available.
 - Once a fix is verified, we will release a new version and publish a security
   advisory to inform the community.
 
-## Best Practices
-
-To ensure the highest level of security when using `cmd-stream-go`, we recommend:
-
-- **Use TLS**: Always use TLS or mutual TLS in production environments to 
-  protect data in transit.
-- **Keep Dependencies Updated**: Regularly update your Go toolchain and project
-  dependencies to benefit from the latest security improvements.
-
 Thank you for helping keep **cmd-stream-go** secure!

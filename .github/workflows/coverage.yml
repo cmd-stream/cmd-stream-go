@@ -1,7 +1,9 @@
 name: Run tests and upload coverage
 
-on: 
-  push
+on: [push]
+
+env:
+  ACT: false
 
 jobs:
   test:
@@ -15,6 +17,8 @@ jobs:
 
       - name: Set up Go
         uses: actions/setup-go@v6
+        with:
+          go-version: '1.24'
 
       - name: Install dependencies
         run: go mod download
@@ -24,5 +28,6 @@ jobs:
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v6
+        if: ${{ !env.ACT }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
