@@ -66,10 +66,10 @@ func TestServerCodecTransport(t *testing.T) {
 
 func infoToBs(info delegate.ServerInfo) []byte {
 	var (
-		size = delegate.ServerInfoMUS.Size(info)
+		size = delegate.ServerInfoValidMUS.Size(info)
 		bs   = make([]byte, 0, size)
 		buf  = bytes.NewBuffer(bs)
-		_, _ = delegate.ServerInfoMUS.Marshal(info, buf)
+		_, _ = delegate.ServerInfoValidMUS.Marshal(info, buf)
 	)
 	return buf.Bytes()
 }

@@ -31,7 +31,7 @@ func New[T any](conn net.Conn, codec tspt.Codec[core.Cmd[T], core.Result],
 func (t *ClientCodecTransport[T]) ReceiveServerInfo() (info dlgt.ServerInfo,
 	err error,
 ) {
-	info, _, err = dlgt.ServerInfoMUS.Unmarshal(t.R)
+	info, _, err = dlgt.ServerInfoValidMUS.Unmarshal(t.R)
 	return
 }
 

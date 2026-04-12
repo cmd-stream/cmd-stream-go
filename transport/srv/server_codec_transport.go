@@ -32,7 +32,7 @@ type ServerCodecTransport[T any] struct {
 func (ct *ServerCodecTransport[T]) SendServerInfo(info dlgt.ServerInfo) (
 	err error,
 ) {
-	_, err = dlgt.ServerInfoMUS.Marshal(info, ct.w)
+	_, err = dlgt.ServerInfoValidMUS.Marshal(info, ct.w)
 	if err != nil {
 		return
 	}

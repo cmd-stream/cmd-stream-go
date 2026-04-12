@@ -1,37 +1,62 @@
 package delegate
 
 import (
+	com "github.com/mus-format/common-go"
 	mus "github.com/mus-format/mus-stream-go"
+	bslopts "github.com/mus-format/mus-stream-go/options/byte_slice"
 	"github.com/mus-format/mus-stream-go/ord"
-	"github.com/mus-format/mus-stream-go/raw"
 )
 
-var byteSliceMUS = ord.NewSliceSer(raw.Byte)
+// DefaultServerInfoMaxLength is the default maximum length of the server info.
+const DefaultServerInfoMaxLength = 1024
+
+// var byteSliceMUS = ord.NewSliceSer(raw.Byte)
 
 // ServerInfo allows the client to identify a compatible server.
 type ServerInfo []byte
 
-// ServerInfoMUS is a ServerInfo MUS serializer.
-var ServerInfoMUS = serverInfoMUS{}
+// ServerInfoValidMUS is a ServerInfo MUS serializer with length validation.
+var ServerInfoValidMUS = newServerInfoValidMUS()
 
-type serverInfoMUS struct{}
+func newServerInfoValidMUS() serverInfoValidMUS {
+	return serverInfoValidMUS{
+		byteSliceMUS: ord.NewValidByteSliceSer(
+			bslopts.WithLenValidator(com.ValidatorFn[int](
+				func(i int) error {
+					if i > DefaultServerInfoMaxLength {
+						return ErrTooLargeServerInfo
+					}
+					return nil
+				},
+			)),
+		),
+	}
+}
 
-func (s serverInfoMUS) Marshal(info ServerInfo, w mus.Writer) (n int,
+type serverInfoValidMUS struct {
+	byteSliceMUS mus.Serializer[[]byte]
+}
+
+// Marshal encodes ServerInfo to the writer.
+func (s serverInfoValidMUS) Marshal(info ServerInfo, w mus.Writer) (n int,
 	err error,
 ) {
-	return byteSliceMUS.Marshal(info, w)
+	return s.byteSliceMUS.Marshal(info, w)
 }
 
-func (s serverInfoMUS) Unmarshal(r mus.Reader) (info ServerInfo, n int,
+// Unmarshal decodes ServerInfo from the reader.
+func (s serverInfoValidMUS) Unmarshal(r mus.Reader) (info ServerInfo, n int,
 	err error,
 ) {
-	return byteSliceMUS.Unmarshal(r)
+	return s.byteSliceMUS.Unmarshal(r)
 }
 
-func (s serverInfoMUS) Size(info ServerInfo) (size int) {
-	return byteSliceMUS.Size(info)
+// Size returns the encoded size of the ServerInfo.
+func (s serverInfoValidMUS) Size(info ServerInfo) (size int) {
+	return s.byteSliceMUS.Size(info)
 }
 
-func (s serverInfoMUS) Skip(r mus.Reader) (n int, err error) {
-	return byteSliceMUS.Skip(r)
+// Skip skips the ServerInfo in the reader.
+func (s serverInfoValidMUS) Skip(r mus.Reader) (n int, err error) {
+	return s.byteSliceMUS.Skip(r)
 }
