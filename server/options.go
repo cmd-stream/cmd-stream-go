@@ -33,7 +33,8 @@ type SetOption func(o *Options)
 
 // WithServerInfo sets the ServerInfo for the server.
 //
-// ServerInfo helps the client identify a compatible server.
+// ServerInfo helps the client identify a compatible server. Its length is
+// limited to 1KB, otherwise the client will break the connection.
 func WithServerInfo(info delegate.ServerInfo) SetOption {
 	return func(o *Options) { o.Info = info }
 }
