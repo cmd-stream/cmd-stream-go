@@ -6,9 +6,10 @@
 [![Follow on X](https://img.shields.io/twitter/url?url=https%3A%2F%2Fx.com%2Fcmdstream_lib)](https://x.com/cmdstream_lib)
 
 **cmd-stream** is a high-performance Go networking library designed for efficient, 
-low-latency communication over TCP/TLS. By leveraging the Command Pattern, it 
-provides a flexible, decoupled alternative to rigid RPC frameworks, featuring 
-native support for streaming and observability.
+low-latency communication over TCP/TLS. By leveraging the 
+[Command Pattern](https://en.wikipedia.org/wiki/Command_pattern), it provides a 
+flexible, decoupled alternative to rigid RPC frameworks, featuring native support 
+for streaming and observability.
 
 In short, the concept is simple: a client sends Commands to the server, where an
 Invoker executes them, and a Receiver provides the actual server-side
