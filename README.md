@@ -25,6 +25,7 @@ communication?  Check out [this series of posts](https://medium.com/p/f9e53442c8
   - [Why cmd-stream?](#why-cmd-stream)
   - [Overview](#overview)
   - [Benchmarks](#benchmarks)
+  - [Installation](#installation)
   - [How To](#how-to)
     - [Quick Look](#quick-look)
     - [Additional Resources](#additional-resources)
@@ -58,6 +59,14 @@ infrastructure costs and scale more effectively.
 
 See [go-client-server-benchmarks](https://github.com/ymz-ncnk/go-client-server-benchmarks)
 for detailed performance comparisons.
+
+## Installation
+
+To obtain the library, use: 
+
+```bash
+go get github.com/cmd-stream/cmd-stream-go
+```
 
 ## How To
 
@@ -197,6 +206,8 @@ for details on how to get involved.
 
 If you find a security vulnerability, please refer to 
 [Security Policy](SECURITY.md) for instructions on how to report it privately.
+
+For bugs, feedback, or feature requests, please open an issue!
 
 ## Version Compatibility
 
