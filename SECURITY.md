@@ -10,8 +10,8 @@ We provide security updates for the following versions of **cmd-stream-go**:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| v0.5.x  | :white_check_mark: |
-| < v0.5  | :x:                |
+| v0.6.x  | :white_check_mark: |
+| < v0.6  | :x:                |
 
 We recommend all users stay on the latest minor version to receive the most 
 up-to-date security patches.
