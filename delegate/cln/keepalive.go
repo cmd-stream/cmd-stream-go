@@ -115,10 +115,12 @@ func ping[T any](muSn *sync.Mutex, seq core.Seq, d *KeepaliveDelegate[T]) (
 		muSn.Unlock()
 		return
 	}
-	if n, err = d.Send(seq, delegate.PingCmd[T]{}); err != nil {
+	n, err = d.Send(seq, delegate.PingCmd[T]{})
+	if err != nil {
 		muSn.Unlock()
 		return
 	}
+	err = d.ClientDelegate.Flush()
 	muSn.Unlock()
-	return n, d.ClientDelegate.Flush()
+	return n, err
 }

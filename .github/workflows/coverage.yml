@@ -24,7 +24,7 @@ jobs:
         run: go mod download
 
       - name: Run tests
-        run: go test -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -vE "test|testkit" | tr '\n' ',' | sed 's/,$//') ./...
+        run: go test -race -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -vE "test|testkit" | tr '\n' ',' | sed 's/,$//') ./...
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v6
