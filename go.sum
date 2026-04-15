@@ -1,7 +1,7 @@
 github.com/mus-format/common-go v0.0.0-20260324174526-3d8f1741b5a2 h1:oob6maWbVV+yevC1EawGOSyqcU2Cvj3ZWAF0FKoT+uU=
 github.com/mus-format/common-go v0.0.0-20260324174526-3d8f1741b5a2/go.mod h1:XhSTID+Ln32bHgJQjtizWsMFY219tfWa4sObJxHhATw=
-github.com/mus-format/mus-stream-go v0.10.0 h1:/c0tWtU6wupQEtoRiYuqcdGbKCuahUSk672jlxGArAY=
-github.com/mus-format/mus-stream-go v0.10.0/go.mod h1:Ibe+4qwbIqFhzA27YOLZL8R0wlY19rRYCHqWWPU+kfE=
+github.com/mus-format/mus-stream-go v0.10.1 h1:cxoNzO5zwEvFimD1XgXAkEhCe7P3zjomi/389zzV2t4=
+github.com/mus-format/mus-stream-go v0.10.1/go.mod h1:Ibe+4qwbIqFhzA27YOLZL8R0wlY19rRYCHqWWPU+kfE=
 github.com/ymz-ncnk/assert v0.0.0-20260108210721-155bc9aa4282 h1:lU0oPVPOGW0BZwLwAqfSTh1yxhFbwXDv/UAYY54QTq0=
 github.com/ymz-ncnk/assert v0.0.0-20260108210721-155bc9aa4282/go.mod h1:+lSOTrCyOPuvc0xuvK4uKhgQ0Ar3U/HJPpJZg73kvgE=
 github.com/ymz-ncnk/jointwork-go v0.0.0-20240428103805-1ee224bde88a h1:we5FNsUNYd+fdpb1wG72OsQW9PSxwZmZvdEX2MPKWr4=
