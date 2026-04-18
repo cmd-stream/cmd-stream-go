@@ -6,18 +6,19 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12510/badge)](https://www.bestpractices.dev/projects/12510)
 [![Follow on X](https://img.shields.io/twitter/url?url=https%3A%2F%2Fx.com%2Fcmdstream_lib)](https://x.com/cmdstream_lib)
 
-**cmd-stream** is a high-performance Go networking library designed for efficient, 
-low-latency communication over TCP/TLS. By leveraging the 
-[Command Pattern](https://en.wikipedia.org/wiki/Command_pattern), it provides a 
-flexible, decoupled alternative to rigid RPC frameworks, featuring native support 
-for streaming and observability.
 
-In short, the concept is simple: a client sends Commands to the server, where an
-Invoker executes them, and a Receiver provides the actual server-side
+**cmd-stream** is a high-performance networking library that implements the 
+Distributed [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern) (DCP) 
+for Go. Designed for low-latency communication over TCP/TLS, it provides a 
+flexible, decoupled alternative to traditional RPC by treating requests as 
+first-class Command objects.
+
+The architecture is straightforward: a client sends Commands to the server, 
+where an Invoker executes them, and a Receiver provides the actual server-side
 functionality.
 
-Want to learn more about how the Command Pattern applies to network
-communication?  Check out [this series of posts](https://medium.com/p/f9e53442c85d).
+*Want to learn more about how the Command Pattern applies to network
+communication?  Check out [this series of posts](https://medium.com/p/f9e53442c85d)*.
 
 ## Contents
 
