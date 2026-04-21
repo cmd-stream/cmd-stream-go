@@ -102,18 +102,18 @@ func (c Calc) Sub(a, b int) int { return a - b }
 type AddCmd struct{ A, B int }
 
 func (c AddCmd) Exec(ctx context.Context, seq core.Seq, _ time.Time, calc Calc,
-	proxy core.Proxy) error {
-	_, err := proxy.Send(seq, CalcResult(calc.Add(c.A, c.B)))
-	return err
+  proxy core.Proxy) error {
+  _, err := proxy.Send(seq, CalcResult(calc.Add(c.A, c.B)))
+  return err
 }
 
 // SubCmd executes subtraction via Calc.
 type SubCmd struct{ A, B int }
 
 func (c SubCmd) Exec(ctx context.Context, seq core.Seq, _ time.Time, calc Calc,
-	proxy core.Proxy) error {
-	_, err := proxy.Send(seq, CalcResult(calc.Sub(c.A, c.B)))
-	return err
+  proxy core.Proxy) error {
+  _, err := proxy.Send(seq, CalcResult(calc.Sub(c.A, c.B)))
+  return err
 }
 
 // CalcResult represents the Command output.
@@ -122,31 +122,31 @@ type CalcResult int
 func (r CalcResult) LastOne() bool { return true }
 
 func main() {
-	const addr = "127.0.0.1:9000"
+  const addr = "127.0.0.1:9000"
 
-	// 1. Setup codecs.
-	reg := cdcjson.NewRegistry(
-		cdcjson.WithCmd[Calc, AddCmd](),
-		cdcjson.WithCmd[Calc, SubCmd](),
-		cdcjson.WithResult[Calc, CalcResult](),
-	)
-	serverCodec := cdcjson.NewServerCodecWith(reg)
-	clientCodec := cdcjson.NewClientCodecWith(reg)
+  // 1. Setup codecs.
+  reg := cdcjson.NewRegistry(
+    cdcjson.WithCmd[Calc, AddCmd](),
+    cdcjson.WithCmd[Calc, SubCmd](),
+    cdcjson.WithResult[Calc, CalcResult](),
+  )
+  serverCodec := cdcjson.NewServerCodecWith(reg)
+  clientCodec := cdcjson.NewClientCodecWith(reg)
 
-	// 2. Start server.
-	server, _ := cmdstream.NewServer(Calc{}, serverCodec)
-	go server.ListenAndServe(addr)
-	time.Sleep(100 * time.Millisecond)
+  // 2. Start server.
+  server, _ := cmdstream.NewServer(Calc{}, serverCodec)
+  go server.ListenAndServe(addr)
+  time.Sleep(100 * time.Millisecond)
 
-	// 3. Create sender.
-	sender, _ := cmdstream.NewSender(addr, clientCodec)
+  // 3. Create sender.
+  sender, _ := cmdstream.NewSender(addr, clientCodec)
 
-	// 4. Send commands.
-	sum, _ := sender.Send(context.Background(), AddCmd{A: 2, B: 3})
-	fmt.Println(sum) // Output: 5
+  // 4. Send commands.
+  sum, _ := sender.Send(context.Background(), AddCmd{A: 2, B: 3})
+  fmt.Println(sum) // Output: 5
 
-	diff, _ := sender.Send(context.Background(), SubCmd{A: 8, B: 4})
-	fmt.Println(diff) // Output: 4
+  diff, _ := sender.Send(context.Background(), SubCmd{A: 8, B: 4})
+  fmt.Println(diff) // Output: 4
 }
 ```
 
