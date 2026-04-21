@@ -92,64 +92,61 @@ Here's a minimal end-to-end example showing how Commands can be defined, sent,
 and executed over the network:
 
 ```go
-// Calc represents the Receiver (application layer).
-// A struct is used instead of an interface for brevity.
+// Calc handles arithmetic logic.
 type Calc struct{}
+
 func (c Calc) Add(a, b int) int { return a + b }
 func (c Calc) Sub(a, b int) int { return a - b }
 
-// AddCmd is a Command that uses Calc to perform addition.
-type AddCmd struct {A, B int}
-func (c AddCmd) Exec(ctx context.Context, seq core.Seq, at time.Time,
-  calc Calc, proxy core.Proxy,
-) (err error) {
-  result := CalcResult(calc.Add(c.A, c.B))
-  _, err = proxy.Send(seq, result) // send result back
-  return
+// AddCmd executes addition via Calc.
+type AddCmd struct{ A, B int }
+
+func (c AddCmd) Exec(ctx context.Context, seq core.Seq, _ time.Time, calc Calc,
+	proxy core.Proxy) error {
+	_, err := proxy.Send(seq, CalcResult(calc.Add(c.A, c.B)))
+	return err
 }
 
-// SubCmd is a Command that uses Calc to perform subtraction.
-type SubCmd struct {A, B int}
-func (c SubCmd) Exec(ctx context.Context, seq core.Seq, at time.Time,
-  calc Calc, proxy core.Proxy,
-) (err error) {
-  result := CalcResult(calc.Sub(c.A, c.B))
-  _, err = proxy.Send(seq, result)  // send result back
-  return
+// SubCmd executes subtraction via Calc.
+type SubCmd struct{ A, B int }
+
+func (c SubCmd) Exec(ctx context.Context, seq core.Seq, _ time.Time, calc Calc,
+	proxy core.Proxy) error {
+	_, err := proxy.Send(seq, CalcResult(calc.Sub(c.A, c.B)))
+	return err
 }
 
-// CalcResult is the Result returned by Commands.
+// CalcResult represents the Command output.
 type CalcResult int
+
 func (r CalcResult) LastOne() bool { return true }
 
 func main() {
-  const addr = "127.0.0.1:9000"
-  var (
-    invoker     = srv.NewInvoker(Calc{})
-    cmdTypes = []reflect.Type{
-      reflect.TypeFor[AddCmd](),
-      reflect.TypeFor[SubCmd](),
-    }
-    resultTypes = []reflect.Type{
-      reflect.TypeFor[CalcResult](),
-    }
-    serverCodec = codecjson.NewServerCodec[Calc](cmdTypes, resultTypes)
-    clientCodec = codecjson.NewClientCodec[Calc](cmdTypes, resultTypes)
-  )
-  // Start server.
-  go func() {
-    server, _ := cmdstream.NewServer(Calc{}, serverCodec)
-    server.ListenAndServe(addr)
-  }()
-  // New sender.
-  sender, _ := cmdstream.NewSender(addr, clientCodec)
+	const addr = "127.0.0.1:9000"
 
-  // Send AddCmd.
-  sum, _ := sender.Send(context.Background(), AddCmd{A: 2, B: 3})
-  fmt.Println(sum) // Output: 5
-  // Send SubCmd.
-  diff, _ := sender.Send(context.Background(), SubCmd{A: 8, B: 4})
-  fmt.Println(diff) // Output: 4
+	// 1. Setup codecs.
+	reg := cdcjson.NewRegistry(
+		cdcjson.WithCmd[Calc, AddCmd](),
+		cdcjson.WithCmd[Calc, SubCmd](),
+		cdcjson.WithResult[Calc, CalcResult](),
+	)
+	serverCodec := cdcjson.NewServerCodecWith(reg)
+	clientCodec := cdcjson.NewClientCodecWith(reg)
+
+	// 2. Start server.
+	server, _ := cmdstream.NewServer(Calc{}, serverCodec)
+	go server.ListenAndServe(addr)
+	time.Sleep(100 * time.Millisecond)
+
+	// 3. Create sender.
+	sender, _ := cmdstream.NewSender(addr, clientCodec)
+
+	// 4. Send commands.
+	sum, _ := sender.Send(context.Background(), AddCmd{A: 2, B: 3})
+	fmt.Println(sum) // Output: 5
+
+	diff, _ := sender.Send(context.Background(), SubCmd{A: 8, B: 4})
+	fmt.Println(diff) // Output: 4
 }
 ```
 
