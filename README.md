@@ -150,7 +150,7 @@ func main() {
 }
 ```
 
-The full, runnable example is available in the [calc_json](https://github.com/cmd-stream/examples-go/tree/main/calc_json).
+See the [calc_json example](https://github.com/cmd-stream/examples-go/tree/main/calc_json) for the full implementation.
 
 ### Additional Resources
 
