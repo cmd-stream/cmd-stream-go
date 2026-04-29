@@ -152,8 +152,6 @@ func main() {
 
 The full, runnable example is available in the [calc_json](https://github.com/cmd-stream/examples-go/tree/main/calc_json).
 
-For further learning, see the resources below.
-
 ### Additional Resources
 
 - [Examples](https://github.com/cmd-stream/examples-go)
