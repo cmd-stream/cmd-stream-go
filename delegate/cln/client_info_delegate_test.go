@@ -4,22 +4,23 @@ import (
 	"testing"
 
 	"github.com/cmd-stream/cmd-stream-go/delegate/cln"
-	test "github.com/cmd-stream/cmd-stream-go/test/delegate"
+	"github.com/cmd-stream/cmd-stream-go/test"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestClientInfoDelegate(t *testing.T) {
+	d := test.DelegateClient[any]{}
 	for _, tc := range []test.ClientDelegateTestCase[any]{
-		test.NewTestCase[any](t),
-		test.NewSetReceiveDeadlineErrorTestCase[any](t),
-		test.NewReceiveServerInfoErrorTestCase[any](t),
-		test.NewServerInfoMismatchTestCase[any](t),
-		test.SendTestCase[any](t),
-		test.SendErrorTestCase[any](t),
-		test.ReceiveTestCase[any](t),
-		test.LocalAddrTestCase[any](t),
-		test.RemoteAddrTestCase[any](t),
-		test.CloseTestCase[any](t),
+		d.NewCheckServerInfo(t),
+		d.NewSetReceiveDeadlineError(t),
+		d.NewReceiveServerInfoError(t),
+		d.NewServerInfoMismatch(t),
+		d.Send(t),
+		d.SendError(t),
+		d.Receive(t),
+		d.LocalAddr(t),
+		d.RemoteAddr(t),
+		d.Close(t),
 	} {
 		test.RunClientDelegateTestCase(t, tc)
 	}

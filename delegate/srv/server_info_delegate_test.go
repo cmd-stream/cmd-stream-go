@@ -3,16 +3,17 @@ package srv_test
 import (
 	"testing"
 
-	test "github.com/cmd-stream/cmd-stream-go/test/delegate"
+	"github.com/cmd-stream/cmd-stream-go/test"
 )
 
 func TestServerInfoDelegate(t *testing.T) {
+	d := test.DelegateServer[any]{}
 	for _, tc := range []test.ServerDelegateTestCase[any]{
-		test.ZeroLenServerInfoTestCase(),
-		test.SendServerInfoErrorTestCase(),
-		test.TransportHandleErrorTestCase(),
-		test.SendServerInfoTransportDeadlineErrorTestCase(),
-		test.HandleConnSuccessTestCase(t),
+		d.ZeroLenServerInfo(t),
+		d.SendServerInfoError(t),
+		d.TransportHandleError(t),
+		d.SendServerInfoTransportDeadlineError(t),
+		d.HandleConnSuccess(t),
 	} {
 		test.RunServerDelegateTestCase(t, tc)
 	}

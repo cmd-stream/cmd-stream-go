@@ -1,4 +1,4 @@
-package core
+package test
 
 import (
 	"context"
@@ -13,7 +13,44 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-func ServeNoWorkersTestCase(t *testing.T) ServerTestCase {
+type ServerTestCase struct {
+	Name   string
+	Setup  ServerSetup
+	Action func(t *testing.T, s *srv.Server)
+	Mocks  []*mok.Mock
+}
+
+type ServerSetup struct {
+	Delegate cmock.ServerDelegate
+	Opts     []srv.SetOption
+	WantErr  error
+}
+
+func RunServerTestCase(t *testing.T, tc ServerTestCase) {
+	t.Run(tc.Name, func(t *testing.T) {
+		s, nErr := srv.New(tc.Setup.Delegate, tc.Setup.Opts...)
+		if nErr != nil {
+			asserterror.EqualError(t, nErr, tc.Setup.WantErr)
+			return
+		}
+
+		if tc.Action != nil {
+			tc.Action(t, s)
+		}
+
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Mocks), mok.EmptyInfomap)
+	})
+}
+
+type server struct{}
+
+var Server server
+
+// -----------------------------------------------------------------------------
+// Test Cases
+// -----------------------------------------------------------------------------
+
+func (server) ServeNoWorkers(t *testing.T) ServerTestCase {
 	name := "Should return ErrNoWorkers if WorkersCount is 0"
 
 	var (
@@ -33,7 +70,7 @@ func ServeNoWorkersTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ServeSeveralConnectionsTestCase(t *testing.T) ServerTestCase {
+func (server) ServeSeveralConnections(t *testing.T) ServerTestCase {
 	name := "Should be able to serve several connections"
 
 	var (
@@ -113,7 +150,7 @@ func ServeSeveralConnectionsTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ServerShutdownBeforeAcceptTestCase(t *testing.T) ServerTestCase {
+func (server) ShutdownBeforeAccept(t *testing.T) ServerTestCase {
 	name := "Should be able to shutdown the server before any connection"
 
 	var (
@@ -159,7 +196,7 @@ func ServerShutdownBeforeAcceptTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ServerCloseBeforeAcceptTestCase(t *testing.T) ServerTestCase {
+func (server) CloseBeforeAccept(t *testing.T) ServerTestCase {
 	name := "Should be able to close the server before any connection"
 
 	var (
@@ -205,7 +242,7 @@ func ServerCloseBeforeAcceptTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ServerCloseAfterAcceptTestCase(t *testing.T) ServerTestCase {
+func (server) CloseAfterAccept(t *testing.T) ServerTestCase {
 	name := "Should be able to close the server after accepting a connection"
 
 	var (
@@ -265,7 +302,7 @@ func ServerCloseAfterAcceptTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ServerShutdownAfterAcceptTestCase(t *testing.T) ServerTestCase {
+func (server) ShutdownAfterAccept(t *testing.T) ServerTestCase {
 	name := "Should be able to shutdown the server after accepting a connection"
 
 	var (
@@ -322,7 +359,7 @@ func ServerShutdownAfterAcceptTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ListenAndServeFailOnInvalidAddrTestCase(t *testing.T) ServerTestCase {
+func (server) ListenAndServeFailOnInvalidAddr(t *testing.T) ServerTestCase {
 	name := "ListenAndServe should fail on invalid address"
 
 	var delegate = cmock.NewServerDelegate()
@@ -339,7 +376,7 @@ func ListenAndServeFailOnInvalidAddrTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ServerShutdownFailIfNotServingTestCase(t *testing.T) ServerTestCase {
+func (server) ShutdownFailIfNotServing(t *testing.T) ServerTestCase {
 	name := "Shutdown should fail if server is not serving"
 
 	return ServerTestCase{
@@ -354,7 +391,7 @@ func ServerShutdownFailIfNotServingTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ServerCloseFailIfNotServingTestCase(t *testing.T) ServerTestCase {
+func (server) CloseFailIfNotServing(t *testing.T) ServerTestCase {
 	name := "Close should fail if server is not serving"
 
 	return ServerTestCase{
@@ -369,7 +406,7 @@ func ServerCloseFailIfNotServingTestCase(t *testing.T) ServerTestCase {
 	}
 }
 
-func ServerNegativeWorkersCountTestCase(t *testing.T) ServerTestCase {
+func (server) NegativeWorkersCount(t *testing.T) ServerTestCase {
 	name := "Should fail if WorkersCount is negative"
 
 	return ServerTestCase{

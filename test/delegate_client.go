@@ -1,4 +1,4 @@
-package delegate
+package test
 
 import (
 	"errors"
@@ -8,14 +8,42 @@ import (
 
 	"github.com/cmd-stream/cmd-stream-go/core"
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
-	cln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
+	"github.com/cmd-stream/cmd-stream-go/delegate/cln"
 	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
 	dmock "github.com/cmd-stream/cmd-stream-go/test/mock/delegate"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
 
-func NewTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+type ClientDelegateTestCase[T any] struct {
+	Name   string
+	Setup  ClientDelegateSetup[T]
+	Action func(t *testing.T, d cln.ClientInfoDelegate[T], initErr error)
+	Mocks  []*mok.Mock
+}
+
+type ClientDelegateSetup[T any] struct {
+	Info      dlgt.ServerInfo
+	Transport dmock.ClientTransport[T]
+	Opts      []cln.SetOption
+}
+
+func RunClientDelegateTestCase[T any](t *testing.T, tc ClientDelegateTestCase[T]) {
+	t.Run(tc.Name, func(t *testing.T) {
+		d, err := cln.New(tc.Setup.Info, tc.Setup.Transport, tc.Setup.Opts...)
+
+		tc.Action(t, d, err)
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Mocks), mok.EmptyInfomap)
+	})
+}
+
+type DelegateClient[T any] struct{}
+
+// -----------------------------------------------------------------------------
+// Test Cases
+// -----------------------------------------------------------------------------
+
+func (DelegateClient[T]) NewCheckServerInfo(t *testing.T) ClientDelegateTestCase[T] {
 	name := "New should check ServerInfo"
 
 	var (
@@ -42,7 +70,7 @@ func NewTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
 	}
 }
 
-func NewSetReceiveDeadlineErrorTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+func (DelegateClient[T]) NewSetReceiveDeadlineError(t *testing.T) ClientDelegateTestCase[T] {
 	name := "If Transport.SetReceiveDeadline fails with an error before receive ServerInfo, New should return it"
 
 	var (
@@ -68,7 +96,7 @@ func NewSetReceiveDeadlineErrorTestCase[T any](t *testing.T) ClientDelegateTestC
 	}
 }
 
-func NewReceiveServerInfoErrorTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+func (DelegateClient[T]) NewReceiveServerInfoError(t *testing.T) ClientDelegateTestCase[T] {
 	name := "If Transport.ReceiveServerInfo fails with an error, New should return it"
 
 	var (
@@ -96,7 +124,7 @@ func NewReceiveServerInfoErrorTestCase[T any](t *testing.T) ClientDelegateTestCa
 	}
 }
 
-func NewServerInfoMismatchTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+func (DelegateClient[T]) NewServerInfoMismatch(t *testing.T) ClientDelegateTestCase[T] {
 	name := "If wrong ServerInfo was received, New should return error"
 
 	var (
@@ -123,7 +151,8 @@ func NewServerInfoMismatchTestCase[T any](t *testing.T) ClientDelegateTestCase[T
 		Mocks: []*mok.Mock{transport.Mock},
 	}
 }
-func SendTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+
+func (DelegateClient[T]) Send(t *testing.T) ClientDelegateTestCase[T] {
 	name := "Send should call Transport.Send"
 
 	var (
@@ -162,7 +191,7 @@ func SendTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
 	}
 }
 
-func SendErrorTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+func (DelegateClient[T]) SendError(t *testing.T) ClientDelegateTestCase[T] {
 	name := "If Transport.Send fails with an error, Send should return it"
 
 	var (
@@ -194,7 +223,7 @@ func SendErrorTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
 	}
 }
 
-func ReceiveTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+func (DelegateClient[T]) Receive(t *testing.T) ClientDelegateTestCase[T] {
 	name := "Receive should return values from Transport.Receive"
 
 	var (
@@ -232,7 +261,7 @@ func ReceiveTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
 	}
 }
 
-func LocalAddrTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+func (DelegateClient[T]) LocalAddr(t *testing.T) ClientDelegateTestCase[T] {
 	name := "LocalAddr should return Transport.LocalAddr"
 
 	var (
@@ -262,7 +291,7 @@ func LocalAddrTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
 	}
 }
 
-func RemoteAddrTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+func (DelegateClient[T]) RemoteAddr(t *testing.T) ClientDelegateTestCase[T] {
 	name := "RemoteAddr should return Transport.RemoteAddr"
 
 	var (
@@ -292,7 +321,7 @@ func RemoteAddrTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
 	}
 }
 
-func CloseTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
+func (DelegateClient[T]) Close(t *testing.T) ClientDelegateTestCase[T] {
 	name := "Close should call Transport.Close"
 
 	var (
@@ -321,3 +350,4 @@ func CloseTestCase[T any](t *testing.T) ClientDelegateTestCase[T] {
 		Mocks: []*mok.Mock{transport.Mock},
 	}
 }
+

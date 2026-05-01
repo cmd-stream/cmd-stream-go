@@ -9,6 +9,7 @@ import (
 	cln "github.com/cmd-stream/cmd-stream-go/client"
 	"github.com/cmd-stream/cmd-stream-go/core"
 	ccln "github.com/cmd-stream/cmd-stream-go/core/cln"
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
 	dcln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
 	hdlr "github.com/cmd-stream/cmd-stream-go/handler"
 	srv "github.com/cmd-stream/cmd-stream-go/server"
@@ -20,24 +21,28 @@ import (
 func TestKeepalive(t *testing.T) {
 	const addr = "127.0.0.1:9004"
 
-	startKeepaliveServer(t, addr)
+	server := startKeepaliveServer(t, addr)
+	defer server.Close()
+
 	client, err := makeKeepaliveClient(addr)
 	assertfatal.EqualError(t, err, nil)
+	defer client.Close()
 
 	exchangeKeepalive(t, client)
 }
 
-func startKeepaliveServer(t *testing.T, addr string) {
+func startKeepaliveServer(t *testing.T, addr string) *csrv.Server {
+	server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{},
+		srv.WithHandler(
+			hdlr.WithCmdReceiveDuration(250*time.Millisecond),
+		),
+	)
+	asserterror.EqualError(t, err, nil)
 	go func() {
-		server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{},
-			srv.WithHandler(
-				hdlr.WithCmdReceiveDuration(250*time.Millisecond),
-			),
-		)
-		asserterror.EqualError(t, err, nil)
 		_ = server.ListenAndServe(addr)
 	}()
 	time.Sleep(50 * time.Millisecond)
+	return server
 }
 
 func makeKeepaliveClient(addr string) (client *ccln.Client[testkit.Receiver],

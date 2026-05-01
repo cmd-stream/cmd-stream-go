@@ -3,21 +3,21 @@ package srv_test
 import (
 	"testing"
 
-	test "github.com/cmd-stream/cmd-stream-go/test/core"
+	"github.com/cmd-stream/cmd-stream-go/test"
 )
 
 func TestServer(t *testing.T) {
 	for _, tc := range []test.ServerTestCase{
-		test.ServeNoWorkersTestCase(t),
-		test.ServeSeveralConnectionsTestCase(t),
-		test.ServerShutdownBeforeAcceptTestCase(t),
-		test.ServerShutdownAfterAcceptTestCase(t),
-		test.ServerCloseBeforeAcceptTestCase(t),
-		test.ServerCloseAfterAcceptTestCase(t),
-		test.ListenAndServeFailOnInvalidAddrTestCase(t),
-		test.ServerShutdownFailIfNotServingTestCase(t),
-		test.ServerCloseFailIfNotServingTestCase(t),
-		test.ServerNegativeWorkersCountTestCase(t),
+		test.Server.ServeNoWorkers(t),
+		test.Server.ServeSeveralConnections(t),
+		test.Server.ShutdownBeforeAccept(t),
+		test.Server.ShutdownAfterAccept(t),
+		test.Server.CloseBeforeAccept(t),
+		test.Server.CloseAfterAccept(t),
+		test.Server.ListenAndServeFailOnInvalidAddr(t),
+		test.Server.ShutdownFailIfNotServing(t),
+		test.Server.CloseFailIfNotServing(t),
+		test.Server.NegativeWorkersCount(t),
 	} {
 		test.RunServerTestCase(t, tc)
 	}

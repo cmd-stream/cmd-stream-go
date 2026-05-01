@@ -9,6 +9,7 @@ import (
 	cmdstream "github.com/cmd-stream/cmd-stream-go"
 	"github.com/cmd-stream/cmd-stream-go/core"
 	ccln "github.com/cmd-stream/cmd-stream-go/core/cln"
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
 	"github.com/cmd-stream/cmd-stream-go/testkit"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	assertfatal "github.com/ymz-ncnk/assert/fatal"
@@ -17,20 +18,24 @@ import (
 func TestConcurrent(t *testing.T) {
 	const addr = "127.0.0.1:9000"
 
-	startConcurrentServer(t, addr)
+	server := startConcurrentServer(t, addr)
+	defer server.Close()
+
 	client, err := makeConcurrentClient(addr)
 	assertfatal.EqualError(t, err, nil)
+	defer client.Close()
 
 	exchangeConcurrent(t, client)
 }
 
-func startConcurrentServer(t *testing.T, addr string) {
+func startConcurrentServer(t *testing.T, addr string) *csrv.Server {
+	server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
+	asserterror.EqualError(t, err, nil)
 	go func() {
-		server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
-		asserterror.EqualError(t, err, nil)
 		_ = server.ListenAndServe(addr)
 	}()
 	time.Sleep(50 * time.Millisecond)
+	return server
 }
 
 func makeConcurrentClient(addr string) (client *ccln.Client[testkit.Receiver],

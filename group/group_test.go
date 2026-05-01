@@ -3,17 +3,18 @@ package group_test
 import (
 	"testing"
 
-	test "github.com/cmd-stream/cmd-stream-go/test/group"
+	"github.com/cmd-stream/cmd-stream-go/test"
 )
 
 func TestGroup(t *testing.T) {
-	for _, tc := range []test.GroupTestCase{
-		test.GroupSendTestCase(t),
-		test.GroupSendWithDeadlineTestCase(t),
-		test.GroupHasTestCase(t),
-		test.GroupForgetTestCase(t),
-		test.GroupErrorTestCase(t),
-		test.GroupCloseTestCase(t),
+	g := test.GroupSuite[any]{}
+	for _, tc := range []test.GroupTestCase[any]{
+		g.Send(t),
+		g.SendWithDeadline(t),
+		g.Has(t),
+		g.Forget(t),
+		g.Error(t),
+		g.Close(t),
 	} {
 		test.RunGroupTestCase(t, tc)
 	}

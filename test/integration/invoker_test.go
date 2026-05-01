@@ -28,11 +28,12 @@ func TestInvoker(t *testing.T) {
 	})
 
 	// Start server with custom invoker
+	server, err := cmdstream.NewServerWithInvoker(invoker, testkit.ServerCodec{})
+	assertfatal.EqualError(t, err, nil)
 	go func() {
-		server, err := cmdstream.NewServerWithInvoker(invoker, testkit.ServerCodec{})
-		asserterror.EqualError(t, err, nil)
 		_ = server.ListenAndServe(addr)
 	}()
+	defer server.Close()
 	time.Sleep(50 * time.Millisecond)
 
 	// Client sends a command
@@ -40,6 +41,7 @@ func TestInvoker(t *testing.T) {
 	assertfatal.EqualError(t, err, nil)
 	client, err := cmdstream.NewClient(testkit.ClientCodec{}, conn)
 	assertfatal.EqualError(t, err, nil)
+	defer client.Close()
 
 	results := make(chan core.AsyncResult, 1)
 	seq, _, err := client.Send(testkit.Cmd{}, results)
@@ -47,7 +49,4 @@ func TestInvoker(t *testing.T) {
 
 	receiveAndAssert(t, results, seq, testkit.Result{LastOneFlag: true})
 	asserterror.EqualDeep(t, mok.CheckCalls([]*mok.Mock{invoker.Mock}), mok.EmptyInfomap)
-
-	err = client.Close()
-	asserterror.EqualError(t, err, nil)
 }

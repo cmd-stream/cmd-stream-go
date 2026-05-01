@@ -20,7 +20,8 @@ func TestKeepaliveReconnect(t *testing.T) {
 	)
 
 	// Start server with a receive timeout.
-	startKeepaliveServer(t, addr)
+	server := startKeepaliveServer(t, addr)
+	defer server.Close()
 
 	factory := &reconnectFactory{addr: addr}
 	client, err := cmdstream.NewReconnectClient(testkit.ClientCodec{}, factory,
@@ -30,6 +31,7 @@ func TestKeepaliveReconnect(t *testing.T) {
 		),
 	)
 	assertfatal.EqualError(t, err, nil)
+	defer client.Close()
 
 	var (
 		cmd     = testkit.Cmd{ExecTime: 10 * time.Millisecond}

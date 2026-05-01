@@ -8,6 +8,7 @@ import (
 	cmdstream "github.com/cmd-stream/cmd-stream-go"
 	cln "github.com/cmd-stream/cmd-stream-go/client"
 	"github.com/cmd-stream/cmd-stream-go/core"
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
 	grp "github.com/cmd-stream/cmd-stream-go/group"
 	"github.com/cmd-stream/cmd-stream-go/testkit"
 	asserterror "github.com/ymz-ncnk/assert/error"
@@ -17,21 +18,24 @@ import (
 func TestGroup(t *testing.T) {
 	const addr = "127.0.0.1:9001"
 
-	startGroupServer(t, addr)
+	server := startGroupServer(t, addr)
+	defer server.Close()
+
 	group, err := makeGroup(addr)
 	assertfatal.EqualError(t, err, nil)
+	defer group.Close()
 
 	exchangeGroup(t, group)
 }
 
-func startGroupServer(t *testing.T, addr string) {
+func startGroupServer(t *testing.T, addr string) *csrv.Server {
+	server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
+	asserterror.EqualError(t, err, nil)
 	go func() {
-		server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
-		asserterror.EqualError(t, err, nil)
-		err = server.ListenAndServe(addr)
-		asserterror.EqualError(t, err, nil)
+		_ = server.ListenAndServe(addr)
 	}()
 	time.Sleep(50 * time.Millisecond)
+	return server
 }
 
 func makeGroup(addr string) (group grp.Group[testkit.Receiver], err error) {

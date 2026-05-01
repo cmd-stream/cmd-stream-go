@@ -1,4 +1,4 @@
-package transport
+package test
 
 import (
 	"errors"
@@ -14,7 +14,36 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-func LocalAddrTestCase() TransportTestCase[any, any] {
+type TransportSetup[T, V any] struct {
+	Conn   net.Conn
+	Writer tspt.Writer
+	Reader tspt.Reader
+	Codec  tspt.Codec[T, V]
+}
+
+type TransportTestCase[T, V any] struct {
+	Name   string
+	Setup  TransportSetup[T, V]
+	Action func(t *testing.T, transport *tspt.CodecTransport[T, V])
+	Mocks  []*mok.Mock
+}
+
+func RunTransportTestCase[T, V any](t *testing.T, tc TransportTestCase[T, V]) {
+	t.Run(tc.Name, func(t *testing.T) {
+		transport := tspt.New(tc.Setup.Conn, tc.Setup.Writer, tc.Setup.Reader,
+			tc.Setup.Codec)
+		tc.Action(t, transport)
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Mocks), mok.EmptyInfomap)
+	})
+}
+
+type TransportSuite[T, V any] struct{}
+
+// -----------------------------------------------------------------------------
+// Test Cases
+// -----------------------------------------------------------------------------
+
+func (TransportSuite[T, V]) LocalAddr(t *testing.T) TransportTestCase[T, V] {
 	name := "LocalAddr should return local address of the conn"
 
 	var (
@@ -24,10 +53,10 @@ func LocalAddrTestCase() TransportTestCase[any, any] {
 	conn.RegisterLocalAddr(
 		func() (addr net.Addr) { return wantAddr },
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Conn: conn},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Conn: conn},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			addr := transport.LocalAddr()
 			asserterror.EqualDeep(t, addr, wantAddr)
 		},
@@ -35,7 +64,7 @@ func LocalAddrTestCase() TransportTestCase[any, any] {
 	}
 }
 
-func RemoteAddrTestCase() TransportTestCase[any, any] {
+func (TransportSuite[T, V]) RemoteAddr(t *testing.T) TransportTestCase[T, V] {
 	name := "RemoteAddr should return remote address of the conn"
 
 	var (
@@ -45,10 +74,10 @@ func RemoteAddrTestCase() TransportTestCase[any, any] {
 	conn.RegisterRemoteAddr(
 		func() (addr net.Addr) { return wantAddr },
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Conn: conn},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Conn: conn},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			addr := transport.RemoteAddr()
 			asserterror.EqualDeep(t, addr, wantAddr)
 		},
@@ -56,7 +85,7 @@ func RemoteAddrTestCase() TransportTestCase[any, any] {
 	}
 }
 
-func SetSendDeadlineTestCase(t *testing.T) TransportTestCase[any, any] {
+func (TransportSuite[T, V]) SetSendDeadline(t *testing.T) TransportTestCase[T, V] {
 	name := "Conn.SetWriteDeadline should receive same deadline as SetSendDeadline"
 
 	var (
@@ -69,17 +98,17 @@ func SetSendDeadlineTestCase(t *testing.T) TransportTestCase[any, any] {
 			return
 		},
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Conn: conn},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Conn: conn},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			_ = transport.SetSendDeadline(wantDeadline)
 		},
 		Mocks: []*mok.Mock{conn.Mock},
 	}
 }
 
-func SetSendDeadlineErrorTestCase() TransportTestCase[any, any] {
+func (TransportSuite[T, V]) SetSendDeadlineError(t *testing.T) TransportTestCase[T, V] {
 	name := "If Conn.SetWriteDeadline fails with an error, SetSendDeadline should return it"
 
 	var (
@@ -89,10 +118,10 @@ func SetSendDeadlineErrorTestCase() TransportTestCase[any, any] {
 	conn.RegisterSetWriteDeadline(
 		func(deadline time.Time) (err error) { return wantErr },
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Conn: conn},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Conn: conn},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			err := transport.SetSendDeadline(time.Time{})
 			asserterror.Equal(t, err, wantErr)
 		},
@@ -100,32 +129,32 @@ func SetSendDeadlineErrorTestCase() TransportTestCase[any, any] {
 	}
 }
 
-func SendTestCase(t *testing.T) TransportTestCase[core.Cmd[any], core.Result] {
+func (TransportSuite[T, V]) Send(t *testing.T) TransportTestCase[T, V] {
 	name := "Send should encode data with help of the Codec"
 
 	var (
 		wantSeq core.Seq = 1
-		wantCmd          = cmock.NewCmd[any]()
-		wantN            = 3
-		wantErr error    = nil
-		writer           = tmock.NewWriter()
-		codec            = tmock.NewClientCodec()
+		wantT   T
+		wantN   = 3
+		wantErr error = nil
+		writer  = tmock.NewWriter()
+		codec   = tmock.NewCodec[T, V]()
 	)
 	codec.RegisterEncode(
-		func(seq core.Seq, cmd core.Cmd[any], w tspt.Writer) (n int, err error) {
+		func(seq core.Seq, val T, w tspt.Writer) (n int, err error) {
 			asserterror.Equal(t, seq, wantSeq)
-			asserterror.Equal[any](t, cmd, wantCmd)
+			asserterror.EqualDeep(t, val, wantT)
 			return wantN, wantErr
 		},
 	)
-	return TransportTestCase[core.Cmd[any], core.Result]{
+	return TransportTestCase[T, V]{
 		Name: name,
-		Setup: TransportSetup[core.Cmd[any], core.Result]{
+		Setup: TransportSetup[T, V]{
 			Writer: writer,
 			Codec:  codec,
 		},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[core.Cmd[any], core.Result]) {
-			n, err := transport.Send(wantSeq, wantCmd)
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
+			n, err := transport.Send(wantSeq, wantT)
 			asserterror.EqualError(t, err, wantErr)
 			asserterror.Equal(t, n, wantN)
 		},
@@ -133,32 +162,33 @@ func SendTestCase(t *testing.T) TransportTestCase[core.Cmd[any], core.Result] {
 	}
 }
 
-func SendErrorTestCase() TransportTestCase[core.Cmd[any], core.Result] {
+func (TransportSuite[T, V]) SendError(t *testing.T) TransportTestCase[T, V] {
 	name := "If Codec.Encode fails with an error, Send should return it"
 
 	var (
 		wantErr = errors.New("Codec.Encode error")
-		codec   = tmock.NewClientCodec()
+		codec   = tmock.NewCodec[T, V]()
 	)
 	codec.RegisterEncode(
-		func(seq core.Seq, cmd core.Cmd[any], w tspt.Writer) (n int, err error) {
+		func(seq core.Seq, val T, w tspt.Writer) (n int, err error) {
 			return 0, wantErr
 		},
 	)
-	return TransportTestCase[core.Cmd[any], core.Result]{
+	return TransportTestCase[T, V]{
 		Name: name,
-		Setup: TransportSetup[core.Cmd[any], core.Result]{
+		Setup: TransportSetup[T, V]{
 			Codec: codec,
 		},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[core.Cmd[any], core.Result]) {
-			_, err := transport.Send(1, nil)
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
+			var val T
+			_, err := transport.Send(1, val)
 			asserterror.EqualError(t, err, wantErr)
 		},
 		Mocks: []*mok.Mock{codec.Mock},
 	}
 }
 
-func SetReceiveDeadlineTestCase(t *testing.T) TransportTestCase[any, any] {
+func (TransportSuite[T, V]) SetReceiveDeadline(t *testing.T) TransportTestCase[T, V] {
 	name := "Conn.SetReadDeadline should receive same deadline as SetReceiveDeadline"
 
 	var (
@@ -171,17 +201,17 @@ func SetReceiveDeadlineTestCase(t *testing.T) TransportTestCase[any, any] {
 			return
 		},
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Conn: conn},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Conn: conn},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			_ = transport.SetReceiveDeadline(wantDeadline)
 		},
 		Mocks: []*mok.Mock{conn.Mock},
 	}
 }
 
-func SetReceiveDeadlineErrorTestCase() TransportTestCase[any, any] {
+func (TransportSuite[T, V]) SetReceiveDeadlineError(t *testing.T) TransportTestCase[T, V] {
 	name := "If Conn.SetReadDeadline fails with an error, SetReceiveDeadline should return it"
 
 	var (
@@ -191,10 +221,10 @@ func SetReceiveDeadlineErrorTestCase() TransportTestCase[any, any] {
 	conn.RegisterSetReadDeadline(
 		func(deadline time.Time) (err error) { return wantErr },
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Conn: conn},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Conn: conn},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			err := transport.SetReceiveDeadline(time.Time{})
 			asserterror.EqualError(t, err, wantErr)
 		},
@@ -202,78 +232,78 @@ func SetReceiveDeadlineErrorTestCase() TransportTestCase[any, any] {
 	}
 }
 
-func ReceiveTestCase() TransportTestCase[core.Cmd[any], core.Result] {
+func (TransportSuite[T, V]) Receive(t *testing.T) TransportTestCase[T, V] {
 	name := "Receive should decode data with help of the Codec"
 
 	var (
-		wantSeq    core.Seq = 1
-		wantResult          = cmock.NewResult()
-		wantN               = 3
-		wantErr    error    = nil
-		codec               = tmock.NewClientCodec()
+		wantSeq core.Seq = 1
+		wantV   V
+		wantN   = 3
+		wantErr error = nil
+		codec   = tmock.NewCodec[T, V]()
 	)
 	codec.RegisterDecode(
-		func(r tspt.Reader) (seq core.Seq, result core.Result, n int, err error) {
-			return wantSeq, wantResult, wantN, wantErr
+		func(r tspt.Reader) (seq core.Seq, val V, n int, err error) {
+			return wantSeq, wantV, wantN, wantErr
 		},
 	)
-	return TransportTestCase[core.Cmd[any], core.Result]{
+	return TransportTestCase[T, V]{
 		Name: name,
-		Setup: TransportSetup[core.Cmd[any], core.Result]{
+		Setup: TransportSetup[T, V]{
 			Codec: codec,
 		},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[core.Cmd[any], core.Result]) {
-			seq, result, n, err := transport.Receive()
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
+			seq, val, n, err := transport.Receive()
 			asserterror.EqualError(t, err, wantErr)
 			asserterror.Equal(t, seq, wantSeq)
-			asserterror.EqualDeep(t, result, wantResult)
+			asserterror.EqualDeep(t, val, wantV)
 			asserterror.Equal(t, n, wantN)
 		},
 		Mocks: []*mok.Mock{codec.Mock},
 	}
 }
 
-func ReceiveErrorTestCase() TransportTestCase[core.Cmd[any], core.Result] {
+func (TransportSuite[T, V]) ReceiveError(t *testing.T) TransportTestCase[T, V] {
 	name := "If Codec.Decode fails with an error, Receive should return it"
 
 	var (
-		wantSeq    core.Seq    = 0
-		wantResult core.Result = nil
-		wantErr                = errors.New("Codec.Decode error")
-		codec                  = tmock.NewClientCodec()
+		wantSeq core.Seq = 0
+		wantV   V
+		wantErr = errors.New("Codec.Decode error")
+		codec   = tmock.NewCodec[T, V]()
 	)
 	codec.RegisterDecode(
-		func(r tspt.Reader) (seq core.Seq, result core.Result, n int, err error) {
+		func(r tspt.Reader) (seq core.Seq, val V, n int, err error) {
 			err = wantErr
 			return
 		},
 	)
-	return TransportTestCase[core.Cmd[any], core.Result]{
+	return TransportTestCase[T, V]{
 		Name: name,
-		Setup: TransportSetup[core.Cmd[any], core.Result]{
+		Setup: TransportSetup[T, V]{
 			Codec: codec,
 		},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[core.Cmd[any], core.Result]) {
-			seq, result, _, err := transport.Receive()
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
+			seq, val, _, err := transport.Receive()
 			asserterror.EqualError(t, err, wantErr)
 			asserterror.Equal(t, seq, wantSeq)
-			asserterror.EqualDeep(t, result, wantResult)
+			asserterror.EqualDeep(t, val, wantV)
 		},
 		Mocks: []*mok.Mock{codec.Mock},
 	}
 }
 
-func FlushTestCase() TransportTestCase[any, any] {
+func (TransportSuite[T, V]) Flush(t *testing.T) TransportTestCase[T, V] {
 	name := "Flush should flush the writer"
 
 	var writer = tmock.NewWriter()
 	writer.RegisterFlush(
 		func() error { return nil },
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Writer: writer},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Writer: writer},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			err := transport.Flush()
 			asserterror.EqualError(t, err, nil)
 		},
@@ -281,7 +311,7 @@ func FlushTestCase() TransportTestCase[any, any] {
 	}
 }
 
-func FlushErrorTestCase() TransportTestCase[any, any] {
+func (TransportSuite[T, V]) FlushError(t *testing.T) TransportTestCase[T, V] {
 	name := "If Writer.Flush fails with an error, Flush should return it"
 
 	var (
@@ -291,10 +321,10 @@ func FlushErrorTestCase() TransportTestCase[any, any] {
 	writer.RegisterFlush(
 		func() error { return wantErr },
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Writer: writer},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Writer: writer},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			err := transport.Flush()
 			asserterror.EqualError(t, err, wantErr)
 		},
@@ -302,17 +332,17 @@ func FlushErrorTestCase() TransportTestCase[any, any] {
 	}
 }
 
-func CloseTestCase() TransportTestCase[any, any] {
+func (TransportSuite[T, V]) Close(t *testing.T) TransportTestCase[T, V] {
 	name := "Close should close the conn"
 
 	var conn = cmock.NewConn()
 	conn.RegisterClose(
 		func() (err error) { return nil },
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Conn: conn},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Conn: conn},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			err := transport.Close()
 			asserterror.EqualError(t, err, nil)
 		},
@@ -320,7 +350,7 @@ func CloseTestCase() TransportTestCase[any, any] {
 	}
 }
 
-func CloseErrorTestCase() TransportTestCase[any, any] {
+func (TransportSuite[T, V]) CloseError(t *testing.T) TransportTestCase[T, V] {
 	name := "If Conn.Close fails with an error, Close should return it"
 
 	var (
@@ -330,10 +360,10 @@ func CloseErrorTestCase() TransportTestCase[any, any] {
 	conn.RegisterClose(
 		func() (err error) { return wantErr },
 	)
-	return TransportTestCase[any, any]{
+	return TransportTestCase[T, V]{
 		Name:  name,
-		Setup: TransportSetup[any, any]{Conn: conn},
-		Action: func(t *testing.T, transport *tspt.CodecTransport[any, any]) {
+		Setup: TransportSetup[T, V]{Conn: conn},
+		Action: func(t *testing.T, transport *tspt.CodecTransport[T, V]) {
 			err := transport.Close()
 			asserterror.EqualError(t, err, wantErr)
 		},

@@ -8,6 +8,7 @@ import (
 	cmdstream "github.com/cmd-stream/cmd-stream-go"
 	"github.com/cmd-stream/cmd-stream-go/core"
 	ccln "github.com/cmd-stream/cmd-stream-go/core/cln"
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
 	"github.com/cmd-stream/cmd-stream-go/testkit"
 	assertfatal "github.com/ymz-ncnk/assert/fatal"
 )
@@ -15,10 +16,13 @@ import (
 func TestReconnect(t *testing.T) {
 	const addr = "127.0.0.1:9006"
 
-	startReconnectServer(addr)
+	server := startReconnectServer(addr)
+	defer server.Close()
+
 	factory := &reconnectFactory{addr: addr}
 	client, err := cmdstream.NewReconnectClient(testkit.ClientCodec{}, factory)
 	assertfatal.EqualError(t, err, nil)
+	defer client.Close()
 
 	exchangeReconnect(t, client, factory)
 }
@@ -37,15 +41,16 @@ func (f *reconnectFactory) New() (net.Conn, error) {
 	return conn, nil
 }
 
-func startReconnectServer(addr string) {
+func startReconnectServer(addr string) *csrv.Server {
+	server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
+	if err != nil {
+		panic(err)
+	}
 	go func() {
-		server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
-		if err != nil {
-			return
-		}
 		_ = server.ListenAndServe(addr)
 	}()
 	time.Sleep(50 * time.Millisecond)
+	return server
 }
 
 func exchangeReconnect(t *testing.T, client *ccln.Client[testkit.Receiver],

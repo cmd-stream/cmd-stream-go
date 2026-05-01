@@ -8,13 +8,13 @@ import (
 )
 
 type (
-	Send             func(cmd core.Cmd[any], results chan<- core.AsyncResult) (seq core.Seq, n int, err error)
-	SendWithDeadline func(deadline time.Time, cmd core.Cmd[any], results chan<- core.AsyncResult) (seq core.Seq, n int, err error)
-	Has              func(seq core.Seq) bool
-	Forget           func(seq core.Seq)
-	Error            func() (err error)
-	Close            func() (err error)
-	Done             func() <-chan struct{}
+	SendFn[T any]             func(cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error)
+	SendWithDeadlineFn[T any] func(deadline time.Time, cmd core.Cmd[T], results chan<- core.AsyncResult) (seq core.Seq, n int, err error)
+	HasFn                     func(seq core.Seq) bool
+	ForgetFn                  func(seq core.Seq)
+	ErrorFn                   func() (err error)
+	CloseFn                   func() (err error)
+	DoneFn                    func() <-chan struct{}
 )
 
 func NewClient[T any]() Client[T] {
@@ -25,72 +25,72 @@ type Client[T any] struct {
 	*mok.Mock
 }
 
-func (m Client[T]) RegisterSendN(n int, fn Send) Client[T] {
+func (m Client[T]) RegisterSendN(n int, fn SendFn[T]) Client[T] {
 	m.RegisterN("Send", n, fn)
 	return m
 }
 
-func (m Client[T]) RegisterSend(fn Send) Client[T] {
+func (m Client[T]) RegisterSend(fn SendFn[T]) Client[T] {
 	m.Register("Send", fn)
 	return m
 }
 
-func (m Client[T]) RegisterSendWithDeadlineN(n int, fn SendWithDeadline) Client[T] {
+func (m Client[T]) RegisterSendWithDeadlineN(n int, fn SendWithDeadlineFn[T]) Client[T] {
 	m.RegisterN("SendWithDeadline", n, fn)
 	return m
 }
 
-func (m Client[T]) RegisterSendWithDeadline(fn SendWithDeadline) Client[T] {
+func (m Client[T]) RegisterSendWithDeadline(fn SendWithDeadlineFn[T]) Client[T] {
 	m.Register("SendWithDeadline", fn)
 	return m
 }
 
-func (m Client[T]) RegisterHasN(n int, fn Has) Client[T] {
+func (m Client[T]) RegisterHasN(n int, fn HasFn) Client[T] {
 	m.RegisterN("Has", n, fn)
 	return m
 }
 
-func (m Client[T]) RegisterHas(fn Has) Client[T] {
+func (m Client[T]) RegisterHas(fn HasFn) Client[T] {
 	m.Register("Has", fn)
 	return m
 }
 
-func (m Client[T]) RegisterForgetN(n int, fn Forget) Client[T] {
+func (m Client[T]) RegisterForgetN(n int, fn ForgetFn) Client[T] {
 	m.RegisterN("Forget", n, fn)
 	return m
 }
 
-func (m Client[T]) RegisterForget(fn Forget) Client[T] {
+func (m Client[T]) RegisterForget(fn ForgetFn) Client[T] {
 	m.Register("Forget", fn)
 	return m
 }
 
-func (m Client[T]) RegisterErrorN(n int, fn Error) Client[T] {
+func (m Client[T]) RegisterErrorN(n int, fn ErrorFn) Client[T] {
 	m.RegisterN("Error", n, fn)
 	return m
 }
 
-func (m Client[T]) RegisterError(fn Error) Client[T] {
+func (m Client[T]) RegisterError(fn ErrorFn) Client[T] {
 	m.Register("Error", fn)
 	return m
 }
 
-func (m Client[T]) RegisterCloseN(n int, fn Close) Client[T] {
+func (m Client[T]) RegisterCloseN(n int, fn CloseFn) Client[T] {
 	m.RegisterN("Close", n, fn)
 	return m
 }
 
-func (m Client[T]) RegisterClose(fn Close) Client[T] {
+func (m Client[T]) RegisterClose(fn CloseFn) Client[T] {
 	m.Register("Close", fn)
 	return m
 }
 
-func (m Client[T]) RegisterDoneN(n int, fn Done) Client[T] {
+func (m Client[T]) RegisterDoneN(n int, fn DoneFn) Client[T] {
 	m.RegisterN("Done", n, fn)
 	return m
 }
 
-func (m Client[T]) RegisterDone(fn Done) Client[T] {
+func (m Client[T]) RegisterDone(fn DoneFn) Client[T] {
 	m.Register("Done", fn)
 	return m
 }

@@ -1,4 +1,4 @@
-package core
+package test
 
 import (
 	"errors"
@@ -10,18 +10,195 @@ import (
 
 	"github.com/cmd-stream/cmd-stream-go/core"
 	"github.com/cmd-stream/cmd-stream-go/core/cln"
-	"github.com/cmd-stream/cmd-stream-go/test"
 	mock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
 
-func ReconnectTestCase() ClientTestCase[any] {
+type ClientTestCase[T any] struct {
+	Name   string
+	Setup  ClientSetup[T]
+	Action func(t *testing.T, client *cln.Client[T], results chan core.AsyncResult)
+	Mocks  []*mok.Mock
+}
+
+type ClientSetup[T any] struct {
+	Delegate core.ClientDelegate[T]
+	Opts     []cln.SetOption
+}
+
+func RunClientTestCase[T any](t *testing.T, tc ClientTestCase[T]) {
+	t.Run(tc.Name, func(t *testing.T) {
+		var (
+			results = make(chan core.AsyncResult, 10)
+			client  = cln.New(tc.Setup.Delegate, tc.Setup.Opts...)
+		)
+		if tc.Action != nil {
+			tc.Action(t, client, results)
+		}
+		select {
+		case <-client.Done():
+		case <-time.After(time.Second):
+			t.Fatal("timeout waiting for client to be done")
+		}
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Mocks), mok.EmptyInfomap)
+	})
+}
+
+// -----------------------------------------------------------------------------
+
+type MultiSendTestCase[T any] struct {
+	Name        string
+	Setup       ClientSetup[T]
+	Params      MultiSendParams[T]
+	Want        MultiSendWant
+	CheckDuring func(t *testing.T, client *cln.Client[T], seqs []core.Seq)
+	Concurrent  bool
+}
+
+type MultiSendParams[T any] struct {
+	Cmds      []core.Cmd[T]
+	Results   chan core.AsyncResult
+	Deadlines []time.Time
+}
+
+type MultiSendWant struct {
+	Seqs    []core.Seq
+	Ns      []int
+	Errs    []error
+	Results []core.AsyncResult
+	Mocks   []*mok.Mock
+	Has     bool
+}
+
+func RunMultiSendTestCase[T any](t *testing.T, tc MultiSendTestCase[T]) {
+	t.Run(tc.Name, func(t *testing.T) {
+		var (
+			client = cln.New(tc.Setup.Delegate, tc.Setup.Opts...)
+			seqs   = make([]core.Seq, len(tc.Params.Cmds))
+		)
+		if tc.Concurrent {
+			wg := sync.WaitGroup{}
+			for i, cmd := range tc.Params.Cmds {
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					_, _, err := client.Send(cmd, tc.Params.Results)
+					asserterror.EqualError(t, err, tc.Want.Errs[i])
+				}()
+			}
+			wg.Wait()
+		} else {
+			for i, cmd := range tc.Params.Cmds {
+				var (
+					seq core.Seq
+					n   int
+					err error
+				)
+				if i < len(tc.Params.Deadlines) && !tc.Params.Deadlines[i].IsZero() {
+					seq, n, err = client.SendWithDeadline(tc.Params.Deadlines[i], cmd, tc.Params.Results)
+				} else {
+					seq, n, err = client.Send(cmd, tc.Params.Results)
+				}
+				seqs[i] = seq
+				asserterror.Equal(t, seq, tc.Want.Seqs[i])
+				asserterror.Equal(t, n, tc.Want.Ns[i])
+				asserterror.EqualError(t, err, tc.Want.Errs[i])
+			}
+		}
+
+		if tc.CheckDuring != nil {
+			tc.CheckDuring(t, client, seqs)
+		}
+
+		for i := 0; i < len(tc.Want.Results); i++ {
+			select {
+			case result := <-tc.Params.Results:
+				asserterror.EqualDeep(t, result, tc.Want.Results[i])
+			case <-time.After(time.Second):
+				t.Fatalf("timeout waiting for result %d", i)
+			}
+		}
+
+		select {
+		case <-client.Done():
+		case <-time.After(time.Second):
+			t.Fatal("timeout waiting for client to be done")
+		}
+
+		for _, seq := range tc.Want.Seqs {
+			asserterror.Equal(t, client.Has(seq), tc.Want.Has)
+		}
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Want.Mocks), mok.EmptyInfomap)
+	})
+}
+
+// -----------------------------------------------------------------------------
+
+func AssertSend[T any](t *testing.T, client *cln.Client[T],
+	cmd core.Cmd[T], results chan core.AsyncResult, wantSeq core.Seq,
+	wantN int, wantErr error) (seq core.Seq) {
+	t.Helper()
+	seq, n, err := client.Send(cmd, results)
+	asserterror.Equal(t, seq, wantSeq)
+	asserterror.Equal(t, n, wantN)
+	asserterror.EqualError(t, err, wantErr)
+	return
+}
+
+func AssertSendWithDeadline[T any](t *testing.T, client *cln.Client[T],
+	deadline time.Time, cmd core.Cmd[T], results chan core.AsyncResult,
+	wantSeq core.Seq, wantN int, wantErr error) (seq core.Seq) {
+	t.Helper()
+	seq, n, err := client.SendWithDeadline(deadline, cmd, results)
+	asserterror.Equal(t, seq, wantSeq)
+	asserterror.Equal(t, n, wantN)
+	asserterror.EqualError(t, err, wantErr)
+	return
+}
+
+func AssertResults(t *testing.T, results <-chan core.AsyncResult,
+	wantResults ...core.AsyncResult) {
+	t.Helper()
+	for i, want := range wantResults {
+		select {
+		case got := <-results:
+			asserterror.EqualDeep(t, got, want)
+		case <-time.After(time.Second):
+			t.Fatalf("timeout waiting for result %d", i)
+		}
+	}
+}
+
+func AssertDone[T any](t *testing.T, client *cln.Client[T]) {
+	t.Helper()
+	select {
+	case <-client.Done():
+	case <-time.After(time.Second):
+		t.Fatal("timeout waiting for client to be done")
+	}
+}
+
+func AssertHas[T any](t *testing.T, client *cln.Client[T], seq core.Seq,
+	wantHas bool) {
+	t.Helper()
+	asserterror.Equal(t, client.Has(seq), wantHas)
+}
+
+type client struct{}
+
+var Client client
+
+// -----------------------------------------------------------------------------
+// Test Cases
+// -----------------------------------------------------------------------------
+
+func (client) Reconnect() ClientTestCase[any] {
 	name := "If the client has lost a connection it should try to reconnect"
 
 	var (
 		reconnectDone = make(chan struct{})
-		delegate      = mock.NewReconnectDelegate()
+		delegate      = mock.NewReconnectDelegate[any]()
 	)
 
 	delegate.RegisterReceive(
@@ -53,12 +230,12 @@ func ReconnectTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func ReconnectOnEOFTestCase() ClientTestCase[any] {
+func (client) ReconnectOnEOF() ClientTestCase[any] {
 	name := "If the client received EOF it should try to reconnect"
 
 	var (
 		reconnectDone = make(chan struct{})
-		delegate      = mock.NewReconnectDelegate()
+		delegate      = mock.NewReconnectDelegate[any]()
 	)
 
 	delegate.RegisterReceive(
@@ -90,12 +267,12 @@ func ReconnectOnEOFTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func NoReconnectOnCloseTestCase() ClientTestCase[any] {
+func (client) NoReconnectOnClose() ClientTestCase[any] {
 	name := "If the client is closed it should not reconnect"
 
 	var (
 		receiveDone = make(chan struct{})
-		delegate    = mock.NewReconnectDelegate()
+		delegate    = mock.NewReconnectDelegate[any]()
 	)
 
 	delegate.RegisterReceive(
@@ -125,12 +302,12 @@ func NoReconnectOnCloseTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func ReconnectFailTestCase() ClientTestCase[any] {
+func (client) ReconnectFail() ClientTestCase[any] {
 	name := "If reconnection fails with an error, it should become the client error"
 
 	var (
 		wantErr  = errors.New("reconnection error")
-		delegate = mock.NewReconnectDelegate()
+		delegate = mock.NewReconnectDelegate[any]()
 	)
 	delegate.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
@@ -157,12 +334,12 @@ func ReconnectFailTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func KeepaliveTestCase() ClientTestCase[any] {
+func (client) Keepalive() ClientTestCase[any] {
 	name := "Upon creation, the client should call KeepaliveDelegate.Keepalive()"
 
 	var (
 		keepaliveDone = make(chan struct{})
-		delegate      = mock.NewKeepaliveDelegate()
+		delegate      = mock.NewKeepaliveDelegate[any]()
 	)
 
 	delegate.RegisterKeepalive(
@@ -189,7 +366,7 @@ func KeepaliveTestCase() ClientTestCase[any] {
 
 // Send ------------------------------------------------------------------------
 
-func SendSuccessTestCase() ClientTestCase[any] {
+func (client) SendSuccess() ClientTestCase[any] {
 	name := "Should successfully send cmd and receive result"
 
 	var (
@@ -198,7 +375,7 @@ func SendSuccessTestCase() ClientTestCase[any] {
 		wantResult          = mock.NewResult()
 		cmd                 = mock.NewCmd[any]()
 		sendDone            = make(chan struct{})
-		delegate            = mock.NewClientDelegate()
+		delegate            = mock.NewClientDelegate[any]()
 	)
 
 	delegate.RegisterSend(
@@ -246,7 +423,7 @@ func SendSuccessTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func HasTestCase() ClientTestCase[any] {
+func (client) Has() ClientTestCase[any] {
 	name := "Client.Has should return true when client has cmd"
 
 	var (
@@ -254,7 +431,7 @@ func HasTestCase() ClientTestCase[any] {
 		wantN              = 1
 		cmd                = mock.NewCmd[any]()
 		checkDone          = make(chan struct{})
-		delegate           = mock.NewClientDelegate()
+		delegate           = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
@@ -290,7 +467,7 @@ func HasTestCase() ClientTestCase[any] {
 }
 
 // -----------------------------------------------------------------------------
-func ForgetTestCase() ClientTestCase[any] {
+func (client) Forget() ClientTestCase[any] {
 	name := "Client.Forget should remove cmd from waiting map"
 
 	var (
@@ -298,7 +475,7 @@ func ForgetTestCase() ClientTestCase[any] {
 		wantN              = 1
 		cmd                = mock.NewCmd[any]()
 		checkDone          = make(chan struct{})
-		delegate           = mock.NewClientDelegate()
+		delegate           = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
@@ -337,7 +514,7 @@ func ForgetTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func ForgetOnFailTestCase() ClientTestCase[any] {
+func (client) ForgetOnFail() ClientTestCase[any] {
 	name := "The cmd should be forgoten if send fails"
 
 	var (
@@ -345,7 +522,7 @@ func ForgetOnFailTestCase() ClientTestCase[any] {
 		wantErr           = errors.New("send error")
 		cmd               = mock.NewCmd[any]()
 		sendDone          = make(chan struct{})
-		delegate          = mock.NewClientDelegate()
+		delegate          = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
@@ -378,7 +555,7 @@ func ForgetOnFailTestCase() ClientTestCase[any] {
 
 // SendWithDeadline ------------------------------------------------------------
 
-func SendWDTestCase() ClientTestCase[any] {
+func (client) SendWithDeadline() ClientTestCase[any] {
 	name := "Should successfully send cmd by SendWithDeadline"
 
 	var (
@@ -386,7 +563,7 @@ func SendWDTestCase() ClientTestCase[any] {
 		wantDeadline          = time.Now()
 		wantCmd               = mock.NewCmd[any]()
 		receiveDone           = make(chan struct{})
-		delegate              = mock.NewClientDelegate()
+		delegate              = mock.NewClientDelegate[any]()
 	)
 
 	delegate.RegisterSetSendDeadline(
@@ -429,7 +606,7 @@ func SendWDTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func SendWDFailSetDeadlineTestCase() ClientTestCase[any] {
+func (client) SendWithDeadlineFailSetDeadline() ClientTestCase[any] {
 	name := "If Delegate.SetSendDeadline fails with an error, SendWithDeadline should return it"
 
 	var (
@@ -437,7 +614,7 @@ func SendWDFailSetDeadlineTestCase() ClientTestCase[any] {
 		delegateErr          = errors.New("Delegate.SetSendDeadline error")
 		wantErr              = cln.NewClientError(delegateErr)
 		sendDone             = make(chan struct{})
-		delegate             = mock.NewClientDelegate()
+		delegate             = mock.NewClientDelegate[any]()
 	)
 
 	delegate.RegisterSetSendDeadline(
@@ -470,7 +647,7 @@ func SendWDFailSetDeadlineTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func SendWDFailTestCase() ClientTestCase[any] {
+func (client) SendWithDeadlineFail() ClientTestCase[any] {
 	name := "If Delegate.Send fails with an error, SendWithDeadline should return it"
 
 	var (
@@ -478,7 +655,7 @@ func SendWDFailTestCase() ClientTestCase[any] {
 		delegateErr          = errors.New("Delegate.Send error")
 		wantErr              = cln.NewClientError(delegateErr)
 		sendDone             = make(chan struct{})
-		delegate             = mock.NewClientDelegate()
+		delegate             = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) (err error) {
@@ -514,13 +691,13 @@ func SendWDFailTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func ClosedOnReceiveErrorTestCase() ClientTestCase[any] {
+func (client) ClosedOnReceiveError() ClientTestCase[any] {
 	name := "If Receive fails with an error, further Send calls should return ErrClosed"
 
 	var (
 		cmd         = mock.NewCmd[any]()
 		receiveDone = make(chan struct{})
-		delegate    = mock.NewClientDelegate()
+		delegate    = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
@@ -549,7 +726,7 @@ func ClosedOnReceiveErrorTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func ForgetOnSendWDFailSetDeadlineTestCase() ClientTestCase[any] {
+func (client) ForgetOnSendWithDeadlineFailSetDeadline() ClientTestCase[any] {
 	name := "Should forget the cmd if SendWithDeadline failed to Delegate.SetSendDeadline"
 
 	var (
@@ -557,7 +734,7 @@ func ForgetOnSendWDFailSetDeadlineTestCase() ClientTestCase[any] {
 		delegateErr          = errors.New("Delegate.SetSendDeadline error")
 		wantErr              = cln.NewClientError(delegateErr)
 		sendDone             = make(chan struct{})
-		delegate             = mock.NewClientDelegate()
+		delegate             = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) (err error) {
@@ -590,7 +767,7 @@ func ForgetOnSendWDFailSetDeadlineTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func ForgetOnSendWDFailSendTestCase() ClientTestCase[any] {
+func (client) ForgetOnSendWithDeadlineFail() ClientTestCase[any] {
 	name := "Should forget the cmd if SendWithDeadline failed to Delegate.Send"
 
 	var (
@@ -598,7 +775,7 @@ func ForgetOnSendWDFailSendTestCase() ClientTestCase[any] {
 		delegateErr          = errors.New("Delegate.Send error")
 		wantErr              = cln.NewClientError(delegateErr)
 		sendDone             = make(chan struct{})
-		delegate             = mock.NewClientDelegate()
+		delegate             = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) (err error) {
@@ -635,7 +812,7 @@ func ForgetOnSendWDFailSendTestCase() ClientTestCase[any] {
 
 // Send Multi ------------------------------------------------------------------
 
-func IncrementSeqOnSendWDFailTestCase() MultiSendTestCase[any] {
+func (client) IncrementSeqOnSendWithDeadlineFail() MultiSendTestCase[any] {
 	name := "Should increment seq even after SendWithDeadline fail"
 
 	var (
@@ -645,7 +822,7 @@ func IncrementSeqOnSendWDFailTestCase() MultiSendTestCase[any] {
 		cmd1                 = mock.NewCmd[any]()
 		cmd2                 = mock.NewCmd[any]()
 		receiveDone          = make(chan struct{})
-		delegate             = mock.NewClientDelegate()
+		delegate             = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) (err error) {
@@ -696,7 +873,7 @@ func IncrementSeqOnSendWDFailTestCase() MultiSendTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func MultiSuccessTestCase() MultiSendTestCase[any] {
+func (client) MultiSendSuccess() MultiSendTestCase[any] {
 	name := "Should successfully send multiple cmds and receive results"
 
 	var (
@@ -707,7 +884,7 @@ func MultiSuccessTestCase() MultiSendTestCase[any] {
 		cmd1                 = mock.NewCmd[any]()
 		cmd2                 = mock.NewCmd[any]()
 		sendDone             = make(chan struct{}, 2)
-		delegate             = mock.NewClientDelegate()
+		delegate             = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
@@ -771,7 +948,7 @@ func MultiSuccessTestCase() MultiSendTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func IncrementSeqTestCase() MultiSendTestCase[any] {
+func (client) IncrementSeq() MultiSendTestCase[any] {
 	name := "Client sequence should be incremented"
 
 	var (
@@ -780,7 +957,7 @@ func IncrementSeqTestCase() MultiSendTestCase[any] {
 		cmd1               = mock.NewCmd[any]()
 		cmd2               = mock.NewCmd[any]()
 		checkDone          = make(chan struct{})
-		delegate           = mock.NewClientDelegate()
+		delegate           = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterSend(
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) { return 1, nil },
@@ -826,7 +1003,7 @@ func IncrementSeqTestCase() MultiSendTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func MultiResultSuccessTestCase() MultiSendTestCase[any] {
+func (client) MultiResultSuccess() MultiSendTestCase[any] {
 	name := "Should successfully send one cmd and receive multiple results"
 
 	var (
@@ -835,7 +1012,7 @@ func MultiResultSuccessTestCase() MultiSendTestCase[any] {
 		wantResult2          = mock.NewResult()
 		cmd                  = mock.NewCmd[any]()
 		sendDone             = make(chan struct{})
-		delegate             = mock.NewClientDelegate()
+		delegate             = mock.NewClientDelegate[any]()
 	)
 
 	delegate.RegisterSend(
@@ -894,7 +1071,7 @@ func MultiResultSuccessTestCase() MultiSendTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func PartialResultsTestCase() MultiSendTestCase[any] {
+func (client) PartialResults() MultiSendTestCase[any] {
 	name := "Should remember the comand after partial results"
 
 	var (
@@ -902,7 +1079,7 @@ func PartialResultsTestCase() MultiSendTestCase[any] {
 		wantResult1              = mock.NewResult()
 		wantResult2              = mock.NewResult()
 		cmd                      = mock.NewCmd[any]()
-		delegate                 = mock.NewClientDelegate()
+		delegate                 = mock.NewClientDelegate[any]()
 		firstResultSent          = make(chan struct{})
 		checkDone                = make(chan struct{})
 	)
@@ -969,7 +1146,7 @@ func PartialResultsTestCase() MultiSendTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func IncrementSeqAfterFailTestCase() MultiSendTestCase[any] {
+func (client) IncrementSeqAfterFail() MultiSendTestCase[any] {
 	name := "Should increment seq even after the cmd send has been failed"
 
 	var (
@@ -979,7 +1156,7 @@ func IncrementSeqAfterFailTestCase() MultiSendTestCase[any] {
 		cmd1                 = mock.NewCmd[any]()
 		cmd2                 = mock.NewCmd[any]()
 		receiveDone          = make(chan struct{})
-		delegate             = mock.NewClientDelegate()
+		delegate             = mock.NewClientDelegate[any]()
 	)
 
 	delegate.RegisterSend(
@@ -1031,7 +1208,7 @@ func IncrementSeqAfterFailTestCase() MultiSendTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func ErrForAllCmdsOnFlushFailTestCase() MultiSendTestCase[any] {
+func (client) ErrForAllCmdsOnFlushFail() MultiSendTestCase[any] {
 	name := "If Delegate.Flush fails with an error, Send of all involved Commands should return error"
 
 	var (
@@ -1039,7 +1216,7 @@ func ErrForAllCmdsOnFlushFailTestCase() MultiSendTestCase[any] {
 		wantErr     = cln.NewClientError(delegateErr)
 		cmds        = make([]core.Cmd[any], 10)
 		wantErrs    = make([]error, 10)
-		delegate    = mock.NewClientDelegate()
+		delegate    = mock.NewClientDelegate[any]()
 	)
 	for i := range 10 {
 		cmds[i] = mock.NewCmd[any]()
@@ -1049,12 +1226,12 @@ func ErrForAllCmdsOnFlushFailTestCase() MultiSendTestCase[any] {
 		func(seq core.Seq, cmd core.Cmd[any]) (n int, err error) { return 0, nil },
 	).RegisterFlushN(10,
 		func() (err error) {
-			time.Sleep(test.TimeDelta)
+			time.Sleep(TimeDelta)
 			return delegateErr
 		},
 	).RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
-			time.Sleep(test.TimeDelta)
+			time.Sleep(TimeDelta)
 			return 0, nil, 0, errors.New("receive error")
 		},
 	).RegisterClose(
@@ -1082,10 +1259,10 @@ func ErrForAllCmdsOnFlushFailTestCase() MultiSendTestCase[any] {
 
 // Close -----------------------------------------------------------------------
 
-func CloseSuccessTestCase() ClientTestCase[any] {
+func (client) CloseSuccess() ClientTestCase[any] {
 	name := "After Close the done channel should be closed"
 
-	var delegate = mock.NewClientDelegate()
+	var delegate = mock.NewClientDelegate[any]()
 
 	delegate.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
@@ -1111,14 +1288,14 @@ func CloseSuccessTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func CloseDuringQueueResultTestCase() ClientTestCase[any] {
+func (client) CloseDuringQueueResult() ClientTestCase[any] {
 	name := "Should be able to close while queuing the result"
 
 	var (
 		wantCmd    = mock.NewCmd[any]()
 		wantResult = mock.NewResult()
 		results    = make(chan core.AsyncResult) // unbuffered — delivery will block
-		delegate   = mock.NewClientDelegate()
+		delegate   = mock.NewClientDelegate[any]()
 	)
 
 	wantResult.RegisterLastOne(func() bool { return true })
@@ -1151,7 +1328,7 @@ func CloseDuringQueueResultTestCase() ClientTestCase[any] {
 			_, _, err := client.Send(wantCmd, results)
 			asserterror.EqualError(t, err, nil)
 			// give the receive goroutine time to block on sending to results
-			time.Sleep(test.TimeDelta)
+			time.Sleep(TimeDelta)
 
 			err = client.Close()
 			asserterror.EqualError(t, err, nil)
@@ -1162,14 +1339,14 @@ func CloseDuringQueueResultTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func CloseDelegateFailTestCase() ClientTestCase[any] {
+func (client) CloseDelegateFail() ClientTestCase[any] {
 	name := "If Delegate.Close fails with an error, Close should return it"
 
 	var (
 		delegateErr = errors.New("Delegate.Close error")
 		wantErr     = cln.NewClientError(delegateErr)
 		receiveDone = make(chan struct{})
-		delegate    = mock.NewClientDelegate()
+		delegate    = mock.NewClientDelegate[any]()
 	)
 	delegate.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
@@ -1196,14 +1373,14 @@ func CloseDelegateFailTestCase() ClientTestCase[any] {
 
 // Unexpected Results ----------------------------------------------------------
 
-func UnexpectedResultTestCase() ClientTestCase[any] {
+func (client) UnexpectedResult() ClientTestCase[any] {
 	name := "Should ignore unexpected results (results for unknown sequence numbers)"
 
 	var (
 		unexpectedSeq core.Seq = 100
 		result                 = mock.NewResult()
 		receiveDone            = make(chan struct{})
-		delegate               = mock.NewClientDelegate()
+		delegate               = mock.NewClientDelegate[any]()
 	)
 
 	result.RegisterLastOne(func() bool { return true })
@@ -1233,7 +1410,7 @@ func UnexpectedResultTestCase() ClientTestCase[any] {
 		Action: func(t *testing.T, client *cln.Client[any], results chan core.AsyncResult) {
 			// Give the receive goroutine time to process the unexpected result.
 			// If it hangs (deadlock), this test will eventually timeout.
-			time.Sleep(test.TimeDelta)
+			time.Sleep(TimeDelta)
 			_ = client.Close()
 		},
 		Mocks: []*mok.Mock{delegate.Mock, result.Mock},
@@ -1242,7 +1419,7 @@ func UnexpectedResultTestCase() ClientTestCase[any] {
 
 // -----------------------------------------------------------------------------
 
-func UnexpectedResultCallbackTestCase() ClientTestCase[any] {
+func (client) UnexpectedResultCallback() ClientTestCase[any] {
 	name := "Should invoke UnexpectedResultCallback when an unexpected result is received"
 
 	var (
@@ -1250,7 +1427,7 @@ func UnexpectedResultCallbackTestCase() ClientTestCase[any] {
 		wantResult             = mock.NewResult()
 		receiveDone            = make(chan struct{})
 		callbackDone           = make(chan struct{})
-		delegate               = mock.NewClientDelegate()
+		delegate               = mock.NewClientDelegate[any]()
 		gotSeq        core.Seq
 		gotResult     core.Result
 	)

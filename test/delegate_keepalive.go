@@ -1,4 +1,4 @@
-package delegate
+package test
 
 import (
 	"errors"
@@ -9,33 +9,59 @@ import (
 	"github.com/cmd-stream/cmd-stream-go/core"
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	cln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
-	"github.com/cmd-stream/cmd-stream-go/test"
 	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
 
-func KeepaliveShouldSendPingTestCase(t *testing.T) KeepaliveTestCase {
+type KeepaliveTestCase[T any] struct {
+	Name   string
+	Setup  KeepaliveSetup[T]
+	Action func(t *testing.T, d *cln.KeepaliveDelegate[T])
+	Mocks  []*mok.Mock
+}
+
+type KeepaliveSetup[T any] struct {
+	Delegate cmock.ClientDelegate[T]
+	Opts     []cln.SetKeepaliveOption
+}
+
+func RunKeepaliveTestCase[T any](t *testing.T, tc KeepaliveTestCase[T]) {
+	t.Run(tc.Name, func(t *testing.T) {
+		d := cln.NewKeepalive[T](tc.Setup.Delegate, tc.Setup.Opts...)
+
+		tc.Action(t, d)
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Mocks), mok.EmptyInfomap)
+	})
+}
+
+type KeepaliveDelegate[T any] struct{}
+
+// -----------------------------------------------------------------------------
+// Test Cases
+// -----------------------------------------------------------------------------
+
+func (KeepaliveDelegate[T]) ShouldSendPing(t *testing.T) KeepaliveTestCase[T] {
 	name := "Should send Ping Commands if no Commands was sent"
 
 	var (
 		done               = make(chan struct{})
-		wantCmd            = dlgt.PingCmd[any]{}
+		wantCmd            = dlgt.PingCmd[T]{}
 		start              time.Time
 		wantKeepaliveTime  = 2 * 200 * time.Millisecond
 		wantKeepaliveIntvl = 200 * time.Millisecond
-		delegateMock       = cmock.NewClientDelegate()
+		delegateMock       = cmock.NewClientDelegate[T]()
 	)
 	delegateMock.RegisterSetSendDeadlineN(2,
 		func(deadline time.Time) error {
 			asserterror.SameTime(t, deadline, time.Now().Add(wantKeepaliveIntvl),
-				test.TimeDelta)
+				TimeDelta)
 			return nil
 		},
 	).RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+		func(seq core.Seq, cmd core.Cmd[T]) (int, error) {
 			wantTime := start.Add(wantKeepaliveTime)
-			asserterror.SameTime(t, time.Now(), wantTime, test.TimeDelta)
+			asserterror.SameTime(t, time.Now(), wantTime, TimeDelta)
 			asserterror.Equal(t, seq, core.Seq(0))
 			asserterror.EqualDeep(t, cmd, wantCmd)
 			return 1, nil
@@ -43,9 +69,9 @@ func KeepaliveShouldSendPingTestCase(t *testing.T) KeepaliveTestCase {
 	).RegisterFlush(
 		func() error { return nil },
 	).RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+		func(seq core.Seq, cmd core.Cmd[T]) (int, error) {
 			wantTime := start.Add(wantKeepaliveTime).Add(wantKeepaliveIntvl)
-			asserterror.SameTime(t, time.Now(), wantTime, test.TimeDelta)
+			asserterror.SameTime(t, time.Now(), wantTime, TimeDelta)
 			asserterror.Equal(t, seq, core.Seq(0))
 			asserterror.EqualDeep(t, cmd, wantCmd)
 			return 1, nil
@@ -55,16 +81,16 @@ func KeepaliveShouldSendPingTestCase(t *testing.T) KeepaliveTestCase {
 	).RegisterClose(
 		func() error { return nil },
 	)
-	return KeepaliveTestCase{
+	return KeepaliveTestCase[T]{
 		Name: name,
-		Setup: KeepaliveSetup{
+		Setup: KeepaliveSetup[T]{
 			Delegate: delegateMock,
 			Opts: []cln.SetKeepaliveOption{
 				cln.WithKeepaliveTime(wantKeepaliveTime),
 				cln.WithKeepaliveIntvl(wantKeepaliveIntvl),
 			},
 		},
-		Action: func(t *testing.T, d *cln.KeepaliveDelegate[any]) {
+		Action: func(t *testing.T, d *cln.KeepaliveDelegate[T]) {
 			start = time.Now()
 			d.Keepalive(&sync.Mutex{})
 			select {
@@ -79,7 +105,7 @@ func KeepaliveShouldSendPingTestCase(t *testing.T) KeepaliveTestCase {
 	}
 }
 
-func KeepaliveFlushDelayTestCase(t *testing.T) KeepaliveTestCase {
+func (KeepaliveDelegate[T]) FlushDelay(t *testing.T) KeepaliveTestCase[T] {
 	name := "Command flushing should delay a ping"
 
 	var (
@@ -88,21 +114,21 @@ func KeepaliveFlushDelayTestCase(t *testing.T) KeepaliveTestCase {
 		flushDelay         = 200 * time.Millisecond
 		wantKeepaliveTime  = 2 * 200 * time.Millisecond
 		wantKeepaliveIntvl = 200 * time.Millisecond
-		delegateMock       = cmock.NewClientDelegate()
+		delegateMock       = cmock.NewClientDelegate[T]()
 	)
 	delegateMock.RegisterFlush(
 		func() error { return nil },
 	).RegisterSetSendDeadline(
 		func(deadline time.Time) error {
 			asserterror.SameTime(t, deadline, time.Now().Add(wantKeepaliveIntvl),
-				test.TimeDelta)
+				TimeDelta)
 			return nil
 		},
 	).RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+		func(seq core.Seq, cmd core.Cmd[T]) (int, error) {
 			// flushDelay + wantKeepaliveTime
 			wantTime := start.Add(flushDelay).Add(wantKeepaliveTime)
-			asserterror.SameTime(t, time.Now(), wantTime, test.TimeDelta)
+			asserterror.SameTime(t, time.Now(), wantTime, TimeDelta)
 			return 0, nil
 		},
 	).RegisterFlush(
@@ -110,16 +136,16 @@ func KeepaliveFlushDelayTestCase(t *testing.T) KeepaliveTestCase {
 	).RegisterClose(
 		func() error { return nil },
 	)
-	return KeepaliveTestCase{
+	return KeepaliveTestCase[T]{
 		Name: name,
-		Setup: KeepaliveSetup{
+		Setup: KeepaliveSetup[T]{
 			Delegate: delegateMock,
 			Opts: []cln.SetKeepaliveOption{
 				cln.WithKeepaliveTime(wantKeepaliveTime),
 				cln.WithKeepaliveIntvl(wantKeepaliveIntvl),
 			},
 		},
-		Action: func(t *testing.T, d *cln.KeepaliveDelegate[any]) {
+		Action: func(t *testing.T, d *cln.KeepaliveDelegate[T]) {
 			start = time.Now()
 			d.Keepalive(&sync.Mutex{})
 
@@ -139,23 +165,23 @@ func KeepaliveFlushDelayTestCase(t *testing.T) KeepaliveTestCase {
 	}
 }
 
-func KeepaliveCloseCancelTestCase(t *testing.T) KeepaliveTestCase {
+func (KeepaliveDelegate[T]) CloseCancel(t *testing.T) KeepaliveTestCase[T] {
 	name := "Close should cancel ping sending"
 
-	var delegateMock = cmock.NewClientDelegate()
+	var delegateMock = cmock.NewClientDelegate[T]()
 	delegateMock.RegisterClose(
 		func() error { return nil },
 	)
-	return KeepaliveTestCase{
+	return KeepaliveTestCase[T]{
 		Name: name,
-		Setup: KeepaliveSetup{
+		Setup: KeepaliveSetup[T]{
 			Delegate: delegateMock,
 			Opts: []cln.SetKeepaliveOption{
 				cln.WithKeepaliveTime(200 * time.Millisecond),
 				cln.WithKeepaliveIntvl(200 * time.Millisecond),
 			},
 		},
-		Action: func(t *testing.T, d *cln.KeepaliveDelegate[any]) {
+		Action: func(t *testing.T, d *cln.KeepaliveDelegate[T]) {
 			d.Keepalive(&sync.Mutex{})
 
 			err := d.Close()
@@ -166,35 +192,35 @@ func KeepaliveCloseCancelTestCase(t *testing.T) KeepaliveTestCase {
 	}
 }
 
-func KeepaliveCloseErrorTestCase(t *testing.T) KeepaliveTestCase {
+func (KeepaliveDelegate[T]) CloseError(t *testing.T) KeepaliveTestCase[T] {
 	name := "If ClientDelegate.Close fails with an error, Close should return it and ping should not be canceled"
 
 	var (
 		done         = make(chan struct{})
 		wantErr      = errors.New("close error")
-		delegateMock = cmock.NewClientDelegate()
+		delegateMock = cmock.NewClientDelegate[T]()
 	)
 	delegateMock.RegisterClose(
 		func() error { return wantErr },
 	).RegisterSetSendDeadline(
 		func(deadline time.Time) error { return nil },
 	).RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (int, error) { return 1, nil },
+		func(seq core.Seq, cmd core.Cmd[T]) (int, error) { return 1, nil },
 	).RegisterFlush(
 		func() error { defer close(done); return nil },
 	).RegisterClose(
 		func() error { return nil },
 	)
-	return KeepaliveTestCase{
+	return KeepaliveTestCase[T]{
 		Name: name,
-		Setup: KeepaliveSetup{
+		Setup: KeepaliveSetup[T]{
 			Delegate: delegateMock,
 			Opts: []cln.SetKeepaliveOption{
 				cln.WithKeepaliveTime(200 * time.Millisecond),
 				cln.WithKeepaliveIntvl(200 * time.Millisecond),
 			},
 		},
-		Action: func(t *testing.T, d *cln.KeepaliveDelegate[any]) {
+		Action: func(t *testing.T, d *cln.KeepaliveDelegate[T]) {
 			d.Keepalive(&sync.Mutex{})
 
 			err := d.Close()
@@ -213,18 +239,18 @@ func KeepaliveCloseErrorTestCase(t *testing.T) KeepaliveTestCase {
 	}
 }
 
-func KeepaliveSendErrorTestCase(t *testing.T) KeepaliveTestCase {
+func (KeepaliveDelegate[T]) SendError(t *testing.T) KeepaliveTestCase[T] {
 	name := "If ping sending fails with an error, connection should NOT be closed and ping should be retried"
 
 	var (
 		done     = make(chan struct{})
-		delegate = cmock.NewClientDelegate()
+		delegate = cmock.NewClientDelegate[T]()
 	)
 	// First attempt fails.
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) error { return nil },
 	).RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+		func(seq core.Seq, cmd core.Cmd[T]) (int, error) {
 			return 1, errors.New("send error")
 		},
 	)
@@ -232,7 +258,7 @@ func KeepaliveSendErrorTestCase(t *testing.T) KeepaliveTestCase {
 	delegate.RegisterSetSendDeadline(
 		func(deadline time.Time) error { return nil },
 	).RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+		func(seq core.Seq, cmd core.Cmd[T]) (int, error) {
 			return 1, nil
 		},
 	).RegisterFlush(
@@ -243,16 +269,16 @@ func KeepaliveSendErrorTestCase(t *testing.T) KeepaliveTestCase {
 	).RegisterClose(
 		func() error { return nil },
 	)
-	return KeepaliveTestCase{
+	return KeepaliveTestCase[T]{
 		Name: name,
-		Setup: KeepaliveSetup{
+		Setup: KeepaliveSetup[T]{
 			Delegate: delegate,
 			Opts: []cln.SetKeepaliveOption{
 				cln.WithKeepaliveTime(100 * time.Millisecond),
 				cln.WithKeepaliveIntvl(100 * time.Millisecond),
 			},
 		},
-		Action: func(t *testing.T, d *cln.KeepaliveDelegate[any]) {
+		Action: func(t *testing.T, d *cln.KeepaliveDelegate[T]) {
 			d.Keepalive(&sync.Mutex{})
 
 			select {
@@ -267,13 +293,13 @@ func KeepaliveSendErrorTestCase(t *testing.T) KeepaliveTestCase {
 	}
 }
 
-func KeepaliveFlushErrorTestCase(t *testing.T) KeepaliveTestCase {
+func (KeepaliveDelegate[T]) FlushError(t *testing.T) KeepaliveTestCase[T] {
 	name := "If ClientDelegate.Flush fails with an error, Flush should return it and ping sending should not be delayed"
 
 	var (
 		done         = make(chan struct{})
 		wantErr      = errors.New("flush error")
-		delegateMock = cmock.NewClientDelegate()
+		delegateMock = cmock.NewClientDelegate[T]()
 	)
 
 	delegateMock.RegisterFlush(
@@ -281,7 +307,7 @@ func KeepaliveFlushErrorTestCase(t *testing.T) KeepaliveTestCase {
 	).RegisterSetSendDeadline(
 		func(deadline time.Time) error { return nil },
 	).RegisterSend(
-		func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+		func(seq core.Seq, cmd core.Cmd[T]) (int, error) {
 			return 1, nil
 		},
 	).RegisterFlush(
@@ -293,16 +319,16 @@ func KeepaliveFlushErrorTestCase(t *testing.T) KeepaliveTestCase {
 		func() error { return nil },
 	)
 
-	return KeepaliveTestCase{
+	return KeepaliveTestCase[T]{
 		Name: name,
-		Setup: KeepaliveSetup{
+		Setup: KeepaliveSetup[T]{
 			Delegate: delegateMock,
 			Opts: []cln.SetKeepaliveOption{
 				cln.WithKeepaliveTime(200 * time.Millisecond),
 				cln.WithKeepaliveIntvl(200 * time.Millisecond),
 			},
 		},
-		Action: func(t *testing.T, d *cln.KeepaliveDelegate[any]) {
+		Action: func(t *testing.T, d *cln.KeepaliveDelegate[T]) {
 			d.Keepalive(&sync.Mutex{})
 
 			err := d.Flush()
@@ -320,14 +346,14 @@ func KeepaliveFlushErrorTestCase(t *testing.T) KeepaliveTestCase {
 	}
 }
 
-func KeepaliveSkipPongTestCase(t *testing.T) KeepaliveTestCase {
+func (KeepaliveDelegate[T]) SkipPong(t *testing.T) KeepaliveTestCase[T] {
 	name := "Should skip Pong Result"
 
 	var (
 		wantSeq      = core.Seq(1)
 		wantResult   = cmock.NewResult()
 		wantN        = 1
-		delegateMock = cmock.NewClientDelegate()
+		delegateMock = cmock.NewClientDelegate[T]()
 	)
 	delegateMock.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {
@@ -338,12 +364,12 @@ func KeepaliveSkipPongTestCase(t *testing.T) KeepaliveTestCase {
 			return wantSeq, wantResult, wantN, nil
 		},
 	)
-	return KeepaliveTestCase{
+	return KeepaliveTestCase[T]{
 		Name: name,
-		Setup: KeepaliveSetup{
+		Setup: KeepaliveSetup[T]{
 			Delegate: delegateMock,
 		},
-		Action: func(t *testing.T, d *cln.KeepaliveDelegate[any]) {
+		Action: func(t *testing.T, d *cln.KeepaliveDelegate[T]) {
 			seq, result, n, err := d.Receive()
 
 			asserterror.Equal(t, seq, wantSeq)

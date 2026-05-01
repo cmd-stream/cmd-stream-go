@@ -5,8 +5,8 @@ import (
 )
 
 type (
-	Next  func() (t any, index int64)
-	Slice func() any
+	NextFn[T any]  func() (t T, index int64)
+	SliceFn[T any] func() (s []T)
 )
 
 func NewDispatchStrategy[T any]() DispatchStrategy[T] {
@@ -17,22 +17,22 @@ type DispatchStrategy[T any] struct {
 	*mok.Mock
 }
 
-func (m DispatchStrategy[T]) RegisterNextN(n int, fn Next) DispatchStrategy[T] {
+func (m DispatchStrategy[T]) RegisterNextN(n int, fn NextFn[T]) DispatchStrategy[T] {
 	m.RegisterN("Next", n, fn)
 	return m
 }
 
-func (m DispatchStrategy[T]) RegisterNext(fn Next) DispatchStrategy[T] {
+func (m DispatchStrategy[T]) RegisterNext(fn NextFn[T]) DispatchStrategy[T] {
 	m.Register("Next", fn)
 	return m
 }
 
-func (m DispatchStrategy[T]) RegisterSliceN(n int, fn Slice) DispatchStrategy[T] {
+func (m DispatchStrategy[T]) RegisterSliceN(n int, fn SliceFn[T]) DispatchStrategy[T] {
 	m.RegisterN("Slice", n, fn)
 	return m
 }
 
-func (m DispatchStrategy[T]) RegisterSlice(fn Slice) DispatchStrategy[T] {
+func (m DispatchStrategy[T]) RegisterSlice(fn SliceFn[T]) DispatchStrategy[T] {
 	m.Register("Slice", fn)
 	return m
 }

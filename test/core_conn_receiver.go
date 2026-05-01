@@ -1,4 +1,4 @@
-package core
+package test
 
 import (
 	"errors"
@@ -7,13 +7,62 @@ import (
 	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core/srv"
-	"github.com/cmd-stream/cmd-stream-go/test"
 	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
 
-func FirstSetDeadlineErrorTestCase(t *testing.T) ConnReceiverTestCase {
+type ConnReceiverTestCase struct {
+	Name   string
+	Setup  ConnReceiverSetup
+	During func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn)
+	Mocks  []*mok.Mock
+}
+
+type ConnReceiverSetup struct {
+	Listener cmock.Listener
+	Conns    chan net.Conn
+	Opts     []srv.SetConnReceiverOption
+	WantErr  error
+}
+
+func RunConnReceiverTestCase(t *testing.T, tc ConnReceiverTestCase) {
+	t.Run(tc.Name, func(t *testing.T) {
+		receiver := srv.NewConnReceiver(tc.Setup.Listener, tc.Setup.Conns,
+			tc.Setup.Opts...)
+
+		errs := make(chan error, 1)
+		go func() {
+			if err := receiver.Run(); err != nil {
+				errs <- err
+			}
+			close(errs)
+		}()
+
+		if tc.During != nil {
+			tc.During(t, receiver, tc.Setup.Conns)
+		}
+
+		select {
+		case err := <-errs:
+			asserterror.EqualError(t, err, tc.Setup.WantErr)
+		case <-time.After(time.Second):
+			t.Fatal("timeout waiting for ConnReceiver to finish")
+		}
+
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Mocks), mok.EmptyInfomap)
+	})
+}
+
+type connReceiver struct{}
+
+var ConnReceiver connReceiver
+
+// -----------------------------------------------------------------------------
+// Test Cases
+// -----------------------------------------------------------------------------
+
+func (connReceiver) FirstSetDeadlineError(t *testing.T) ConnReceiverTestCase {
 	name := "Should return an error if the first connection failed to set a deadline"
 
 	var (
@@ -23,7 +72,7 @@ func FirstSetDeadlineErrorTestCase(t *testing.T) ConnReceiverTestCase {
 		listener             = cmock.NewListener()
 	)
 	listener.RegisterSetDeadline(func(deadline time.Time) error {
-		asserterror.SameTime(t, deadline, startTime.Add(wantFirstConnTimeout), test.TimeDelta)
+		asserterror.SameTime(t, deadline, startTime.Add(wantFirstConnTimeout), TimeDelta)
 		return wantErr
 	})
 	return ConnReceiverTestCase{
@@ -42,7 +91,7 @@ func FirstSetDeadlineErrorTestCase(t *testing.T) ConnReceiverTestCase {
 
 // -----------------------------------------------------------------------------
 
-func FirstAcceptErrorTestCase(t *testing.T) ConnReceiverTestCase {
+func (connReceiver) FirstAcceptError(t *testing.T) ConnReceiverTestCase {
 	name := "Should return an error if accepting of the first conn failed"
 
 	var (
@@ -66,7 +115,7 @@ func FirstAcceptErrorTestCase(t *testing.T) ConnReceiverTestCase {
 
 // -----------------------------------------------------------------------------
 
-func FirstResetDeadlineErrorTestCase(t *testing.T) ConnReceiverTestCase {
+func (connReceiver) FirstResetDeadlineError(t *testing.T) ConnReceiverTestCase {
 	name := "Should return an error if cancelation of the first connection deadline failed"
 
 	var (
@@ -81,7 +130,7 @@ func FirstResetDeadlineErrorTestCase(t *testing.T) ConnReceiverTestCase {
 
 	listener.RegisterSetDeadline(
 		func(deadline time.Time) error {
-			asserterror.SameTime(t, deadline, startTime.Add(wantFirstConnTimeout), test.TimeDelta)
+			asserterror.SameTime(t, deadline, startTime.Add(wantFirstConnTimeout), TimeDelta)
 			return nil
 		},
 	).RegisterAccept(
@@ -110,7 +159,7 @@ func FirstResetDeadlineErrorTestCase(t *testing.T) ConnReceiverTestCase {
 
 // -----------------------------------------------------------------------------
 
-func SecondAcceptErrorTestCase(t *testing.T) ConnReceiverTestCase {
+func (connReceiver) SecondAcceptError(t *testing.T) ConnReceiverTestCase {
 	name := "Should return an error if accepting of the second conn failed"
 
 	var (
@@ -124,7 +173,7 @@ func SecondAcceptErrorTestCase(t *testing.T) ConnReceiverTestCase {
 	)
 	listener.RegisterSetDeadline(
 		func(deadline time.Time) error {
-			asserterror.SameTime(t, deadline, startTime.Add(wantFirstConnTimeout), test.TimeDelta)
+			asserterror.SameTime(t, deadline, startTime.Add(wantFirstConnTimeout), TimeDelta)
 			return nil
 		},
 	).RegisterAccept(
@@ -166,7 +215,7 @@ func SecondAcceptErrorTestCase(t *testing.T) ConnReceiverTestCase {
 
 // -----------------------------------------------------------------------------
 
-func RunSeveralConnectionsTestCase(t *testing.T) ConnReceiverTestCase {
+func (connReceiver) RunSeveralConnections(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to accept several connections"
 
 	var (
@@ -231,7 +280,7 @@ func RunSeveralConnectionsTestCase(t *testing.T) ConnReceiverTestCase {
 
 // -----------------------------------------------------------------------------
 
-func StopWhileAcceptingTestCase(t *testing.T) ConnReceiverTestCase {
+func (connReceiver) StopWhileAccepting(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to close while Listener.Accept"
 
 	var (
@@ -258,7 +307,7 @@ func StopWhileAcceptingTestCase(t *testing.T) ConnReceiverTestCase {
 			WantErr:  srv.ErrClosed,
 		},
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
-			time.Sleep(test.TimeDelta)
+			time.Sleep(TimeDelta)
 			err := receiver.Stop()
 			asserterror.EqualError(t, err, nil)
 		},
@@ -268,7 +317,7 @@ func StopWhileAcceptingTestCase(t *testing.T) ConnReceiverTestCase {
 
 // -----------------------------------------------------------------------------
 
-func ShutdownWhileAcceptingTestCase(t *testing.T) ConnReceiverTestCase {
+func (connReceiver) ShutdownWhileAccepting(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to shutdown while Listener.Accept"
 
 	var (
@@ -295,7 +344,7 @@ func ShutdownWhileAcceptingTestCase(t *testing.T) ConnReceiverTestCase {
 			WantErr:  nil,
 		},
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
-			time.Sleep(test.TimeDelta)
+			time.Sleep(TimeDelta)
 			err := receiver.Shutdown()
 			asserterror.EqualError(t, err, nil)
 		},
@@ -303,7 +352,7 @@ func ShutdownWhileAcceptingTestCase(t *testing.T) ConnReceiverTestCase {
 	}
 }
 
-func StopWhileQueuingTestCase(t *testing.T) ConnReceiverTestCase {
+func (connReceiver) StopWhileQueuing(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to close while queuing a connection"
 
 	var (
@@ -326,7 +375,7 @@ func StopWhileQueuingTestCase(t *testing.T) ConnReceiverTestCase {
 			WantErr:  srv.ErrClosed,
 		},
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
-			time.Sleep(test.TimeDelta)
+			time.Sleep(TimeDelta)
 			err := receiver.Stop()
 			asserterror.EqualError(t, err, nil)
 		},
@@ -334,7 +383,7 @@ func StopWhileQueuingTestCase(t *testing.T) ConnReceiverTestCase {
 	}
 }
 
-func ShutdownWhileQueuingTestCase(t *testing.T) ConnReceiverTestCase {
+func (connReceiver) ShutdownWhileQueuing(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to shutdown the ConnReceiver while queuing a connection"
 
 	var (
@@ -357,7 +406,7 @@ func ShutdownWhileQueuingTestCase(t *testing.T) ConnReceiverTestCase {
 			WantErr:  nil,
 		},
 		During: func(t *testing.T, receiver *srv.ConnReceiver, conns chan net.Conn) {
-			time.Sleep(test.TimeDelta)
+			time.Sleep(TimeDelta)
 			err := receiver.Shutdown()
 			asserterror.EqualError(t, err, nil)
 		},

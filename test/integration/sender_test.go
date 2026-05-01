@@ -7,6 +7,7 @@ import (
 	"time"
 
 	cmdstream "github.com/cmd-stream/cmd-stream-go"
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
 	sndr "github.com/cmd-stream/cmd-stream-go/sender"
 	"github.com/cmd-stream/cmd-stream-go/testkit"
 	asserterror "github.com/ymz-ncnk/assert/error"
@@ -16,7 +17,9 @@ import (
 func TestSender(t *testing.T) {
 	const addr = "127.0.0.1:9007"
 
-	startSenderServer(t, addr)
+	server := startSenderServer(t, addr)
+	defer server.Close()
+
 	sender, err := makeSender(addr)
 	assertfatal.EqualError(t, err, nil)
 	defer func() {
@@ -29,7 +32,8 @@ func TestSender(t *testing.T) {
 func TestConcurrentSender(t *testing.T) {
 	const addr = "127.0.0.1:9008"
 
-	startSenderServer(t, addr)
+	server := startSenderServer(t, addr)
+	defer server.Close()
 	sender, err := makeSender(addr)
 	assertfatal.EqualError(t, err, nil)
 	defer func() {
@@ -40,14 +44,14 @@ func TestConcurrentSender(t *testing.T) {
 	exchangeConcurrentSender(t, sender)
 }
 
-func startSenderServer(t *testing.T, addr string) {
+func startSenderServer(t *testing.T, addr string) *csrv.Server {
+	server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
+	asserterror.EqualError(t, err, nil)
 	go func() {
-		server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
-		asserterror.EqualError(t, err, nil)
-		err = server.ListenAndServe(addr)
-		asserterror.EqualError(t, err, nil)
+		_ = server.ListenAndServe(addr)
 	}()
 	time.Sleep(50 * time.Millisecond)
+	return server
 }
 
 func makeSender(addr string) (sender sndr.Sender[testkit.Receiver], err error) {

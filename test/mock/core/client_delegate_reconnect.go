@@ -10,65 +10,65 @@ import (
 
 type ReconnectFn func() error
 
-type ReconnectDelegate struct {
+func NewReconnectDelegate[T any]() ReconnectDelegate[T] {
+	return ReconnectDelegate[T]{Mock: mok.New("ReconnectDelegate")}
+}
+
+type ReconnectDelegate[T any] struct {
 	*mok.Mock
 }
 
-func NewReconnectDelegate() ReconnectDelegate {
-	return ReconnectDelegate{Mock: mok.New("ReconnectDelegate")}
-}
-
-func (m ReconnectDelegate) RegisterLocalAddr(fn ClientLocalAddrFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterLocalAddr(fn ClientLocalAddrFn) ReconnectDelegate[T] {
 	m.Register("LocalAddr", fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterRemoteAddr(fn ClientRemoteAddrFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterRemoteAddr(fn ClientRemoteAddrFn) ReconnectDelegate[T] {
 	m.Register("RemoteAddr", fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterSetSendDeadline(fn ClientSetSendDeadlineFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterSetSendDeadline(fn ClientSetSendDeadlineFn) ReconnectDelegate[T] {
 	m.Register("SetSendDeadline", fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterSendN(n int, fn ClientSendFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterSendN(n int, fn ClientSendFn[T]) ReconnectDelegate[T] {
 	m.RegisterN("Send", n, fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterSend(fn ClientSendFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterSend(fn ClientSendFn[T]) ReconnectDelegate[T] {
 	m.Register("Send", fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterFlush(fn ClientFlushFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterFlush(fn ClientFlushFn) ReconnectDelegate[T] {
 	m.Register("Flush", fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterSetReceiveDeadline(fn ClientSetReceiveDeadlineFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterSetReceiveDeadline(fn ClientSetReceiveDeadlineFn) ReconnectDelegate[T] {
 	m.Register("SetReceiveDeadline", fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterReceive(fn ClientReceiveFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterReceive(fn ClientReceiveFn) ReconnectDelegate[T] {
 	m.Register("Receive", fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterClose(fn ClientCloseFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterClose(fn ClientCloseFn) ReconnectDelegate[T] {
 	m.Register("Close", fn)
 	return m
 }
 
-func (m ReconnectDelegate) RegisterReconnect(fn ReconnectFn) ReconnectDelegate {
+func (m ReconnectDelegate[T]) RegisterReconnect(fn ReconnectFn) ReconnectDelegate[T] {
 	m.Register("Reconnect", fn)
 	return m
 }
 
-func (m ReconnectDelegate) LocalAddr() (addr net.Addr) {
+func (m ReconnectDelegate[T]) LocalAddr() (addr net.Addr) {
 	vals, err := m.Call("LocalAddr")
 	if err != nil {
 		panic(err)
@@ -77,7 +77,7 @@ func (m ReconnectDelegate) LocalAddr() (addr net.Addr) {
 	return
 }
 
-func (m ReconnectDelegate) RemoteAddr() (addr net.Addr) {
+func (m ReconnectDelegate[T]) RemoteAddr() (addr net.Addr) {
 	vals, err := m.Call("RemoteAddr")
 	if err != nil {
 		panic(err)
@@ -86,7 +86,7 @@ func (m ReconnectDelegate) RemoteAddr() (addr net.Addr) {
 	return
 }
 
-func (m ReconnectDelegate) SetSendDeadline(deadline time.Time) (err error) {
+func (m ReconnectDelegate[T]) SetSendDeadline(deadline time.Time) (err error) {
 	vals, err := m.Call("SetSendDeadline", deadline)
 	if err != nil {
 		panic(err)
@@ -95,7 +95,7 @@ func (m ReconnectDelegate) SetSendDeadline(deadline time.Time) (err error) {
 	return
 }
 
-func (m ReconnectDelegate) Send(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+func (m ReconnectDelegate[T]) Send(seq core.Seq, cmd core.Cmd[T]) (n int, err error) {
 	vals, err := m.Call("Send", seq, cmd)
 	if err != nil {
 		panic(err)
@@ -105,7 +105,7 @@ func (m ReconnectDelegate) Send(seq core.Seq, cmd core.Cmd[any]) (n int, err err
 	return
 }
 
-func (m ReconnectDelegate) Flush() (err error) {
+func (m ReconnectDelegate[T]) Flush() (err error) {
 	vals, err := m.Call("Flush")
 	if err != nil {
 		panic(err)
@@ -114,7 +114,7 @@ func (m ReconnectDelegate) Flush() (err error) {
 	return
 }
 
-func (m ReconnectDelegate) SetReceiveDeadline(deadline time.Time) (err error) {
+func (m ReconnectDelegate[T]) SetReceiveDeadline(deadline time.Time) (err error) {
 	vals, err := m.Call("SetReceiveDeadline", deadline)
 	if err != nil {
 		panic(err)
@@ -123,7 +123,7 @@ func (m ReconnectDelegate) SetReceiveDeadline(deadline time.Time) (err error) {
 	return
 }
 
-func (m ReconnectDelegate) Receive() (seq core.Seq, result core.Result, n int, err error) {
+func (m ReconnectDelegate[T]) Receive() (seq core.Seq, result core.Result, n int, err error) {
 	vals, err := m.Call("Receive")
 	if err != nil {
 		panic(err)
@@ -135,7 +135,7 @@ func (m ReconnectDelegate) Receive() (seq core.Seq, result core.Result, n int, e
 	return
 }
 
-func (m ReconnectDelegate) Close() (err error) {
+func (m ReconnectDelegate[T]) Close() (err error) {
 	vals, err := m.Call("Close")
 	if err != nil {
 		panic(err)
@@ -144,7 +144,7 @@ func (m ReconnectDelegate) Close() (err error) {
 	return
 }
 
-func (m ReconnectDelegate) Reconnect() (err error) {
+func (m ReconnectDelegate[T]) Reconnect() (err error) {
 	vals, err := m.Call("Reconnect")
 	if err != nil {
 		panic(err)

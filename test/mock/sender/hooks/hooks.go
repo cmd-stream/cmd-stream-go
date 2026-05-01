@@ -9,11 +9,11 @@ import (
 )
 
 type (
-	BeforeSend func(ctx context.Context, cmd core.Cmd[any]) (context.Context, error)
-	OnError    func(ctx context.Context, sentCmd hks.SentCmd[any], err error)
-	OnResult   func(ctx context.Context, sentCmd hks.SentCmd[any],
+	BeforeSendFn[T any] func(ctx context.Context, cmd core.Cmd[T]) (context.Context, error)
+	OnErrorFn[T any]    func(ctx context.Context, sentCmd hks.SentCmd[T], err error)
+	OnResultFn[T any]   func(ctx context.Context, sentCmd hks.SentCmd[T],
 		recvResult hks.ReceivedResult, err error)
-	OnTimeout func(ctx context.Context, sentCmd hks.SentCmd[any], err error)
+	OnTimeoutFn[T any] func(ctx context.Context, sentCmd hks.SentCmd[T], err error)
 )
 
 func NewHooks[T any]() Hooks[T] {
@@ -24,42 +24,42 @@ type Hooks[T any] struct {
 	*mok.Mock
 }
 
-func (m Hooks[T]) RegisterBeforeSendN(n int, fn BeforeSend) Hooks[T] {
+func (m Hooks[T]) RegisterBeforeSendN(n int, fn BeforeSendFn[T]) Hooks[T] {
 	m.RegisterN("BeforeSend", n, fn)
 	return m
 }
 
-func (m Hooks[T]) RegisterBeforeSend(fn BeforeSend) Hooks[T] {
+func (m Hooks[T]) RegisterBeforeSend(fn BeforeSendFn[T]) Hooks[T] {
 	m.Register("BeforeSend", fn)
 	return m
 }
 
-func (m Hooks[T]) RegisterOnErrorN(n int, fn OnError) Hooks[T] {
+func (m Hooks[T]) RegisterOnErrorN(n int, fn OnErrorFn[T]) Hooks[T] {
 	m.RegisterN("OnError", n, fn)
 	return m
 }
 
-func (m Hooks[T]) RegisterOnError(fn OnError) Hooks[T] {
+func (m Hooks[T]) RegisterOnError(fn OnErrorFn[T]) Hooks[T] {
 	m.Register("OnError", fn)
 	return m
 }
 
-func (m Hooks[T]) RegisterOnResultN(n int, fn OnResult) Hooks[T] {
+func (m Hooks[T]) RegisterOnResultN(n int, fn OnResultFn[T]) Hooks[T] {
 	m.RegisterN("OnResult", n, fn)
 	return m
 }
 
-func (m Hooks[T]) RegisterOnResult(fn OnResult) Hooks[T] {
+func (m Hooks[T]) RegisterOnResult(fn OnResultFn[T]) Hooks[T] {
 	m.Register("OnResult", fn)
 	return m
 }
 
-func (m Hooks[T]) RegisterOnTimeoutN(n int, fn OnTimeout) Hooks[T] {
+func (m Hooks[T]) RegisterOnTimeoutN(n int, fn OnTimeoutFn[T]) Hooks[T] {
 	m.RegisterN("OnTimeout", n, fn)
 	return m
 }
 
-func (m Hooks[T]) RegisterOnTimeout(fn OnTimeout) Hooks[T] {
+func (m Hooks[T]) RegisterOnTimeout(fn OnTimeoutFn[T]) Hooks[T] {
 	m.Register("OnTimeout", fn)
 	return m
 }

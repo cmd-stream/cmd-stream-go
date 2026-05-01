@@ -3,44 +3,47 @@ package cln_test
 import (
 	"testing"
 
-	test "github.com/cmd-stream/cmd-stream-go/test/delegate"
+	"github.com/cmd-stream/cmd-stream-go/test"
 )
 
 func TestReconnectDelegate_Init(t *testing.T) {
-	for _, tc := range []test.ReconnectTestCase{
-		test.ReconnectInitSuccessTestCase(),
-		test.ReconnectInitWrongInfoTestCase(),
-		test.ReconnectInitFactoryErrorTestCase(),
-		test.ReconnectInitCheckErrorTestCase(),
+	d := test.ReconnectDelegate[any]{}
+	for _, tc := range []test.ReconnectTestCase[any]{
+		d.InitSuccess(t),
+		d.InitWrongInfo(t),
+		d.InitFactoryError(t),
+		d.InitCheckError(t),
 	} {
 		test.RunReconnectTestCase(t, tc)
 	}
 }
 
 func TestReconnectDelegate_Reconnect(t *testing.T) {
-	for _, tc := range []test.ReconnectTestCase{
-		test.ReconnectCycleSuccessTestCase(),
-		test.ReconnectCycleCloseTestCase(),
-		test.ReconnectCycleMismatchTestCase(),
-		test.ReconnectCycleCheckErrorTestCase(),
+	d := test.ReconnectDelegate[any]{}
+	for _, tc := range []test.ReconnectTestCase[any]{
+		d.CycleSuccess(t),
+		d.CycleClose(t),
+		d.CycleMismatch(t),
+		d.CycleCheckError(t),
 	} {
 		test.RunReconnectTestCase(t, tc)
 	}
 }
 
 func TestReconnectDelegate_Transport(t *testing.T) {
-	for _, tc := range []test.ReconnectTestCase{
-		test.ReconnectCloseErrorTestCase(),
-		test.ReconnectFlushTestCase(),
-		test.ReconnectLocalAddrTestCase(),
-		test.ReconnectRemoteAddrTestCase(),
-		test.ReconnectSetSendDeadlineTestCase(),
-		test.ReconnectSetReceiveDeadlineTestCase(),
-		test.ReconnectSendTestCase(),
-		test.ReconnectSendErrorTestCase(),
-		test.ReconnectReceiveTestCase(),
-		test.ReconnectReceiveErrorTestCase(),
-		test.ReconnectSetReceiveDeadlineErrorTestCase(),
+	d := test.ReconnectDelegate[any]{}
+	for _, tc := range []test.ReconnectTestCase[any]{
+		d.CloseError(t),
+		d.Flush(t),
+		d.LocalAddr(t),
+		d.RemoteAddr(t),
+		d.SetSendDeadline(t),
+		d.SetReceiveDeadline(t),
+		d.Send(t),
+		d.SendError(t),
+		d.Receive(t),
+		d.ReceiveError(t),
+		d.SetReceiveDeadlineError(t),
 	} {
 		test.RunReconnectTestCase(t, tc)
 	}

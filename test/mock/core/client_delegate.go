@@ -12,89 +12,89 @@ type (
 	ClientLocalAddrFn          func() (addr net.Addr)
 	ClientRemoteAddrFn         func() (addr net.Addr)
 	ClientSetSendDeadlineFn    func(deadline time.Time) (err error)
-	ClientSendFn               func(seq core.Seq, cmd core.Cmd[any]) (n int, err error)
+	ClientSendFn[T any]        func(seq core.Seq, cmd core.Cmd[T]) (n int, err error)
 	ClientFlushFn              func() (err error)
 	ClientSetReceiveDeadlineFn func(deadline time.Time) (err error)
 	ClientReceiveFn            func() (seq core.Seq, result core.Result, n int, err error)
 	ClientCloseFn              func() (err error)
 )
 
-func NewClientDelegate() ClientDelegate {
-	return ClientDelegate{Mock: mok.New("Delegate")}
+func NewClientDelegate[T any]() ClientDelegate[T] {
+	return ClientDelegate[T]{Mock: mok.New("Delegate")}
 }
 
-type ClientDelegate struct {
+type ClientDelegate[T any] struct {
 	*mok.Mock
 }
 
-func (m ClientDelegate) RegisterLocalAddr(fn ClientLocalAddrFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterLocalAddr(fn ClientLocalAddrFn) ClientDelegate[T] {
 	m.Register("LocalAddr", fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterRemoteAddr(fn ClientRemoteAddrFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterRemoteAddr(fn ClientRemoteAddrFn) ClientDelegate[T] {
 	m.Register("RemoteAddr", fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterSetSendDeadlineN(n int, fn ClientSetSendDeadlineFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterSetSendDeadlineN(n int, fn ClientSetSendDeadlineFn) ClientDelegate[T] {
 	m.RegisterN("SetSendDeadline", n, fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterSetSendDeadline(fn ClientSetSendDeadlineFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterSetSendDeadline(fn ClientSetSendDeadlineFn) ClientDelegate[T] {
 	m.Register("SetSendDeadline", fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterSendN(n int, fn ClientSendFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterSendN(n int, fn ClientSendFn[T]) ClientDelegate[T] {
 	m.RegisterN("Send", n, fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterSend(fn ClientSendFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterSend(fn ClientSendFn[T]) ClientDelegate[T] {
 	m.Register("Send", fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterFlushN(n int, fn ClientFlushFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterFlushN(n int, fn ClientFlushFn) ClientDelegate[T] {
 	m.RegisterN("Flush", n, fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterFlush(fn ClientFlushFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterFlush(fn ClientFlushFn) ClientDelegate[T] {
 	m.Register("Flush", fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterSetReceiveDeadlineN(n int,
+func (m ClientDelegate[T]) RegisterSetReceiveDeadlineN(n int,
 	fn ClientSetReceiveDeadlineFn,
-) ClientDelegate {
+) ClientDelegate[T] {
 	m.RegisterN("SetReceiveDeadline", n, fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterSetReceiveDeadline(fn ClientSetReceiveDeadlineFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterSetReceiveDeadline(fn ClientSetReceiveDeadlineFn) ClientDelegate[T] {
 	m.Register("SetReceiveDeadline", fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterReceive(fn ClientReceiveFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterReceive(fn ClientReceiveFn) ClientDelegate[T] {
 	m.Register("Receive", fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterReceiveN(n int, fn ClientReceiveFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterReceiveN(n int, fn ClientReceiveFn) ClientDelegate[T] {
 	m.RegisterN("Receive", n, fn)
 	return m
 }
 
-func (m ClientDelegate) RegisterClose(fn ClientCloseFn) ClientDelegate {
+func (m ClientDelegate[T]) RegisterClose(fn ClientCloseFn) ClientDelegate[T] {
 	m.Register("Close", fn)
 	return m
 }
 
-func (m ClientDelegate) LocalAddr() (addr net.Addr) {
+func (m ClientDelegate[T]) LocalAddr() (addr net.Addr) {
 	vals, err := m.Call("LocalAddr")
 	if err != nil {
 		panic(err)
@@ -103,7 +103,7 @@ func (m ClientDelegate) LocalAddr() (addr net.Addr) {
 	return
 }
 
-func (m ClientDelegate) RemoteAddr() (addr net.Addr) {
+func (m ClientDelegate[T]) RemoteAddr() (addr net.Addr) {
 	vals, err := m.Call("RemoteAddr")
 	if err != nil {
 		panic(err)
@@ -112,7 +112,7 @@ func (m ClientDelegate) RemoteAddr() (addr net.Addr) {
 	return
 }
 
-func (m ClientDelegate) SetSendDeadline(deadline time.Time) (err error) {
+func (m ClientDelegate[T]) SetSendDeadline(deadline time.Time) (err error) {
 	vals, err := m.Call("SetSendDeadline", deadline)
 	if err != nil {
 		panic(err)
@@ -121,7 +121,7 @@ func (m ClientDelegate) SetSendDeadline(deadline time.Time) (err error) {
 	return
 }
 
-func (m ClientDelegate) Send(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+func (m ClientDelegate[T]) Send(seq core.Seq, cmd core.Cmd[T]) (n int, err error) {
 	vals, err := m.Call("Send", seq, cmd)
 	if err != nil {
 		panic(err)
@@ -131,7 +131,7 @@ func (m ClientDelegate) Send(seq core.Seq, cmd core.Cmd[any]) (n int, err error)
 	return
 }
 
-func (m ClientDelegate) Flush() (err error) {
+func (m ClientDelegate[T]) Flush() (err error) {
 	vals, err := m.Call("Flush")
 	if err != nil {
 		panic(err)
@@ -140,7 +140,7 @@ func (m ClientDelegate) Flush() (err error) {
 	return
 }
 
-func (m ClientDelegate) SetReceiveDeadline(deadline time.Time) (err error) {
+func (m ClientDelegate[T]) SetReceiveDeadline(deadline time.Time) (err error) {
 	vals, err := m.Call("SetReceiveDeadline", deadline)
 	if err != nil {
 		panic(err)
@@ -149,7 +149,7 @@ func (m ClientDelegate) SetReceiveDeadline(deadline time.Time) (err error) {
 	return
 }
 
-func (m ClientDelegate) Receive() (seq core.Seq, result core.Result, n int,
+func (m ClientDelegate[T]) Receive() (seq core.Seq, result core.Result, n int,
 	err error,
 ) {
 	vals, err := m.Call("Receive")
@@ -163,7 +163,7 @@ func (m ClientDelegate) Receive() (seq core.Seq, result core.Result, n int,
 	return
 }
 
-func (m ClientDelegate) Close() (err error) {
+func (m ClientDelegate[T]) Close() (err error) {
 	vals, err := m.Call("Close")
 	if err != nil {
 		panic(err)

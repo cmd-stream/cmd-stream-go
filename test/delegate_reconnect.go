@@ -1,4 +1,4 @@
-package delegate
+package test
 
 import (
 	"errors"
@@ -15,17 +15,46 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
+type ReconnectTestCase[T any] struct {
+	Name   string
+	Setup  ReconnectSetup[T]
+	Action func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error)
+	Mocks  []*mok.Mock
+}
+
+type ReconnectSetup[T any] struct {
+	Info    dlgt.ServerInfo
+	Factory dlgt.ClientTransportFactory[T]
+	Opts    []cln.SetOption
+}
+
+func RunReconnectTestCase[T any](t *testing.T, tc ReconnectTestCase[T]) {
+	t.Run(tc.Name, func(t *testing.T) {
+		d, err := cln.NewReconnect[T](tc.Setup.Info, tc.Setup.Factory,
+			tc.Setup.Opts...)
+
+		tc.Action(t, d, err)
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Mocks), mok.EmptyInfomap)
+	})
+}
+
+type ReconnectDelegate[T any] struct{}
+
+// -----------------------------------------------------------------------------
+// Test Cases
+// -----------------------------------------------------------------------------
+
 type dummyAddr string
 
 func (a dummyAddr) Network() string { return "tcp" }
 func (a dummyAddr) String() string  { return string(a) }
 
-func ReconnectInitSuccessTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) InitSuccess(t *testing.T) ReconnectTestCase[T] {
 	name := "Should check ServerInfo"
 	var (
 		wantInfo  = dlgt.ServerInfo("server-1")
-		transport = mockcln.NewClientTransport[any]()
-		factory   = mockcln.NewClientTransportFactory[any]()
+		transport = mockcln.NewClientTransport[T]()
+		factory   = mockcln.NewClientTransportFactory[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -35,28 +64,28 @@ func ReconnectInitSuccessTestCase() ReconnectTestCase {
 		func(deadline time.Time) error { return nil },
 	)
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    wantInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 		},
 		Mocks: []*mok.Mock{factory.Mock, transport.Mock},
 	}
 }
 
-func ReconnectInitWrongInfoTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) InitWrongInfo(t *testing.T) ReconnectTestCase[T] {
 	name := "Should return error if wrong ServerInfo was received"
 	var (
 		wantInfo        = dlgt.ServerInfo("server-1")
 		wrongServerInfo = dlgt.ServerInfo("server-2")
-		transport       = mockcln.NewClientTransport[any]()
-		factory         = mockcln.NewClientTransportFactory[any]()
+		transport       = mockcln.NewClientTransport[T]()
+		factory         = mockcln.NewClientTransportFactory[T]()
 	)
 
 	transport.RegisterSetReceiveDeadline(
@@ -65,51 +94,51 @@ func ReconnectInitWrongInfoTestCase() ReconnectTestCase {
 		func() (dlgt.ServerInfo, error) { return wrongServerInfo, nil },
 	).RegisterClose(func() error { return nil })
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    wantInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, cln.ErrServerInfoMismatch)
 		},
 		Mocks: []*mok.Mock{factory.Mock, transport.Mock},
 	}
 }
 
-func ReconnectInitFactoryErrorTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) InitFactoryError(t *testing.T) ReconnectTestCase[T] {
 	name := "If TransportFactory.New fails with an error, NewReconnect should return it"
 
 	var (
 		wantErr = cln.ErrServerInfoMismatch // Any error will do
-		factory = mockcln.NewClientTransportFactory[any]()
+		factory = mockcln.NewClientTransportFactory[T]()
 	)
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return nil, wantErr },
+		func() (dlgt.ClientTransport[T], error) { return nil, wantErr },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, wantErr)
 		},
 		Mocks: []*mok.Mock{factory.Mock},
 	}
 }
 
-func ReconnectInitCheckErrorTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) InitCheckError(t *testing.T) ReconnectTestCase[T] {
 	name := "If ServerInfo check fails with an error, NewReconnect should return it"
 
 	var (
 		wantInfo  = dlgt.ServerInfo("server-1")
 		wantErr   = errors.New("checkServerInfo error")
-		transport = mockcln.NewClientTransport[any]()
-		factory   = mockcln.NewClientTransportFactory[any]()
+		transport = mockcln.NewClientTransport[T]()
+		factory   = mockcln.NewClientTransportFactory[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -117,28 +146,28 @@ func ReconnectInitCheckErrorTestCase() ReconnectTestCase {
 		func() (dlgt.ServerInfo, error) { return nil, wantErr },
 	).RegisterClose(func() error { return nil })
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    wantInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, wantErr)
 		},
 		Mocks: []*mok.Mock{factory.Mock, transport.Mock},
 	}
 }
 
-func ReconnectCycleSuccessTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) CycleSuccess(t *testing.T) ReconnectTestCase[T] {
 	name := "Should reconnect"
 
 	var (
-		initTransport = mockcln.NewClientTransport[any]()
-		wantTransport = mockcln.NewClientTransport[any]()
-		factory       = mockcln.NewClientTransportFactory[any]()
+		initTransport = mockcln.NewClientTransport[T]()
+		wantTransport = mockcln.NewClientTransport[T]()
+		factory       = mockcln.NewClientTransportFactory[T]()
 		serverInfo    = dlgt.ServerInfo("server-1")
 	)
 	initTransport.RegisterSetReceiveDeadline(
@@ -156,36 +185,36 @@ func ReconnectCycleSuccessTestCase() ReconnectTestCase {
 		func(deadline time.Time) (err error) { return nil },
 	)
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return initTransport, nil },
+		func() (dlgt.ClientTransport[T], error) { return initTransport, nil },
 	).RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return nil, errors.New("transport creation error") },
+		func() (dlgt.ClientTransport[T], error) { return nil, errors.New("transport creation error") },
 	).RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return nil, errors.New("transport creation error") },
+		func() (dlgt.ClientTransport[T], error) { return nil, errors.New("transport creation error") },
 	).RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return wantTransport, nil },
+		func() (dlgt.ClientTransport[T], error) { return wantTransport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			err := d.Reconnect()
 			asserterror.EqualError(t, err, nil)
-			asserterror.Equal(t, d.Transport(), (dlgt.ClientTransport[any])(wantTransport))
+			asserterror.Equal(t, d.Transport(), (dlgt.ClientTransport[T])(wantTransport))
 		},
 		Mocks: []*mok.Mock{initTransport.Mock, wantTransport.Mock, factory.Mock},
 	}
 }
 
-func ReconnectCycleCloseTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) CycleClose(t *testing.T) ReconnectTestCase[T] {
 	name := "Reconnect should return ErrClosed, if the delegate is closed"
 
 	var (
-		initTransport = mockcln.NewClientTransport[any]()
-		factory       = mockcln.NewClientTransportFactory[any]()
+		initTransport = mockcln.NewClientTransport[T]()
+		factory       = mockcln.NewClientTransportFactory[T]()
 		serverInfo    = dlgt.ServerInfo("server-1")
 	)
 	initTransport.RegisterSetReceiveDeadline(
@@ -198,22 +227,22 @@ func ReconnectCycleCloseTestCase() ReconnectTestCase {
 		func() error { return nil },
 	)
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) {
+		func() (dlgt.ClientTransport[T], error) {
 			return initTransport, nil
 		},
 	).RegisterNew(
-		func() (dlgt.ClientTransport[any], error) {
+		func() (dlgt.ClientTransport[T], error) {
 			time.Sleep(100 * time.Millisecond)
 			return nil, errors.New("transport creation error")
 		},
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			go func() {
 				time.Sleep(50 * time.Millisecond)
@@ -222,19 +251,19 @@ func ReconnectCycleCloseTestCase() ReconnectTestCase {
 			}()
 			err := d.Reconnect()
 			asserterror.EqualError(t, err, ccln.ErrClosed)
-			asserterror.Equal(t, d.Transport(), (dlgt.ClientTransport[any])(initTransport))
+			asserterror.Equal(t, d.Transport(), (dlgt.ClientTransport[T])(initTransport))
 		},
 		Mocks: []*mok.Mock{initTransport.Mock, factory.Mock},
 	}
 }
 
-func ReconnectCycleMismatchTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) CycleMismatch(t *testing.T) ReconnectTestCase[T] {
 	name := "If ServerInfo check fails with the ErrServerInfoMismatch, Reconnect should return it"
 
 	var (
-		initTransport = mockcln.NewClientTransport[any]()
-		newTransport  = mockcln.NewClientTransport[any]()
-		factory       = mockcln.NewClientTransportFactory[any]()
+		initTransport = mockcln.NewClientTransport[T]()
+		newTransport  = mockcln.NewClientTransport[T]()
+		factory       = mockcln.NewClientTransportFactory[T]()
 		serverInfo    = dlgt.ServerInfo("server-1")
 		wrongInfo     = dlgt.ServerInfo("wrong-server")
 	)
@@ -253,38 +282,38 @@ func ReconnectCycleMismatchTestCase() ReconnectTestCase {
 		func() error { return nil },
 	)
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) {
+		func() (dlgt.ClientTransport[T], error) {
 			return initTransport, nil
 		},
 	).RegisterNew(
-		func() (dlgt.ClientTransport[any], error) {
+		func() (dlgt.ClientTransport[T], error) {
 			return newTransport, nil
 		},
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			err := d.Reconnect()
 			asserterror.EqualError(t, err, cln.ErrServerInfoMismatch)
-			asserterror.Equal(t, d.Transport(), (dlgt.ClientTransport[any])(initTransport))
+			asserterror.Equal(t, d.Transport(), (dlgt.ClientTransport[T])(initTransport))
 		},
 		Mocks: []*mok.Mock{initTransport.Mock, newTransport.Mock, factory.Mock},
 	}
 }
 
-func ReconnectCycleCheckErrorTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) CycleCheckError(t *testing.T) ReconnectTestCase[T] {
 	name := "If ServerInfo check fails with an error, Reconnect should try again"
 
 	var (
-		initTransport = mockcln.NewClientTransport[any]()
-		failTransport = mockcln.NewClientTransport[any]()
-		succTransport = mockcln.NewClientTransport[any]()
-		factory       = mockcln.NewClientTransportFactory[any]()
+		initTransport = mockcln.NewClientTransport[T]()
+		failTransport = mockcln.NewClientTransport[T]()
+		succTransport = mockcln.NewClientTransport[T]()
+		factory       = mockcln.NewClientTransportFactory[T]()
 		serverInfo    = dlgt.ServerInfo("server-1")
 	)
 	initTransport.RegisterSetReceiveDeadline(
@@ -309,41 +338,41 @@ func ReconnectCycleCheckErrorTestCase() ReconnectTestCase {
 		func(deadline time.Time) (err error) { return nil },
 	)
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) {
+		func() (dlgt.ClientTransport[T], error) {
 			return initTransport, nil
 		},
 	).RegisterNew(
-		func() (dlgt.ClientTransport[any], error) {
+		func() (dlgt.ClientTransport[T], error) {
 			return failTransport, nil
 		},
 	).RegisterNew(
-		func() (dlgt.ClientTransport[any], error) {
+		func() (dlgt.ClientTransport[T], error) {
 			return succTransport, nil
 		},
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			err := d.Reconnect()
 			asserterror.EqualError(t, err, nil)
-			asserterror.Equal(t, d.Transport(), (dlgt.ClientTransport[any])(succTransport))
+			asserterror.Equal(t, d.Transport(), (dlgt.ClientTransport[T])(succTransport))
 		},
 		Mocks: []*mok.Mock{initTransport.Mock, failTransport.Mock, succTransport.Mock, factory.Mock},
 	}
 }
 
-func ReconnectSetSendDeadlineTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) SetSendDeadline(t *testing.T) ReconnectTestCase[T] {
 	name := "SetSendDeadline should call corresponding Transport.SetSendDeadline"
 
 	var (
 		wantDeadline = time.Now().Add(time.Second)
-		transport    = mockcln.NewClientTransport[any]()
-		factory      = mockcln.NewClientTransportFactory[any]()
+		transport    = mockcln.NewClientTransport[T]()
+		factory      = mockcln.NewClientTransportFactory[T]()
 		serverInfo   = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -359,15 +388,15 @@ func ReconnectSetSendDeadlineTestCase() ReconnectTestCase {
 		return nil
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			err := d.SetSendDeadline(wantDeadline)
 			asserterror.EqualError(t, err, nil)
@@ -376,13 +405,13 @@ func ReconnectSetSendDeadlineTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectCloseErrorTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) CloseError(t *testing.T) ReconnectTestCase[T] {
 	name := "If Transport.Close fails with an error, Close should return it"
 
 	var (
 		wantErr    = errors.New("close error")
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -395,15 +424,15 @@ func ReconnectCloseErrorTestCase() ReconnectTestCase {
 		return wantErr
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			err := d.Close()
 			asserterror.EqualError(t, err, wantErr)
@@ -412,12 +441,12 @@ func ReconnectCloseErrorTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectFlushTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) Flush(t *testing.T) ReconnectTestCase[T] {
 	name := "Flush should call corresponding Transport.Flush"
 
 	var (
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -430,15 +459,15 @@ func ReconnectFlushTestCase() ReconnectTestCase {
 		return nil
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			err := d.Flush()
 			asserterror.EqualError(t, err, nil)
@@ -447,13 +476,13 @@ func ReconnectFlushTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectLocalAddrTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) LocalAddr(t *testing.T) ReconnectTestCase[T] {
 	name := "LocalAddr should return Transport.LocalAddr"
 
 	var (
 		wantAddr   = dummyAddr("127.0.0.1:1234")
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -466,15 +495,15 @@ func ReconnectLocalAddrTestCase() ReconnectTestCase {
 		return wantAddr
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			addr := d.LocalAddr()
 			if addr != wantAddr {
@@ -485,13 +514,13 @@ func ReconnectLocalAddrTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectRemoteAddrTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) RemoteAddr(t *testing.T) ReconnectTestCase[T] {
 	name := "RemoteAddr should return Transport.RemoteAddr"
 
 	var (
 		wantAddr   = dummyAddr("127.0.0.1:5678")
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -504,15 +533,15 @@ func ReconnectRemoteAddrTestCase() ReconnectTestCase {
 		func() net.Addr { return wantAddr },
 	)
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			addr := d.RemoteAddr()
 			asserterror.EqualDeep(t, addr, wantAddr)
@@ -521,14 +550,14 @@ func ReconnectRemoteAddrTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectSendTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) Send(t *testing.T) ReconnectTestCase[T] {
 	name := "Transport.Send should send same seq and cmd as Send"
 
 	var (
 		wantSeq    = core.Seq(123)
-		wantCmd    = (core.Cmd[any])(nil)
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		wantCmd    core.Cmd[T]
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -537,7 +566,7 @@ func ReconnectSendTestCase() ReconnectTestCase {
 		func() (dlgt.ServerInfo, error) { return serverInfo, nil },
 	).RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
-	).RegisterSend(func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+	).RegisterSend(func(seq core.Seq, cmd core.Cmd[T]) (int, error) {
 		if seq != wantSeq {
 			return 0, errors.New("wrong seq")
 		}
@@ -547,15 +576,15 @@ func ReconnectSendTestCase() ReconnectTestCase {
 		return 10, nil
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			n, err := d.Send(wantSeq, wantCmd)
 			asserterror.EqualError(t, err, nil)
@@ -565,13 +594,13 @@ func ReconnectSendTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectSendErrorTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) SendError(t *testing.T) ReconnectTestCase[T] {
 	name := "If Transport.Send fails with an error, Send should return it"
 
 	var (
 		wantErr    = errors.New("send error")
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -580,19 +609,19 @@ func ReconnectSendErrorTestCase() ReconnectTestCase {
 		func() (dlgt.ServerInfo, error) { return serverInfo, nil },
 	).RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
-	).RegisterSend(func(seq core.Seq, cmd core.Cmd[any]) (int, error) {
+	).RegisterSend(func(seq core.Seq, cmd core.Cmd[T]) (int, error) {
 		return 0, wantErr
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			_, err := d.Send(0, nil)
 			asserterror.EqualError(t, err, wantErr)
@@ -601,15 +630,15 @@ func ReconnectSendErrorTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectReceiveTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) Receive(t *testing.T) ReconnectTestCase[T] {
 	name := "Receive should return same seq and result as Transport.Receive"
 
 	var (
 		wantSeq    = core.Seq(456)
 		wantResult = (core.Result)(nil)
 		wantN      = 20
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -622,15 +651,15 @@ func ReconnectReceiveTestCase() ReconnectTestCase {
 		return wantSeq, wantResult, wantN, nil
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			seq, res, n, err := d.Receive()
 			asserterror.EqualError(t, err, nil)
@@ -642,13 +671,13 @@ func ReconnectReceiveTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectReceiveErrorTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) ReceiveError(t *testing.T) ReconnectTestCase[T] {
 	name := "If Transport.Receive fails with an error, Receive should return it"
 
 	var (
 		wantErr    = errors.New("receive error")
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -661,15 +690,15 @@ func ReconnectReceiveErrorTestCase() ReconnectTestCase {
 		return 0, nil, 0, wantErr
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			_, _, _, err := d.Receive()
 			asserterror.EqualError(t, err, wantErr)
@@ -678,13 +707,13 @@ func ReconnectReceiveErrorTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectSetReceiveDeadlineTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) SetReceiveDeadline(t *testing.T) ReconnectTestCase[T] {
 	name := "SetReceiveDeadline should call corresponding Transport.SetReceiveDeadline"
 
 	var (
 		wantDeadline = time.Now().Add(time.Second)
-		transport    = mockcln.NewClientTransport[any]()
-		factory      = mockcln.NewClientTransportFactory[any]()
+		transport    = mockcln.NewClientTransport[T]()
+		factory      = mockcln.NewClientTransportFactory[T]()
 		serverInfo   = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -702,15 +731,15 @@ func ReconnectSetReceiveDeadlineTestCase() ReconnectTestCase {
 		},
 	)
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			err := d.SetReceiveDeadline(wantDeadline)
 			asserterror.EqualError(t, err, nil)
@@ -719,13 +748,13 @@ func ReconnectSetReceiveDeadlineTestCase() ReconnectTestCase {
 	}
 }
 
-func ReconnectSetReceiveDeadlineErrorTestCase() ReconnectTestCase {
+func (ReconnectDelegate[T]) SetReceiveDeadlineError(t *testing.T) ReconnectTestCase[T] {
 	name := "If Transport.SetReceiveDeadline fails with an error, SetReceiveDeadline should return it"
 
 	var (
 		wantErr    = errors.New("SetReceiveDeadline error")
-		transport  = mockcln.NewClientTransport[any]()
-		factory    = mockcln.NewClientTransportFactory[any]()
+		transport  = mockcln.NewClientTransport[T]()
+		factory    = mockcln.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -738,15 +767,15 @@ func ReconnectSetReceiveDeadlineErrorTestCase() ReconnectTestCase {
 		return wantErr
 	})
 	factory.RegisterNew(
-		func() (dlgt.ClientTransport[any], error) { return transport, nil },
+		func() (dlgt.ClientTransport[T], error) { return transport, nil },
 	)
-	return ReconnectTestCase{
+	return ReconnectTestCase[T]{
 		Name: name,
-		Setup: ReconnectSetup{
+		Setup: ReconnectSetup[T]{
 			Info:    serverInfo,
 			Factory: factory,
 		},
-		Action: func(t *testing.T, d *cln.ReconnectDelegate[any], initErr error) {
+		Action: func(t *testing.T, d *cln.ReconnectDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, nil)
 			err := d.SetReceiveDeadline(time.Time{})
 			asserterror.EqualError(t, err, wantErr)

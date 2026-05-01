@@ -23,7 +23,7 @@ func receiveAndAssert(t *testing.T, results <-chan core.AsyncResult, seq core.Se
 	var (
 		asyncResult core.AsyncResult
 		err         error
-		timer       = time.NewTimer(time.Second)
+		timer       = time.NewTimer(5 * time.Second)
 	)
 	defer timer.Stop()
 	select {

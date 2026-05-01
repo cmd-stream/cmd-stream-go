@@ -3,20 +3,20 @@ package srv_test
 import (
 	"testing"
 
-	test "github.com/cmd-stream/cmd-stream-go/test/core"
+	"github.com/cmd-stream/cmd-stream-go/test"
 )
 
 func TestConnReceiver_Run(t *testing.T) {
 	for _, tc := range []test.ConnReceiverTestCase{
-		test.FirstSetDeadlineErrorTestCase(t),
-		test.FirstAcceptErrorTestCase(t),
-		test.FirstResetDeadlineErrorTestCase(t),
-		test.SecondAcceptErrorTestCase(t),
-		test.RunSeveralConnectionsTestCase(t),
-		test.StopWhileAcceptingTestCase(t),
-		test.ShutdownWhileAcceptingTestCase(t),
-		test.StopWhileQueuingTestCase(t),
-		test.ShutdownWhileQueuingTestCase(t),
+		test.ConnReceiver.FirstSetDeadlineError(t),
+		test.ConnReceiver.FirstAcceptError(t),
+		test.ConnReceiver.FirstResetDeadlineError(t),
+		test.ConnReceiver.SecondAcceptError(t),
+		test.ConnReceiver.RunSeveralConnections(t),
+		test.ConnReceiver.StopWhileAccepting(t),
+		test.ConnReceiver.ShutdownWhileAccepting(t),
+		test.ConnReceiver.StopWhileQueuing(t),
+		test.ConnReceiver.ShutdownWhileQueuing(t),
 	} {
 		test.RunConnReceiverTestCase(t, tc)
 	}

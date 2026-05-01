@@ -3,16 +3,17 @@ package hooks_test
 import (
 	"testing"
 
-	test "github.com/cmd-stream/cmd-stream-go/test/sender"
+	"github.com/cmd-stream/cmd-stream-go/test"
 )
 
 func TestCircuitBreakerHooks(t *testing.T) {
-	for _, tc := range []test.HooksCircuitBreakerTestCase{
-		test.BeforeSendTestCase(t),
-		test.BeforeSendErrorTestCase(),
-		test.OnErrorTestCase(t),
-		test.OnResultTestCase(t),
-		test.OnTimeoutTestCase(t),
+	s := test.SenderHooksCircuitBreaker[any]{}
+	for _, tc := range []test.HooksCircuitBreakerTestCase[any]{
+		s.BeforeSend(t),
+		s.BeforeSendError(t),
+		s.OnError(t),
+		s.OnResult(t),
+		s.OnTimeout(t),
 	} {
 		test.RunHooksCircuitBreakerTestCase(t, tc)
 	}

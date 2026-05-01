@@ -11,65 +11,65 @@ import (
 
 type KeepaliveFn func(muSn *sync.Mutex)
 
-type KeepaliveDelegate struct {
+func NewKeepaliveDelegate[T any]() KeepaliveDelegate[T] {
+	return KeepaliveDelegate[T]{Mock: mok.New("KeepaliveDelegate")}
+}
+
+type KeepaliveDelegate[T any] struct {
 	*mok.Mock
 }
 
-func NewKeepaliveDelegate() KeepaliveDelegate {
-	return KeepaliveDelegate{Mock: mok.New("KeepaliveDelegate")}
-}
-
-func (m KeepaliveDelegate) RegisterLocalAddr(fn ClientLocalAddrFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterLocalAddr(fn ClientLocalAddrFn) KeepaliveDelegate[T] {
 	m.Register("LocalAddr", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterRemoteAddr(fn ClientRemoteAddrFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterRemoteAddr(fn ClientRemoteAddrFn) KeepaliveDelegate[T] {
 	m.Register("RemoteAddr", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterSetSendDeadline(fn ClientSetSendDeadlineFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterSetSendDeadline(fn ClientSetSendDeadlineFn) KeepaliveDelegate[T] {
 	m.Register("SetSendDeadline", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterSendN(n int, fn ClientSendFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterSendN(n int, fn ClientSendFn[T]) KeepaliveDelegate[T] {
 	m.RegisterN("Send", n, fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterSend(fn ClientSendFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterSend(fn ClientSendFn[T]) KeepaliveDelegate[T] {
 	m.Register("Send", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterFlush(fn ClientFlushFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterFlush(fn ClientFlushFn) KeepaliveDelegate[T] {
 	m.Register("Flush", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterSetReceiveDeadline(fn ClientSetReceiveDeadlineFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterSetReceiveDeadline(fn ClientSetReceiveDeadlineFn) KeepaliveDelegate[T] {
 	m.Register("SetReceiveDeadline", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterReceive(fn ClientReceiveFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterReceive(fn ClientReceiveFn) KeepaliveDelegate[T] {
 	m.Register("Receive", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterClose(fn ClientCloseFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterClose(fn ClientCloseFn) KeepaliveDelegate[T] {
 	m.Register("Close", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) RegisterKeepalive(fn KeepaliveFn) KeepaliveDelegate {
+func (m KeepaliveDelegate[T]) RegisterKeepalive(fn KeepaliveFn) KeepaliveDelegate[T] {
 	m.Register("Keepalive", fn)
 	return m
 }
 
-func (m KeepaliveDelegate) LocalAddr() (addr net.Addr) {
+func (m KeepaliveDelegate[T]) LocalAddr() (addr net.Addr) {
 	vals, err := m.Call("LocalAddr")
 	if err != nil {
 		panic(err)
@@ -78,7 +78,7 @@ func (m KeepaliveDelegate) LocalAddr() (addr net.Addr) {
 	return
 }
 
-func (m KeepaliveDelegate) RemoteAddr() (addr net.Addr) {
+func (m KeepaliveDelegate[T]) RemoteAddr() (addr net.Addr) {
 	vals, err := m.Call("RemoteAddr")
 	if err != nil {
 		panic(err)
@@ -87,7 +87,7 @@ func (m KeepaliveDelegate) RemoteAddr() (addr net.Addr) {
 	return
 }
 
-func (m KeepaliveDelegate) SetSendDeadline(deadline time.Time) (err error) {
+func (m KeepaliveDelegate[T]) SetSendDeadline(deadline time.Time) (err error) {
 	vals, err := m.Call("SetSendDeadline", deadline)
 	if err != nil {
 		panic(err)
@@ -96,7 +96,7 @@ func (m KeepaliveDelegate) SetSendDeadline(deadline time.Time) (err error) {
 	return
 }
 
-func (m KeepaliveDelegate) Send(seq core.Seq, cmd core.Cmd[any]) (n int, err error) {
+func (m KeepaliveDelegate[T]) Send(seq core.Seq, cmd core.Cmd[T]) (n int, err error) {
 	vals, err := m.Call("Send", seq, cmd)
 	if err != nil {
 		panic(err)
@@ -106,7 +106,7 @@ func (m KeepaliveDelegate) Send(seq core.Seq, cmd core.Cmd[any]) (n int, err err
 	return
 }
 
-func (m KeepaliveDelegate) Flush() (err error) {
+func (m KeepaliveDelegate[T]) Flush() (err error) {
 	vals, err := m.Call("Flush")
 	if err != nil {
 		panic(err)
@@ -115,7 +115,7 @@ func (m KeepaliveDelegate) Flush() (err error) {
 	return
 }
 
-func (m KeepaliveDelegate) SetReceiveDeadline(deadline time.Time) (err error) {
+func (m KeepaliveDelegate[T]) SetReceiveDeadline(deadline time.Time) (err error) {
 	vals, err := m.Call("SetReceiveDeadline", deadline)
 	if err != nil {
 		panic(err)
@@ -124,7 +124,7 @@ func (m KeepaliveDelegate) SetReceiveDeadline(deadline time.Time) (err error) {
 	return
 }
 
-func (m KeepaliveDelegate) Receive() (seq core.Seq, result core.Result, n int, err error) {
+func (m KeepaliveDelegate[T]) Receive() (seq core.Seq, result core.Result, n int, err error) {
 	vals, err := m.Call("Receive")
 	if err != nil {
 		panic(err)
@@ -136,7 +136,7 @@ func (m KeepaliveDelegate) Receive() (seq core.Seq, result core.Result, n int, e
 	return
 }
 
-func (m KeepaliveDelegate) Close() (err error) {
+func (m KeepaliveDelegate[T]) Close() (err error) {
 	vals, err := m.Call("Close")
 	if err != nil {
 		panic(err)
@@ -145,7 +145,7 @@ func (m KeepaliveDelegate) Close() (err error) {
 	return
 }
 
-func (m KeepaliveDelegate) Keepalive(muSn *sync.Mutex) {
+func (m KeepaliveDelegate[T]) Keepalive(muSn *sync.Mutex) {
 	_, err := m.Call("Keepalive", muSn)
 	if err != nil {
 		panic(err)

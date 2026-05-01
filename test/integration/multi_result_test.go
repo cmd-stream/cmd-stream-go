@@ -8,6 +8,7 @@ import (
 	cmdstream "github.com/cmd-stream/cmd-stream-go"
 	"github.com/cmd-stream/cmd-stream-go/core"
 	ccln "github.com/cmd-stream/cmd-stream-go/core/cln"
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
 	"github.com/cmd-stream/cmd-stream-go/testkit"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	assertfatal "github.com/ymz-ncnk/assert/fatal"
@@ -16,20 +17,24 @@ import (
 func TestMultiResult(t *testing.T) {
 	const addr = "127.0.0.1:9005"
 
-	startMultiResultServer(t, addr)
+	server := startMultiResultServer(t, addr)
+	defer server.Close()
+
 	client, err := makeMultiResultClient(addr)
 	assertfatal.EqualError(t, err, nil)
+	defer client.Close()
 
 	exchangeMultiResult(t, client)
 }
 
-func startMultiResultServer(t *testing.T, addr string) {
+func startMultiResultServer(t *testing.T, addr string) *csrv.Server {
+	server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
+	asserterror.EqualError(t, err, nil)
 	go func() {
-		server, err := cmdstream.NewServer(testkit.Receiver{}, testkit.ServerCodec{})
-		asserterror.EqualError(t, err, nil)
 		_ = server.ListenAndServe(addr)
 	}()
 	time.Sleep(50 * time.Millisecond)
+	return server
 }
 
 func makeMultiResultClient(addr string) (client *ccln.Client[testkit.Receiver],

@@ -3,15 +3,20 @@ package handler_test
 import (
 	"testing"
 
-	test "github.com/cmd-stream/cmd-stream-go/test/handler"
+	"github.com/cmd-stream/cmd-stream-go/test"
 )
 
 func TestHandler_Handle(t *testing.T) {
-	test.RunHandlerTestCase(t, test.HandleSuccessTestCase(t))
-	test.RunHandlerTestCase(t, test.SetReceiveDeadlineErrorTestCase(t))
-	test.RunHandlerTestCase(t, test.ReceiveErrorTestCase(t))
-	test.RunHandlerTestCase(t, test.InvokeErrorTestCase(t))
-	test.RunHandlerTestCase(t, test.OptionAtTestCase(t))
-	test.RunHandlerTestCase(t, test.OptionCmdReceiveDurationTestCase(t))
-	test.RunHandlerTestCase(t, test.CloseWhileInvokingCmdsTestCase(t))
+	g := test.HandlerSuite[any]{}
+	for _, tc := range []test.HandlerTestCase[any]{
+		g.HandleSuccess(t),
+		g.SetReceiveDeadlineError(t),
+		g.ReceiveError(t),
+		g.InvokeError(t),
+		g.OptionAt(t),
+		g.OptionCmdReceiveDuration(t),
+		g.CloseWhileInvokingCmds(t),
+	} {
+		test.RunHandlerTestCase(t, tc)
+	}
 }

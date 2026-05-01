@@ -3,27 +3,34 @@ package transport_test
 import (
 	"testing"
 
-	tspt "github.com/cmd-stream/cmd-stream-go/test/transport"
+	"github.com/cmd-stream/cmd-stream-go/core"
+	"github.com/cmd-stream/cmd-stream-go/test"
 )
 
 func TestTransport(t *testing.T) {
-	for _, tc := range []tspt.TransportTestCase[any, any]{
-		tspt.LocalAddrTestCase(),
-		tspt.RemoteAddrTestCase(),
-		tspt.SetSendDeadlineTestCase(t),
-		tspt.SetSendDeadlineErrorTestCase(),
-		tspt.SetReceiveDeadlineTestCase(t),
-		tspt.SetReceiveDeadlineErrorTestCase(),
-		tspt.FlushTestCase(),
-		tspt.FlushErrorTestCase(),
-		tspt.CloseTestCase(),
-		tspt.CloseErrorTestCase(),
+	s := test.TransportSuite[any, any]{}
+	for _, tc := range []test.TransportTestCase[any, any]{
+		s.LocalAddr(t),
+		s.RemoteAddr(t),
+		s.SetSendDeadline(t),
+		s.SetSendDeadlineError(t),
+		s.SetReceiveDeadline(t),
+		s.SetReceiveDeadlineError(t),
+		s.Flush(t),
+		s.FlushError(t),
+		s.Close(t),
+		s.CloseError(t),
 	} {
-		tspt.RunTransportTestCase(t, tc)
+		test.RunTransportTestCase(t, tc)
 	}
 
-	tspt.RunTransportTestCase(t, tspt.SendTestCase(t))
-	tspt.RunTransportTestCase(t, tspt.SendErrorTestCase())
-	tspt.RunTransportTestCase(t, tspt.ReceiveTestCase())
-	tspt.RunTransportTestCase(t, tspt.ReceiveErrorTestCase())
+	c := test.TransportSuite[core.Cmd[any], core.Result]{}
+	for _, tc := range []test.TransportTestCase[core.Cmd[any], core.Result]{
+		c.Send(t),
+		c.SendError(t),
+		c.Receive(t),
+		c.ReceiveError(t),
+	} {
+		test.RunTransportTestCase(t, tc)
+	}
 }

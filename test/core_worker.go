@@ -1,10 +1,11 @@
-package core
+package test
 
 import (
 	"context"
 	"errors"
 	"net"
 	"testing"
+	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core/srv"
 	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
@@ -12,7 +13,52 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-func WorkerRunSeveralConnectionsTestCase(t *testing.T) WorkerTestCase {
+type WorkerTestCase struct {
+	Name   string
+	Setup  WorkerSetup
+	During func(t *testing.T, w *srv.Worker, conns chan net.Conn)
+	Mocks  []*mok.Mock
+}
+
+type WorkerSetup struct {
+	Conns    chan net.Conn
+	Delegate cmock.ServerDelegate
+	Callback srv.LostConnCallback
+	WantErr  error
+}
+
+func RunWorkerTestCase(t *testing.T, tc WorkerTestCase) {
+	t.Run(tc.Name, func(t *testing.T) {
+		var (
+			w    = srv.NewWorker(tc.Setup.Conns, tc.Setup.Delegate, tc.Setup.Callback)
+			errs = make(chan error, 1)
+		)
+		go func() {
+			errs <- w.Run()
+			close(errs)
+		}()
+		if tc.During != nil {
+			tc.During(t, w, tc.Setup.Conns)
+		}
+		select {
+		case err := <-errs:
+			asserterror.EqualError(t, err, tc.Setup.WantErr)
+		case <-time.After(time.Second):
+			t.Fatal("timeout waiting for Worker to finish")
+		}
+		asserterror.EqualDeep(t, mok.CheckCalls(tc.Mocks), mok.EmptyInfomap)
+	})
+}
+
+type worker struct{}
+
+var Worker worker
+
+// -----------------------------------------------------------------------------
+// Test Cases
+// -----------------------------------------------------------------------------
+
+func (worker) RunSeveralConnections(t *testing.T) WorkerTestCase {
 	name := "Should be able to handle several connections without LostConnCallback"
 
 	var (
@@ -43,7 +89,7 @@ func WorkerRunSeveralConnectionsTestCase(t *testing.T) WorkerTestCase {
 	}
 }
 
-func WorkerLostConnCallbackTestCase(t *testing.T) WorkerTestCase {
+func (worker) LostConnCallback(t *testing.T) WorkerTestCase {
 	name := "Should call LostConnCallback if connection handling failed"
 
 	var (
@@ -100,7 +146,7 @@ func WorkerLostConnCallbackTestCase(t *testing.T) WorkerTestCase {
 	}
 }
 
-func WorkerStopTestCase(t *testing.T) WorkerTestCase {
+func (worker) Stop(t *testing.T) WorkerTestCase {
 	name := "Should be able to close the worker"
 
 	var delegate = cmock.NewServerDelegate()
@@ -120,7 +166,7 @@ func WorkerStopTestCase(t *testing.T) WorkerTestCase {
 	}
 }
 
-func WorkerShutdownTestCase(t *testing.T) WorkerTestCase {
+func (worker) Shutdown(t *testing.T) WorkerTestCase {
 	name := "Should be able to shutdown the worker"
 
 	var delegate = cmock.NewServerDelegate()
