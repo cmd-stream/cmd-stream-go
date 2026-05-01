@@ -25,6 +25,8 @@ func TestSend(t *testing.T) {
 		test.ForgetTestCase(),
 		test.ForgetOnFailTestCase(),
 		test.ClosedOnReceiveErrorTestCase(),
+		test.UnexpectedResultTestCase(),
+		test.UnexpectedResultCallbackTestCase(),
 	} {
 		test.RunClientTestCase(t, tc)
 	}

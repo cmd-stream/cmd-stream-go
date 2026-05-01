@@ -21,39 +21,6 @@ import (
 // number of any Command sent by the client that is awaiting a Result.
 type UnexpectedResultCallback func(seq core.Seq, result core.Result)
 
-// New creates a new client.
-func New[T any](delegate core.ClientDelegate[T], opts ...SetOption) *Client[T] {
-	o := Options{}
-	Apply(&o, opts...)
-	var (
-		ctx     context.Context
-		success        = false
-		flagFl  uint32
-		client         = &Client[T]{
-			delegate: delegate,
-			options:  o,
-			pending: pending[T]{
-				m: make(map[core.Seq]chan<- core.AsyncResult),
-			},
-			done:   make(chan struct{}),
-			flagFl: &flagFl,
-			chFl:   make(chan error, 1),
-		}
-	)
-	ctx, client.cancel = context.WithCancel(context.Background())
-	defer func() {
-		if !success {
-			client.cancel()
-		}
-	}()
-	if keepaliveDelegate, ok := delegate.(core.KeepaliveDelegate[T]); ok {
-		keepaliveDelegate.Keepalive(&client.muSn)
-	}
-	go receive(ctx, client)
-	success = true
-	return client
-}
-
 // Client represents a thread-safe, asynchronous cmd-stream client.
 //
 // It utilizes core.ClientDelegate for communication tasks such as sending Commands,
@@ -86,6 +53,39 @@ type Client[T any] struct {
 	err     errStatus
 	state   state
 	muSn    sync.Mutex
+}
+
+// New creates a new client.
+func New[T any](delegate core.ClientDelegate[T], opts ...SetOption) *Client[T] {
+	o := Options{}
+	Apply(&o, opts...)
+	var (
+		ctx     context.Context
+		success = false
+		flagFl  uint32
+		client  = &Client[T]{
+			delegate: delegate,
+			options:  o,
+			pending: pending[T]{
+				m: make(map[core.Seq]chan<- core.AsyncResult),
+			},
+			done:   make(chan struct{}),
+			flagFl: &flagFl,
+			chFl:   make(chan error, 1),
+		}
+	)
+	ctx, client.cancel = context.WithCancel(context.Background())
+	defer func() {
+		if !success {
+			client.cancel()
+		}
+	}()
+	if keepaliveDelegate, ok := delegate.(core.KeepaliveDelegate[T]); ok {
+		keepaliveDelegate.Keepalive(&client.muSn)
+	}
+	go receive(ctx, client)
+	success = true
+	return client
 }
 
 // Send transmits a Command to the server.
@@ -241,8 +241,10 @@ func (c *Client[T]) receive(ctx context.Context) (err error) {
 		} else {
 			results, pst = c.pending.get(seq)
 		}
-		if !pst && c.options.UnexpectedResultCallback != nil {
-			c.options.UnexpectedResultCallback(seq, result)
+		if !pst {
+			if c.options.UnexpectedResultCallback != nil {
+				c.options.UnexpectedResultCallback(seq, result)
+			}
 			continue
 		}
 		select {

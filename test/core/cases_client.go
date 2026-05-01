@@ -1193,3 +1193,108 @@ func CloseDelegateFailTestCase() ClientTestCase[any] {
 		Mocks: []*mok.Mock{delegate.Mock},
 	}
 }
+
+// Unexpected Results ----------------------------------------------------------
+
+func UnexpectedResultTestCase() ClientTestCase[any] {
+	name := "Should ignore unexpected results (results for unknown sequence numbers)"
+
+	var (
+		unexpectedSeq core.Seq = 100
+		result                 = mock.NewResult()
+		receiveDone            = make(chan struct{})
+		delegate               = mock.NewClientDelegate()
+	)
+
+	result.RegisterLastOne(func() bool { return true })
+
+	delegate.RegisterReceive(
+		func() (seq core.Seq, res core.Result, n int, err error) {
+			return unexpectedSeq, result, 10, nil
+		},
+	).RegisterReceive(
+		func() (seq core.Seq, res core.Result, n int, err error) {
+			<-receiveDone
+			return 0, nil, 0, errors.New("receive error")
+		},
+	).RegisterClose(
+		func() (err error) {
+			close(receiveDone)
+			return nil
+		},
+	)
+
+	return ClientTestCase[any]{
+		Name: name,
+		Setup: ClientSetup[any]{
+			Delegate: delegate,
+			Opts:     []cln.SetOption{},
+		},
+		Action: func(t *testing.T, client *cln.Client[any], results chan core.AsyncResult) {
+			// Give the receive goroutine time to process the unexpected result.
+			// If it hangs (deadlock), this test will eventually timeout.
+			time.Sleep(test.TimeDelta)
+			_ = client.Close()
+		},
+		Mocks: []*mok.Mock{delegate.Mock, result.Mock},
+	}
+}
+
+// -----------------------------------------------------------------------------
+
+func UnexpectedResultCallbackTestCase() ClientTestCase[any] {
+	name := "Should invoke UnexpectedResultCallback when an unexpected result is received"
+
+	var (
+		unexpectedSeq core.Seq = 100
+		wantResult             = mock.NewResult()
+		receiveDone            = make(chan struct{})
+		callbackDone           = make(chan struct{})
+		delegate               = mock.NewClientDelegate()
+		gotSeq        core.Seq
+		gotResult     core.Result
+	)
+
+	wantResult.RegisterLastOne(func() bool { return true })
+
+	delegate.RegisterReceive(
+		func() (seq core.Seq, res core.Result, n int, err error) {
+			return unexpectedSeq, wantResult, 10, nil
+		},
+	).RegisterReceive(
+		func() (seq core.Seq, res core.Result, n int, err error) {
+			<-receiveDone
+			return 0, nil, 0, errors.New("receive error")
+		},
+	).RegisterClose(
+		func() (err error) {
+			close(receiveDone)
+			return nil
+		},
+	)
+
+	callback := func(seq core.Seq, result core.Result) {
+		gotSeq = seq
+		gotResult = result
+		close(callbackDone)
+	}
+
+	return ClientTestCase[any]{
+		Name: name,
+		Setup: ClientSetup[any]{
+			Delegate: delegate,
+			Opts:     []cln.SetOption{cln.WithUnexpectedResultCallback(callback)},
+		},
+		Action: func(t *testing.T, client *cln.Client[any], results chan core.AsyncResult) {
+			select {
+			case <-callbackDone:
+				asserterror.Equal(t, gotSeq, unexpectedSeq)
+				asserterror.EqualDeep(t, gotResult, wantResult)
+			case <-time.After(time.Second):
+				t.Fatal("timeout waiting for UnexpectedResultCallback")
+			}
+			_ = client.Close()
+		},
+		Mocks: []*mok.Mock{delegate.Mock, wantResult.Mock},
+	}
+}
