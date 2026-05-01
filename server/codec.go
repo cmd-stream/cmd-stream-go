@@ -28,26 +28,30 @@ type codecAdapter[T any] struct {
 func (c codecAdapter[T]) Encode(seq core.Seq, result core.Result,
 	w tspt.Writer,
 ) (n int, err error) {
-	if _, err = core.SeqMUS.Marshal(seq, w); err != nil {
+	if n, err = core.SeqMUS.Marshal(seq, w); err != nil {
 		return
 	}
 	if seq == 0 { // It is a delegate.PongResult.
 		return
 	}
-	n, err = c.c.Encode(result, w)
+	var n1 int
+	n1, err = c.c.Encode(result, w)
+	n += n1
 	return
 }
 
 func (c codecAdapter[T]) Decode(r tspt.Reader) (seq core.Seq,
 	cmd core.Cmd[T], n int, err error,
 ) {
-	if seq, _, err = core.SeqMUS.Unmarshal(r); err != nil {
+	if seq, n, err = core.SeqMUS.Unmarshal(r); err != nil {
 		return
 	}
 	if seq == 0 {
 		cmd = dlgt.PingCmd[T]{}
 		return
 	}
-	cmd, n, err = c.c.Decode(r)
+	var n1 int
+	cmd, n1, err = c.c.Decode(r)
+	n += n1
 	return
 }

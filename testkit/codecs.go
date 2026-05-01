@@ -103,7 +103,7 @@ func (c ServerCodec) Decode(r tspt.Reader) (cmd core.Cmd[Receiver],
 		cmd = c
 		return
 	case MultiCmdDTM:
-		bs, n, err = ord.ByteSlice.Unmarshal(r)
+		bs, n1, err = ord.ByteSlice.Unmarshal(r)
 		n += n1
 		if err != nil {
 			return
