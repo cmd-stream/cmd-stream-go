@@ -1,4 +1,4 @@
-package transport
+package mock
 
 import (
 	"github.com/cmd-stream/cmd-stream-go/core"

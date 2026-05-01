@@ -1,19 +1,20 @@
-package handler
+package handler_test
 
 import (
 	"testing"
 	"time"
 
+	hdlr "github.com/cmd-stream/cmd-stream-go/handler"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestOptions(t *testing.T) {
 	var (
-		o            = Options{}
+		o            = hdlr.Options{}
 		wantDuration = time.Second
 		wantAt       = true
 	)
-	Apply(&o, WithCmdReceiveDuration(wantDuration), WithAt())
+	hdlr.Apply(&o, hdlr.WithCmdReceiveDuration(wantDuration), hdlr.WithAt())
 	asserterror.Equal(t, o.CmdReceiveDuration, wantDuration)
 	asserterror.Equal(t, o.At, wantAt)
 }

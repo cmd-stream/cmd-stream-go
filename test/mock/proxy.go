@@ -1,4 +1,4 @@
-package core
+package mock
 
 import (
 	"net"
@@ -9,8 +9,8 @@ import (
 )
 
 type (
-	SendFn             func(seq core.Seq, result core.Result) (n int, err error)
-	SendWithDeadlineFn func(deadline time.Time, seq core.Seq, result core.Result) (
+	ProxySendFn             func(seq core.Seq, result core.Result) (n int, err error)
+	ProxySendWithDeadlineFn func(deadline time.Time, seq core.Seq, result core.Result) (
 		int, err error)
 )
 
@@ -32,12 +32,12 @@ func (p Proxy) RegisterRemoteAddr(fn RemoteAddrFn) Proxy {
 	return p
 }
 
-func (p Proxy) RegisterSend(fn SendFn) Proxy {
+func (p Proxy) RegisterSend(fn ProxySendFn) Proxy {
 	p.Register("Send", fn)
 	return p
 }
 
-func (p Proxy) RegisterSendWithDeadline(fn SendWithDeadlineFn) Proxy {
+func (p Proxy) RegisterSendWithDeadline(fn ProxySendWithDeadlineFn) Proxy {
 	p.Register("SendWithDeadline", fn)
 	return p
 }

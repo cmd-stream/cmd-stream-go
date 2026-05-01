@@ -7,15 +7,14 @@ import (
 
 	"github.com/cmd-stream/cmd-stream-go/core"
 	hks "github.com/cmd-stream/cmd-stream-go/sender/hooks"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
-	hksmock "github.com/cmd-stream/cmd-stream-go/test/mock/sender/hooks"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
 
 type HooksCircuitBreakerSetup[T any] struct {
-	CB    hksmock.CircuitBreaker
-	Hooks hksmock.Hooks[T]
+	CB    mock.CircuitBreaker
+	Hooks mock.Hooks[T]
 }
 
 type HooksCircuitBreakerTestCase[T any] struct {
@@ -48,11 +47,11 @@ func (SenderHooksCircuitBreaker[T]) BeforeSend(t *testing.T) HooksCircuitBreaker
 
 	var (
 		wantCtx = context.Background()
-		wantCmd = cmock.NewCmd[T]()
-		cb      = hksmock.NewCircuitBreaker().RegisterAllow(
+		wantCmd = mock.NewCmd[T]()
+		cb      = mock.NewCircuitBreaker().RegisterAllow(
 			func() bool { return true },
 		)
-		innerHooks = hksmock.NewHooks[T]().RegisterBeforeSend(
+		innerHooks = mock.NewHooks[T]().RegisterBeforeSend(
 			func(ctx context.Context, cmd core.Cmd[T]) (context.Context, error) {
 				asserterror.Equal(t, ctx, wantCtx)
 				asserterror.EqualDeep(t, cmd, wantCmd)
@@ -82,8 +81,8 @@ func (SenderHooksCircuitBreaker[T]) BeforeSendError(t *testing.T) HooksCircuitBr
 
 	var (
 		wantCtx = context.Background()
-		wantCmd = cmock.NewCmd[T]()
-		cb      = hksmock.NewCircuitBreaker().RegisterAllow(
+		wantCmd = mock.NewCmd[T]()
+		cb      = mock.NewCircuitBreaker().RegisterAllow(
 			func() bool { return false },
 		)
 	)
@@ -110,8 +109,8 @@ func (SenderHooksCircuitBreaker[T]) OnError(t *testing.T) HooksCircuitBreakerTes
 		wantCtx     = context.Background()
 		wantSentCmd = hks.SentCmd[T]{}
 		wantErr     = errors.New("error")
-		cb          = hksmock.NewCircuitBreaker().RegisterFail(func() {})
-		innerHooks  = hksmock.NewHooks[T]().RegisterOnError(
+		cb          = mock.NewCircuitBreaker().RegisterFail(func() {})
+		innerHooks  = mock.NewHooks[T]().RegisterOnError(
 			func(ctx context.Context, sentCmd hks.SentCmd[T], err error) {
 				asserterror.Equal(t, ctx, wantCtx)
 				asserterror.EqualDeep(t, sentCmd, wantSentCmd)
@@ -142,8 +141,8 @@ func (SenderHooksCircuitBreaker[T]) OnResult(t *testing.T) HooksCircuitBreakerTe
 		wantSentCmd    = hks.SentCmd[T]{}
 		wantRecvResult = hks.ReceivedResult{}
 		wantErr        = errors.New("error")
-		cb             = hksmock.NewCircuitBreaker().RegisterSuccess(func() {})
-		innerHooks     = hksmock.NewHooks[T]().RegisterOnResult(
+		cb             = mock.NewCircuitBreaker().RegisterSuccess(func() {})
+		innerHooks     = mock.NewHooks[T]().RegisterOnResult(
 			func(ctx context.Context, sentCmd hks.SentCmd[T],
 				recvResult hks.ReceivedResult, err error,
 			) {
@@ -176,8 +175,8 @@ func (SenderHooksCircuitBreaker[T]) OnTimeout(t *testing.T) HooksCircuitBreakerT
 		wantCtx     = context.Background()
 		wantSentCmd = hks.SentCmd[T]{}
 		wantErr     = errors.New("error")
-		cb          = hksmock.NewCircuitBreaker().RegisterFail(func() {})
-		innerHooks  = hksmock.NewHooks[T]().RegisterOnTimeout(
+		cb          = mock.NewCircuitBreaker().RegisterFail(func() {})
+		innerHooks  = mock.NewHooks[T]().RegisterOnTimeout(
 			func(ctx context.Context, sentCmd hks.SentCmd[T], err error) {
 				asserterror.Equal(t, ctx, wantCtx)
 				asserterror.EqualDeep(t, sentCmd, wantSentCmd)

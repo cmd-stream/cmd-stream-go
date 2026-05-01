@@ -9,7 +9,7 @@ import (
 
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	"github.com/cmd-stream/cmd-stream-go/delegate/srv"
-	dmock "github.com/cmd-stream/cmd-stream-go/test/mock/delegate"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	assertfatal "github.com/ymz-ncnk/assert/fatal"
 	"github.com/ymz-ncnk/mok"
@@ -24,8 +24,8 @@ type ServerDelegateTestCase[T any] struct {
 
 type ServerDelegateSetup[T any] struct {
 	Info    dlgt.ServerInfo
-	Factory dmock.ServerTransportFactory[T]
-	Handler dmock.ServerTransportHandler[T]
+	Factory mock.ServerTransportFactory[T]
+	Handler mock.ServerTransportHandler[T]
 	Opts    []srv.SetOption
 }
 
@@ -54,9 +54,9 @@ func (DelegateServer[T]) HandleConnSuccess(t *testing.T) ServerDelegateTestCase[
 		wantInfo               = dlgt.ServerInfo([]byte{1, 2, 3})
 		serverInfoSendDuration = time.Second
 		startTime              time.Time
-		factory                = dmock.NewServerTransportFactory[T]()
-		handler                = dmock.NewServerTransportHandler[T]()
-		wantTransport          = dmock.NewServerTransport[T]()
+		factory                = mock.NewServerTransportFactory[T]()
+		handler                = mock.NewServerTransportHandler[T]()
+		wantTransport          = mock.NewServerTransport[T]()
 	)
 
 	factory.RegisterNew(
@@ -110,9 +110,9 @@ func (DelegateServer[T]) SendServerInfoError(t *testing.T) ServerDelegateTestCas
 	var (
 		info      = dlgt.ServerInfo([]byte{1, 2, 3})
 		wantErr   = errors.New("send server info error")
-		factory   = dmock.NewServerTransportFactory[T]()
-		handler   = dmock.NewServerTransportHandler[T]()
-		transport = dmock.NewServerTransport[T]()
+		factory   = mock.NewServerTransportFactory[T]()
+		handler   = mock.NewServerTransportHandler[T]()
+		transport = mock.NewServerTransport[T]()
 	)
 	factory.RegisterNew(
 		func(conn net.Conn) dlgt.ServerTransport[T] { return transport },
@@ -145,8 +145,8 @@ func (DelegateServer[T]) ZeroLenServerInfo(t *testing.T) ServerDelegateTestCase[
 		Name: name,
 		Setup: ServerDelegateSetup[T]{
 			Info:    dlgt.ServerInfo([]byte{}),
-			Factory: dmock.NewServerTransportFactory[T](),
-			Handler: dmock.NewServerTransportHandler[T](),
+			Factory: mock.NewServerTransportFactory[T](),
+			Handler: mock.NewServerTransportHandler[T](),
 		},
 		Action: func(t *testing.T, d srv.ServerInfoDelegate[T], initErr error) {
 			asserterror.EqualError(t, initErr, srv.ErrEmptyInfo)
@@ -163,9 +163,9 @@ func (DelegateServer[T]) TransportHandleError(t *testing.T) ServerDelegateTestCa
 		conn          = &net.TCPConn{}
 		wantInfo      = dlgt.ServerInfo([]byte{1, 2, 3})
 		wantErr       = errors.New("transport handle error")
-		factory       = dmock.NewServerTransportFactory[T]()
-		handler       = dmock.NewServerTransportHandler[T]()
-		wantTransport = dmock.NewServerTransport[T]()
+		factory       = mock.NewServerTransportFactory[T]()
+		handler       = mock.NewServerTransportHandler[T]()
+		wantTransport = mock.NewServerTransport[T]()
 	)
 	factory.RegisterNew(
 		func(gotConn net.Conn) dlgt.ServerTransport[T] { return wantTransport },
@@ -202,9 +202,9 @@ func (DelegateServer[T]) SendServerInfoTransportDeadlineError(t *testing.T) Serv
 		conn      = &net.TCPConn{}
 		info      = dlgt.ServerInfo([]byte{1, 2, 3})
 		wantErr   = errors.New("set send deadline error")
-		factory   = dmock.NewServerTransportFactory[T]()
-		handler   = dmock.NewServerTransportHandler[T]()
-		transport = dmock.NewServerTransport[T]()
+		factory   = mock.NewServerTransportFactory[T]()
+		handler   = mock.NewServerTransportHandler[T]()
+		transport = mock.NewServerTransport[T]()
 	)
 	factory.RegisterNew(
 		func(gotConn net.Conn) dlgt.ServerTransport[T] { return transport },

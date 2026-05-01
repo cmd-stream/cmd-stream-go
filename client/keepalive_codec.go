@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/cmd-stream/cmd-stream-go/core"
-	"github.com/cmd-stream/cmd-stream-go/delegate"
+	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	tspt "github.com/cmd-stream/cmd-stream-go/transport"
 )
 
@@ -32,7 +32,7 @@ func (c keepaliveCodecAdapter[T]) Decode(r tspt.Reader) (seq core.Seq,
 		return
 	}
 	if seq == 0 {
-		result = delegate.PongResult{}
+		result = dlgt.PongResult{}
 		return
 	}
 	var n1 int

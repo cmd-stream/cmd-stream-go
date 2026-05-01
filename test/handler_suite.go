@@ -8,9 +8,7 @@ import (
 
 	"github.com/cmd-stream/cmd-stream-go/core"
 	"github.com/cmd-stream/cmd-stream-go/handler"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
-	dmock "github.com/cmd-stream/cmd-stream-go/test/mock/delegate"
-	hmock "github.com/cmd-stream/cmd-stream-go/test/mock/handler"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -46,15 +44,15 @@ func (HandlerSuite[T]) HandleSuccess(t *testing.T) HandlerTestCase[T] {
 
 	var (
 		ctx, cancel = context.WithCancel(context.Background())
-		transport   = dmock.NewServerTransport[T]()
-		invoker     = hmock.NewInvoker[T]()
+		transport   = mock.NewServerTransport[T]()
+		invoker     = mock.NewInvoker[T]()
 
 		seq1 = core.Seq(1)
-		cmd1 = cmock.NewCmd[T]()
+		cmd1 = mock.NewCmd[T]()
 		n1   = 10
 
 		seq2 = core.Seq(2)
-		cmd2 = cmock.NewCmd[T]()
+		cmd2 = mock.NewCmd[T]()
 		n2   = 20
 
 		done = make(chan struct{})
@@ -116,8 +114,8 @@ func (HandlerSuite[T]) SetReceiveDeadlineError(t *testing.T) HandlerTestCase[T] 
 
 	var (
 		wantErr   = errors.New("Transport.SetReceiveDeadline error")
-		transport = dmock.NewServerTransport[T]()
-		invoker   = hmock.NewInvoker[T]()
+		transport = mock.NewServerTransport[T]()
+		invoker   = mock.NewInvoker[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return wantErr },
@@ -143,8 +141,8 @@ func (HandlerSuite[T]) ReceiveError(t *testing.T) HandlerTestCase[T] {
 
 	var (
 		wantErr   = errors.New("Transport.Receive error")
-		transport = dmock.NewServerTransport[T]()
-		invoker   = hmock.NewInvoker[T]()
+		transport = mock.NewServerTransport[T]()
+		invoker   = mock.NewInvoker[T]()
 	)
 	transport.RegisterReceive(
 		func() (core.Seq, core.Cmd[T], int, error) { return 0, nil, 2, wantErr },
@@ -170,10 +168,10 @@ func (HandlerSuite[T]) InvokeError(t *testing.T) HandlerTestCase[T] {
 
 	var (
 		wantErr   = errors.New("Invoker.Invoke error")
-		transport = dmock.NewServerTransport[T]()
-		invoker   = hmock.NewInvoker[T]()
+		transport = mock.NewServerTransport[T]()
+		invoker   = mock.NewInvoker[T]()
 		seq       = core.Seq(1)
-		cmd       = cmock.NewCmd[T]()
+		cmd       = mock.NewCmd[T]()
 		n         = 10
 		done      = make(chan struct{})
 	)
@@ -215,13 +213,13 @@ func (HandlerSuite[T]) OptionAt(t *testing.T) HandlerTestCase[T] {
 
 	var (
 		ctx, cancel = context.WithCancel(context.Background())
-		transport   = dmock.NewServerTransport[T]()
-		invoker     = hmock.NewInvoker[T]()
+		transport   = mock.NewServerTransport[T]()
+		invoker     = mock.NewInvoker[T]()
 		done        = make(chan struct{})
 		delta       = 100 * time.Millisecond
 	)
 	transport.RegisterReceive(
-		func() (core.Seq, core.Cmd[T], int, error) { return core.Seq(1), cmock.NewCmd[T](), 10, nil },
+		func() (core.Seq, core.Cmd[T], int, error) { return core.Seq(1), mock.NewCmd[T](), 10, nil },
 	).RegisterReceive(
 		func() (core.Seq, core.Cmd[T], int, error) {
 			<-done
@@ -265,8 +263,8 @@ func (HandlerSuite[T]) OptionCmdReceiveDuration(t *testing.T) HandlerTestCase[T]
 	var (
 		ctx, cancel            = context.WithCancel(context.Background())
 		wantCmdReceiveDuration = time.Second
-		transport              = dmock.NewServerTransport[T]()
-		invoker                = hmock.NewInvoker[T]()
+		transport              = mock.NewServerTransport[T]()
+		invoker                = mock.NewInvoker[T]()
 		done                   = make(chan struct{})
 		startTime              = time.Now()
 	)
@@ -311,17 +309,17 @@ func (HandlerSuite[T]) CloseWhileInvokingCmds(t *testing.T) HandlerTestCase[T] {
 
 	var (
 		ctx, cancel = context.WithCancel(context.Background())
-		transport   = dmock.NewServerTransport[T]()
-		invoker     = hmock.NewInvoker[T]()
+		transport   = mock.NewServerTransport[T]()
+		invoker     = mock.NewInvoker[T]()
 		done        = make(chan struct{})
 	)
 	transport.RegisterReceive(
 		func() (core.Seq, core.Cmd[T], int, error) {
-			return core.Seq(1), cmock.NewCmd[T](), 10, nil
+			return core.Seq(1), mock.NewCmd[T](), 10, nil
 		},
 	).RegisterReceive(
 		func() (core.Seq, core.Cmd[T], int, error) {
-			return core.Seq(2), cmock.NewCmd[T](), 10, nil
+			return core.Seq(2), mock.NewCmd[T](), 10, nil
 		},
 	).RegisterReceive(
 		func() (core.Seq, core.Cmd[T], int, error) {

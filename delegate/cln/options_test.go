@@ -1,16 +1,18 @@
-package cln
+package cln_test
 
 import (
 	"testing"
 	"time"
+
+	dcln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
 )
 
 func TestOptions(t *testing.T) {
 	var (
-		o                             = Options{}
+		o                             = dcln.Options{}
 		wantServerInfoReceiveDuration = time.Second
 	)
-	Apply(&o, WithServerInfoReceiveDuration(wantServerInfoReceiveDuration))
+	dcln.Apply(&o, dcln.WithServerInfoReceiveDuration(wantServerInfoReceiveDuration))
 
 	if o.ServerInfoReceiveDuration != wantServerInfoReceiveDuration {
 		t.Errorf("unexpected ServerInfoReceiveDuration, want %v actual %v",
@@ -20,12 +22,12 @@ func TestOptions(t *testing.T) {
 
 func TestKeepAliveOptions(t *testing.T) {
 	var (
-		o                  = KeepaliveOptions{}
+		o                  = dcln.KeepaliveOptions{}
 		wantKeepaliveTime  = 2 * time.Second
 		wantKeepaliveIntvl = 3 * time.Second
 	)
-	ApplyKeepalive(&o, WithKeepaliveTime(wantKeepaliveTime),
-		WithKeepaliveIntvl(wantKeepaliveIntvl))
+	dcln.ApplyKeepalive(&o, dcln.WithKeepaliveTime(wantKeepaliveTime),
+		dcln.WithKeepaliveIntvl(wantKeepaliveIntvl))
 
 	if o.KeepaliveTime != wantKeepaliveTime {
 		t.Errorf("unexpected KeepaliveTime, want %v actual %v", wantKeepaliveTime,

@@ -7,8 +7,7 @@ import (
 	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
-	tmock "github.com/cmd-stream/cmd-stream-go/test/mock/transport"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	tspt "github.com/cmd-stream/cmd-stream-go/transport"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
@@ -48,7 +47,7 @@ func (TransportSuite[T, V]) LocalAddr(t *testing.T) TransportTestCase[T, V] {
 
 	var (
 		wantAddr = &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 9000}
-		conn     = cmock.NewConn()
+		conn     = mock.NewConn()
 	)
 	conn.RegisterLocalAddr(
 		func() (addr net.Addr) { return wantAddr },
@@ -69,7 +68,7 @@ func (TransportSuite[T, V]) RemoteAddr(t *testing.T) TransportTestCase[T, V] {
 
 	var (
 		wantAddr = &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 9000}
-		conn     = cmock.NewConn()
+		conn     = mock.NewConn()
 	)
 	conn.RegisterRemoteAddr(
 		func() (addr net.Addr) { return wantAddr },
@@ -90,7 +89,7 @@ func (TransportSuite[T, V]) SetSendDeadline(t *testing.T) TransportTestCase[T, V
 
 	var (
 		wantDeadline = time.Now()
-		conn         = cmock.NewConn()
+		conn         = mock.NewConn()
 	)
 	conn.RegisterSetWriteDeadline(
 		func(deadline time.Time) (err error) {
@@ -113,7 +112,7 @@ func (TransportSuite[T, V]) SetSendDeadlineError(t *testing.T) TransportTestCase
 
 	var (
 		wantErr = errors.New("Conn.SetWriteDeadline error")
-		conn    = cmock.NewConn()
+		conn    = mock.NewConn()
 	)
 	conn.RegisterSetWriteDeadline(
 		func(deadline time.Time) (err error) { return wantErr },
@@ -135,10 +134,10 @@ func (TransportSuite[T, V]) Send(t *testing.T) TransportTestCase[T, V] {
 	var (
 		wantSeq core.Seq = 1
 		wantT   T
-		wantN   = 3
+		wantN         = 3
 		wantErr error = nil
-		writer  = tmock.NewWriter()
-		codec   = tmock.NewCodec[T, V]()
+		writer        = mock.NewWriter()
+		codec         = mock.NewCodec[T, V]()
 	)
 	codec.RegisterEncode(
 		func(seq core.Seq, val T, w tspt.Writer) (n int, err error) {
@@ -167,7 +166,7 @@ func (TransportSuite[T, V]) SendError(t *testing.T) TransportTestCase[T, V] {
 
 	var (
 		wantErr = errors.New("Codec.Encode error")
-		codec   = tmock.NewCodec[T, V]()
+		codec   = mock.NewCodec[T, V]()
 	)
 	codec.RegisterEncode(
 		func(seq core.Seq, val T, w tspt.Writer) (n int, err error) {
@@ -193,7 +192,7 @@ func (TransportSuite[T, V]) SetReceiveDeadline(t *testing.T) TransportTestCase[T
 
 	var (
 		wantDeadline = time.Now()
-		conn         = cmock.NewConn()
+		conn         = mock.NewConn()
 	)
 	conn.RegisterSetReadDeadline(
 		func(deadline time.Time) (err error) {
@@ -216,7 +215,7 @@ func (TransportSuite[T, V]) SetReceiveDeadlineError(t *testing.T) TransportTestC
 
 	var (
 		wantErr = errors.New("Conn.SetReadDeadline error")
-		conn    = cmock.NewConn()
+		conn    = mock.NewConn()
 	)
 	conn.RegisterSetReadDeadline(
 		func(deadline time.Time) (err error) { return wantErr },
@@ -238,9 +237,9 @@ func (TransportSuite[T, V]) Receive(t *testing.T) TransportTestCase[T, V] {
 	var (
 		wantSeq core.Seq = 1
 		wantV   V
-		wantN   = 3
+		wantN         = 3
 		wantErr error = nil
-		codec   = tmock.NewCodec[T, V]()
+		codec         = mock.NewCodec[T, V]()
 	)
 	codec.RegisterDecode(
 		func(r tspt.Reader) (seq core.Seq, val V, n int, err error) {
@@ -270,7 +269,7 @@ func (TransportSuite[T, V]) ReceiveError(t *testing.T) TransportTestCase[T, V] {
 		wantSeq core.Seq = 0
 		wantV   V
 		wantErr = errors.New("Codec.Decode error")
-		codec   = tmock.NewCodec[T, V]()
+		codec   = mock.NewCodec[T, V]()
 	)
 	codec.RegisterDecode(
 		func(r tspt.Reader) (seq core.Seq, val V, n int, err error) {
@@ -296,7 +295,7 @@ func (TransportSuite[T, V]) ReceiveError(t *testing.T) TransportTestCase[T, V] {
 func (TransportSuite[T, V]) Flush(t *testing.T) TransportTestCase[T, V] {
 	name := "Flush should flush the writer"
 
-	var writer = tmock.NewWriter()
+	var writer = mock.NewWriter()
 	writer.RegisterFlush(
 		func() error { return nil },
 	)
@@ -316,7 +315,7 @@ func (TransportSuite[T, V]) FlushError(t *testing.T) TransportTestCase[T, V] {
 
 	var (
 		wantErr = errors.New("Writer.Flush error")
-		writer  = tmock.NewWriter()
+		writer  = mock.NewWriter()
 	)
 	writer.RegisterFlush(
 		func() error { return wantErr },
@@ -335,7 +334,7 @@ func (TransportSuite[T, V]) FlushError(t *testing.T) TransportTestCase[T, V] {
 func (TransportSuite[T, V]) Close(t *testing.T) TransportTestCase[T, V] {
 	name := "Close should close the conn"
 
-	var conn = cmock.NewConn()
+	var conn = mock.NewConn()
 	conn.RegisterClose(
 		func() (err error) { return nil },
 	)
@@ -355,7 +354,7 @@ func (TransportSuite[T, V]) CloseError(t *testing.T) TransportTestCase[T, V] {
 
 	var (
 		wantErr = errors.New("Conn.Close error")
-		conn    = cmock.NewConn()
+		conn    = mock.NewConn()
 	)
 	conn.RegisterClose(
 		func() (err error) { return wantErr },

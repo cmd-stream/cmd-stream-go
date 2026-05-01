@@ -8,7 +8,7 @@ import (
 
 	cmdstream "github.com/cmd-stream/cmd-stream-go"
 	"github.com/cmd-stream/cmd-stream-go/core"
-	hmock "github.com/cmd-stream/cmd-stream-go/test/mock/handler"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	"github.com/cmd-stream/cmd-stream-go/testkit"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	assertfatal "github.com/ymz-ncnk/assert/fatal"
@@ -19,7 +19,7 @@ func TestInvoker(t *testing.T) {
 	const addr = "127.0.0.1:9002"
 	var (
 		receiver = testkit.Receiver{}
-		invoker  = hmock.NewInvoker[testkit.Receiver]()
+		invoker  = mock.NewInvoker[testkit.Receiver]()
 	)
 	invoker.RegisterInvoke(func(ctx context.Context, seq core.Seq, at time.Time,
 		bytesRead int, cmd core.Cmd[testkit.Receiver], proxy core.Proxy,

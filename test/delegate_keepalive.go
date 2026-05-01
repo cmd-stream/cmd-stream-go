@@ -9,7 +9,7 @@ import (
 	"github.com/cmd-stream/cmd-stream-go/core"
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	cln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -22,7 +22,7 @@ type KeepaliveTestCase[T any] struct {
 }
 
 type KeepaliveSetup[T any] struct {
-	Delegate cmock.ClientDelegate[T]
+	Delegate mock.ClientDelegate[T]
 	Opts     []cln.SetKeepaliveOption
 }
 
@@ -50,7 +50,7 @@ func (KeepaliveDelegate[T]) ShouldSendPing(t *testing.T) KeepaliveTestCase[T] {
 		start              time.Time
 		wantKeepaliveTime  = 2 * 200 * time.Millisecond
 		wantKeepaliveIntvl = 200 * time.Millisecond
-		delegateMock       = cmock.NewClientDelegate[T]()
+		delegateMock       = mock.NewClientDelegate[T]()
 	)
 	delegateMock.RegisterSetSendDeadlineN(2,
 		func(deadline time.Time) error {
@@ -114,7 +114,7 @@ func (KeepaliveDelegate[T]) FlushDelay(t *testing.T) KeepaliveTestCase[T] {
 		flushDelay         = 200 * time.Millisecond
 		wantKeepaliveTime  = 2 * 200 * time.Millisecond
 		wantKeepaliveIntvl = 200 * time.Millisecond
-		delegateMock       = cmock.NewClientDelegate[T]()
+		delegateMock       = mock.NewClientDelegate[T]()
 	)
 	delegateMock.RegisterFlush(
 		func() error { return nil },
@@ -168,7 +168,7 @@ func (KeepaliveDelegate[T]) FlushDelay(t *testing.T) KeepaliveTestCase[T] {
 func (KeepaliveDelegate[T]) CloseCancel(t *testing.T) KeepaliveTestCase[T] {
 	name := "Close should cancel ping sending"
 
-	var delegateMock = cmock.NewClientDelegate[T]()
+	var delegateMock = mock.NewClientDelegate[T]()
 	delegateMock.RegisterClose(
 		func() error { return nil },
 	)
@@ -198,7 +198,7 @@ func (KeepaliveDelegate[T]) CloseError(t *testing.T) KeepaliveTestCase[T] {
 	var (
 		done         = make(chan struct{})
 		wantErr      = errors.New("close error")
-		delegateMock = cmock.NewClientDelegate[T]()
+		delegateMock = mock.NewClientDelegate[T]()
 	)
 	delegateMock.RegisterClose(
 		func() error { return wantErr },
@@ -244,7 +244,7 @@ func (KeepaliveDelegate[T]) SendError(t *testing.T) KeepaliveTestCase[T] {
 
 	var (
 		done     = make(chan struct{})
-		delegate = cmock.NewClientDelegate[T]()
+		delegate = mock.NewClientDelegate[T]()
 	)
 	// First attempt fails.
 	delegate.RegisterSetSendDeadline(
@@ -299,7 +299,7 @@ func (KeepaliveDelegate[T]) FlushError(t *testing.T) KeepaliveTestCase[T] {
 	var (
 		done         = make(chan struct{})
 		wantErr      = errors.New("flush error")
-		delegateMock = cmock.NewClientDelegate[T]()
+		delegateMock = mock.NewClientDelegate[T]()
 	)
 
 	delegateMock.RegisterFlush(
@@ -351,9 +351,9 @@ func (KeepaliveDelegate[T]) SkipPong(t *testing.T) KeepaliveTestCase[T] {
 
 	var (
 		wantSeq      = core.Seq(1)
-		wantResult   = cmock.NewResult()
+		wantResult   = mock.NewResult()
 		wantN        = 1
-		delegateMock = cmock.NewClientDelegate[T]()
+		delegateMock = mock.NewClientDelegate[T]()
 	)
 	delegateMock.RegisterReceive(
 		func() (seq core.Seq, result core.Result, n int, err error) {

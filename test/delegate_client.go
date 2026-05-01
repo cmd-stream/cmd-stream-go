@@ -9,8 +9,7 @@ import (
 	"github.com/cmd-stream/cmd-stream-go/core"
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	"github.com/cmd-stream/cmd-stream-go/delegate/cln"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
-	dmock "github.com/cmd-stream/cmd-stream-go/test/mock/delegate"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -24,7 +23,7 @@ type ClientDelegateTestCase[T any] struct {
 
 type ClientDelegateSetup[T any] struct {
 	Info      dlgt.ServerInfo
-	Transport dmock.ClientTransport[T]
+	Transport mock.ClientTransport[T]
 	Opts      []cln.SetOption
 }
 
@@ -48,7 +47,7 @@ func (DelegateClient[T]) NewCheckServerInfo(t *testing.T) ClientDelegateTestCase
 
 	var (
 		wantInfo  = dlgt.ServerInfo{1, 2, 3}
-		transport = dmock.NewClientTransport[T]()
+		transport = mock.NewClientTransport[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -76,7 +75,7 @@ func (DelegateClient[T]) NewSetReceiveDeadlineError(t *testing.T) ClientDelegate
 	var (
 		wantInfo  = dlgt.ServerInfo{1, 2, 3}
 		wantErr   = errors.New("Transport.SetReceiveDeadline")
-		transport = dmock.NewClientTransport[T]()
+		transport = mock.NewClientTransport[T]()
 	)
 
 	transport.RegisterSetReceiveDeadline(func(deadline time.Time) error {
@@ -102,7 +101,7 @@ func (DelegateClient[T]) NewReceiveServerInfoError(t *testing.T) ClientDelegateT
 	var (
 		wantInfo  = dlgt.ServerInfo{1, 2, 3}
 		wantErr   = errors.New("Transport.ReceiveServerInfo error")
-		transport = dmock.NewClientTransport[T]()
+		transport = mock.NewClientTransport[T]()
 	)
 
 	transport.RegisterSetReceiveDeadline(
@@ -130,7 +129,7 @@ func (DelegateClient[T]) NewServerInfoMismatch(t *testing.T) ClientDelegateTestC
 	var (
 		wantInfo        = dlgt.ServerInfo{1, 2, 3}
 		wrongServerInfo = dlgt.ServerInfo{1}
-		transport       = dmock.NewClientTransport[T]()
+		transport       = mock.NewClientTransport[T]()
 	)
 
 	transport.RegisterSetReceiveDeadline(
@@ -157,9 +156,9 @@ func (DelegateClient[T]) Send(t *testing.T) ClientDelegateTestCase[T] {
 
 	var (
 		wantSeq   core.Seq = 1
-		wantCmd            = cmock.NewCmd[T]()
+		wantCmd            = mock.NewCmd[T]()
 		wantN              = 2
-		transport          = dmock.NewClientTransport[T]()
+		transport          = mock.NewClientTransport[T]()
 	)
 
 	transport.RegisterSetReceiveDeadline(
@@ -196,7 +195,7 @@ func (DelegateClient[T]) SendError(t *testing.T) ClientDelegateTestCase[T] {
 
 	var (
 		wantErr   = errors.New("send error")
-		transport = dmock.NewClientTransport[T]()
+		transport = mock.NewClientTransport[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -228,10 +227,10 @@ func (DelegateClient[T]) Receive(t *testing.T) ClientDelegateTestCase[T] {
 
 	var (
 		wantSeq    core.Seq = 1
-		wantResult          = cmock.NewResult()
+		wantResult          = mock.NewResult()
 		wantN               = 3
 		wantErr             = errors.New("receive failed")
-		transport           = dmock.NewClientTransport[T]()
+		transport           = mock.NewClientTransport[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -266,7 +265,7 @@ func (DelegateClient[T]) LocalAddr(t *testing.T) ClientDelegateTestCase[T] {
 
 	var (
 		wantAddr  = &net.IPAddr{IP: net.ParseIP("127.0.0.1")}
-		transport = dmock.NewClientTransport[T]()
+		transport = mock.NewClientTransport[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -296,7 +295,7 @@ func (DelegateClient[T]) RemoteAddr(t *testing.T) ClientDelegateTestCase[T] {
 
 	var (
 		wantAddr  = &net.IPAddr{IP: net.ParseIP("127.0.0.1")}
-		transport = dmock.NewClientTransport[T]()
+		transport = mock.NewClientTransport[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -326,7 +325,7 @@ func (DelegateClient[T]) Close(t *testing.T) ClientDelegateTestCase[T] {
 
 	var (
 		wantErr   = errors.New("close error")
-		transport = dmock.NewClientTransport[T]()
+		transport = mock.NewClientTransport[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -350,4 +349,3 @@ func (DelegateClient[T]) Close(t *testing.T) ClientDelegateTestCase[T] {
 		Mocks: []*mok.Mock{transport.Mock},
 	}
 }
-

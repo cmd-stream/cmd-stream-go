@@ -1,4 +1,4 @@
-package hooks
+package mock
 
 import "github.com/ymz-ncnk/mok"
 

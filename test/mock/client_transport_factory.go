@@ -1,4 +1,4 @@
-package delegate
+package mock
 
 import (
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"

@@ -7,8 +7,7 @@ import (
 
 	"github.com/cmd-stream/cmd-stream-go/core"
 	"github.com/cmd-stream/cmd-stream-go/group"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
-	gmock "github.com/cmd-stream/cmd-stream-go/test/mock/group"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -44,12 +43,12 @@ func (GroupSuite[T]) Send(t *testing.T) GroupTestCase[T] {
 	name := "Should successfully send command using Group"
 
 	var (
-		client1         = gmock.NewClient[T]()
+		client1         = mock.NewClient[T]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewClient[T]()
+		client2         = mock.NewClient[T]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.Client[T]]()
-		wantCmd         = cmock.NewCmd[T]()
+		strategy        = mock.NewDispatchStrategy[group.Client[T]]()
+		wantCmd         = mock.NewCmd[T]()
 		results         = make(chan core.AsyncResult, 1)
 		wantSeq         = core.Seq(1)
 		wantN           = 10
@@ -103,12 +102,12 @@ func (GroupSuite[T]) SendWithDeadline(t *testing.T) GroupTestCase[T] {
 	name := "Should successfully send command with deadline using Group"
 
 	var (
-		client1         = gmock.NewClient[T]()
+		client1         = mock.NewClient[T]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewClient[T]()
+		client2         = mock.NewClient[T]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.Client[T]]()
-		wantCmd         = cmock.NewCmd[T]()
+		strategy        = mock.NewDispatchStrategy[group.Client[T]]()
+		wantCmd         = mock.NewCmd[T]()
 		results         = make(chan core.AsyncResult, 1)
 		wantSeq         = core.Seq(1)
 		wantN           = 10
@@ -157,11 +156,11 @@ func (GroupSuite[T]) Has(t *testing.T) GroupTestCase[T] {
 	name := "Group.Has should return true when client has cmd"
 
 	var (
-		client1         = gmock.NewClient[T]()
+		client1         = mock.NewClient[T]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewClient[T]()
+		client2         = mock.NewClient[T]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.Client[T]]()
+		strategy        = mock.NewDispatchStrategy[group.Client[T]]()
 		seq             = core.Seq(1)
 	)
 	strategy.RegisterSliceN(3,
@@ -199,11 +198,11 @@ func (GroupSuite[T]) Forget(t *testing.T) GroupTestCase[T] {
 	name := "Group.Forget should call Forget on the correct client"
 
 	var (
-		client1         = gmock.NewClient[T]()
+		client1         = mock.NewClient[T]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewClient[T]()
+		client2         = mock.NewClient[T]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.Client[T]]()
+		strategy        = mock.NewDispatchStrategy[group.Client[T]]()
 		seq             = core.Seq(1)
 	)
 	strategy.RegisterSliceN(3,
@@ -243,11 +242,11 @@ func (GroupSuite[T]) Error(t *testing.T) GroupTestCase[T] {
 	var (
 		err1            = errors.New("error 1")
 		err2            = errors.New("error 2")
-		client1         = gmock.NewClient[T]()
+		client1         = mock.NewClient[T]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewClient[T]()
+		client2         = mock.NewClient[T]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.Client[T]]()
+		strategy        = mock.NewDispatchStrategy[group.Client[T]]()
 	)
 	strategy.RegisterSliceN(3,
 		func() []group.Client[T] { return []group.Client[T]{client1, client2} },
@@ -287,11 +286,11 @@ func (GroupSuite[T]) Close(t *testing.T) GroupTestCase[T] {
 	name := "Should successfully close all clients in Group"
 
 	var (
-		client1         = gmock.NewClient[T]()
+		client1         = mock.NewClient[T]()
 		client1DoneChan = make(chan struct{})
-		client2         = gmock.NewClient[T]()
+		client2         = mock.NewClient[T]()
 		client2DoneChan = make(chan struct{})
-		strategy        = gmock.NewDispatchStrategy[group.Client[T]]()
+		strategy        = mock.NewDispatchStrategy[group.Client[T]]()
 	)
 	strategy.RegisterSliceN(2,
 		func() []group.Client[T] { return []group.Client[T]{client1, client2} },

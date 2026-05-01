@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core/srv"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -22,7 +22,7 @@ type WorkerTestCase struct {
 
 type WorkerSetup struct {
 	Conns    chan net.Conn
-	Delegate cmock.ServerDelegate
+	Delegate mock.ServerDelegate
 	Callback srv.LostConnCallback
 	WantErr  error
 }
@@ -62,9 +62,9 @@ func (worker) RunSeveralConnections(t *testing.T) WorkerTestCase {
 	name := "Should be able to handle several connections without LostConnCallback"
 
 	var (
-		wantConn1 = cmock.NewConn()
-		wantConn2 = cmock.NewConn()
-		delegate  = cmock.NewServerDelegate()
+		wantConn1 = mock.NewConn()
+		wantConn2 = mock.NewConn()
+		delegate  = mock.NewServerDelegate()
 	)
 	delegate.RegisterHandle(func(ctx context.Context, conn net.Conn) error {
 		asserterror.Equal(t, conn, net.Conn(wantConn1))
@@ -97,9 +97,9 @@ func (worker) LostConnCallback(t *testing.T) WorkerTestCase {
 		wantErr2   = errors.New("handle conn 2 failed")
 		wantAddr1  = &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 9001}
 		wantAddr2  = &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 9002}
-		wantConn1  = cmock.NewConn()
-		wantConn2  = cmock.NewConn()
-		delegate   = cmock.NewServerDelegate()
+		wantConn1  = mock.NewConn()
+		wantConn2  = mock.NewConn()
+		delegate   = mock.NewServerDelegate()
 		callbackCh = make(chan struct{}, 2)
 		callback   = func(addr net.Addr, err error) {
 			if len(callbackCh) == 0 {
@@ -149,7 +149,7 @@ func (worker) LostConnCallback(t *testing.T) WorkerTestCase {
 func (worker) Stop(t *testing.T) WorkerTestCase {
 	name := "Should be able to close the worker"
 
-	var delegate = cmock.NewServerDelegate()
+	var delegate = mock.NewServerDelegate()
 
 	return WorkerTestCase{
 		Name: name,
@@ -169,7 +169,7 @@ func (worker) Stop(t *testing.T) WorkerTestCase {
 func (worker) Shutdown(t *testing.T) WorkerTestCase {
 	name := "Should be able to shutdown the worker"
 
-	var delegate = cmock.NewServerDelegate()
+	var delegate = mock.NewServerDelegate()
 
 	return WorkerTestCase{
 		Name: name,

@@ -1,8 +1,9 @@
-package group
+package group_test
 
 import (
 	"testing"
 
+	grp "github.com/cmd-stream/cmd-stream-go/group"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
@@ -22,7 +23,7 @@ func TestRoundRobinStrategy(t *testing.T) {
 			{elem: 10, index: 1},
 			{elem: 15, index: 2},
 		}
-		s = NewRoundRobinStrategy([]int{5, 10, 15})
+		s = grp.NewRoundRobinStrategy([]int{5, 10, 15})
 	)
 	for i := range 9 {
 		e, index := s.Next()

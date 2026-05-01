@@ -1,17 +1,18 @@
-package srv
+package srv_test
 
 import (
 	"testing"
 	"time"
 
+	dsrv "github.com/cmd-stream/cmd-stream-go/delegate/srv"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestOptions(t *testing.T) {
 	var (
-		o            = Options{}
+		o            = dsrv.Options{}
 		wantDuration = time.Second
 	)
-	Apply(&o, WithServerInfoSendDuration(wantDuration))
+	dsrv.Apply(&o, dsrv.WithServerInfoSendDuration(wantDuration))
 	asserterror.Equal(t, o.ServerInfoSendDuration, wantDuration)
 }

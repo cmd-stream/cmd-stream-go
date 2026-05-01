@@ -1,4 +1,4 @@
-package hooks
+package mock
 
 import (
 	hks "github.com/cmd-stream/cmd-stream-go/sender/hooks"

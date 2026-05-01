@@ -1,4 +1,4 @@
-package core
+package mock
 
 import (
 	"github.com/ymz-ncnk/mok"

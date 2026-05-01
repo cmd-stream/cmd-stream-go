@@ -1,4 +1,4 @@
-package group
+package mock
 
 import (
 	"time"
@@ -13,7 +13,7 @@ type (
 	HasFn                     func(seq core.Seq) bool
 	ForgetFn                  func(seq core.Seq)
 	ErrorFn                   func() (err error)
-	CloseFn                   func() (err error)
+	GroupClientCloseFn        func() (err error)
 	DoneFn                    func() <-chan struct{}
 )
 
@@ -75,12 +75,12 @@ func (m Client[T]) RegisterError(fn ErrorFn) Client[T] {
 	return m
 }
 
-func (m Client[T]) RegisterCloseN(n int, fn CloseFn) Client[T] {
+func (m Client[T]) RegisterCloseN(n int, fn GroupClientCloseFn) Client[T] {
 	m.RegisterN("Close", n, fn)
 	return m
 }
 
-func (m Client[T]) RegisterClose(fn CloseFn) Client[T] {
+func (m Client[T]) RegisterClose(fn GroupClientCloseFn) Client[T] {
 	m.Register("Close", fn)
 	return m
 }

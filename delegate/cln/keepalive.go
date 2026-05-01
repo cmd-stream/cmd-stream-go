@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core"
-	"github.com/cmd-stream/cmd-stream-go/delegate"
+	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 )
 
 // KeepaliveDelegate implements the core.ClientDelegate interface.
@@ -46,7 +46,7 @@ func (d *KeepaliveDelegate[T]) Receive() (seq core.Seq, result core.Result,
 		if err != nil {
 			return
 		}
-		if _, ok := result.(delegate.PongResult); !ok {
+		if _, ok := result.(dlgt.PongResult); !ok {
 			return
 		}
 	}
@@ -115,7 +115,7 @@ func ping[T any](muSn *sync.Mutex, seq core.Seq, d *KeepaliveDelegate[T]) (
 		muSn.Unlock()
 		return
 	}
-	n, err = d.Send(seq, delegate.PingCmd[T]{})
+	n, err = d.Send(seq, dlgt.PingCmd[T]{})
 	if err != nil {
 		muSn.Unlock()
 		return

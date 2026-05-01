@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core"
-	"github.com/cmd-stream/cmd-stream-go/core/cln"
+	dcln "github.com/cmd-stream/cmd-stream-go/core/cln"
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 )
 
@@ -91,7 +91,7 @@ func (d *ReconnectDelegate[T]) Flush() (err error) {
 	defer d.mu.Unlock()
 
 	if atomic.LoadUint32(&d.closedFlag) == 1 {
-		return cln.ErrClosed
+		return dcln.ErrClosed
 	}
 	return d.Transport().Flush()
 }
@@ -121,7 +121,7 @@ func (d *ReconnectDelegate[T]) Reconnect() (err error) {
 	for {
 		transport, err = d.initTransport()
 		if err != nil {
-			if err == cln.ErrClosed || err == ErrServerInfoMismatch {
+			if err == dcln.ErrClosed || err == ErrServerInfoMismatch {
 				return
 			}
 			continue
@@ -150,7 +150,7 @@ func (d *ReconnectDelegate[T]) initTransport() (transport dlgt.ClientTransport[T
 	err error,
 ) {
 	if d.closed() {
-		return nil, cln.ErrClosed
+		return nil, dcln.ErrClosed
 	}
 	transport, err = d.factory.New()
 	if err != nil {
@@ -158,7 +158,7 @@ func (d *ReconnectDelegate[T]) initTransport() (transport dlgt.ClientTransport[T
 	}
 	if d.closed() {
 		_ = transport.Close()
-		return nil, cln.ErrClosed
+		return nil, dcln.ErrClosed
 	}
 	err = checkServerInfo(d.options.ServerInfoReceiveDuration, transport, d.info)
 	if err != nil {
@@ -174,7 +174,7 @@ func (d *ReconnectDelegate[T]) setTransport(transport dlgt.ClientTransport[T]) (
 
 	if d.closed() {
 		_ = transport.Close()
-		return cln.ErrClosed
+		return dcln.ErrClosed
 	}
 	d.transport.Store(transport)
 	return nil

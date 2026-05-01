@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/cmd-stream/cmd-stream-go/codec"
+	cdc "github.com/cmd-stream/cmd-stream-go/codec"
 	"github.com/cmd-stream/cmd-stream-go/core"
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	tspt "github.com/cmd-stream/cmd-stream-go/transport"
@@ -13,7 +13,7 @@ import (
 //     encoding fails, the server closes the corresponding client connection.
 //   - Decode is used by the server to receive Commands. If decoding fails, the
 //     server closes the corresponding client connection.
-type Codec[T any] codec.Codec[core.Result, core.Cmd[T]]
+type Codec[T any] cdc.Codec[core.Result, core.Cmd[T]]
 
 // AdaptCodec adapts the provided Codec.
 // AdaptCodec adapts the provided Codec.

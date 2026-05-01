@@ -2,10 +2,10 @@ package server
 
 import (
 	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
-	"github.com/cmd-stream/cmd-stream-go/delegate"
+	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	dsrv "github.com/cmd-stream/cmd-stream-go/delegate/srv"
 	hdlr "github.com/cmd-stream/cmd-stream-go/handler"
-	"github.com/cmd-stream/cmd-stream-go/transport"
+	tspt "github.com/cmd-stream/cmd-stream-go/transport"
 )
 
 // Options defines the configuration settings for initializing a server.
@@ -14,17 +14,17 @@ import (
 // layers of the server, including transport, handler logic, delegate behavior,
 // and base server setup.
 type Options struct {
-	Info      delegate.ServerInfo
+	Info      dlgt.ServerInfo
 	Core      []csrv.SetOption
 	Delegate  []dsrv.SetOption
 	Handler   []hdlr.SetOption
-	Transport []transport.SetOption
+	Transport []tspt.SetOption
 }
 
 // DefaultOptions returns the default server configuration.
 func DefaultOptions() Options {
 	return Options{
-		Info: ServerInfo,
+		Info: dlgt.DefaultServerInfo,
 	}
 }
 
@@ -35,7 +35,7 @@ type SetOption func(o *Options)
 //
 // ServerInfo helps the client identify a compatible server. Its length is
 // limited to 1KB, otherwise the client will break the connection.
-func WithServerInfo(info delegate.ServerInfo) SetOption {
+func WithServerInfo(info dlgt.ServerInfo) SetOption {
 	return func(o *Options) { o.Info = info }
 }
 
@@ -61,7 +61,7 @@ func WithHandler(opts ...hdlr.SetOption) SetOption {
 // WithTransport applies transport-specific options.
 //
 // These options configure the transport layer.
-func WithTransport(opts ...transport.SetOption) SetOption {
+func WithTransport(opts ...tspt.SetOption) SetOption {
 	return func(o *Options) { o.Transport = append(o.Transport, opts...) }
 }
 

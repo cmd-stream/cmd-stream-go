@@ -1,4 +1,4 @@
-package core
+package mock
 
 import (
 	"net"
@@ -40,7 +40,7 @@ func (m Listener) RegisterAccept(fn AcceptFn) Listener {
 	return m
 }
 
-func (m Listener) RegisterClose(fn CloseFn) Listener {
+func (m Listener) RegisterClose(fn ConnCloseFn) Listener {
 	m.Register("Close", fn)
 	return m
 }

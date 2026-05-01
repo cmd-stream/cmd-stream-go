@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core/srv"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -20,7 +20,7 @@ type ConnReceiverTestCase struct {
 }
 
 type ConnReceiverSetup struct {
-	Listener cmock.Listener
+	Listener mock.Listener
 	Conns    chan net.Conn
 	Opts     []srv.SetConnReceiverOption
 	WantErr  error
@@ -69,7 +69,7 @@ func (connReceiver) FirstSetDeadlineError(t *testing.T) ConnReceiverTestCase {
 		wantErr              = errors.New("SetDeadline error")
 		wantFirstConnTimeout = time.Second
 		startTime            = time.Now()
-		listener             = cmock.NewListener()
+		listener             = mock.NewListener()
 	)
 	listener.RegisterSetDeadline(func(deadline time.Time) error {
 		asserterror.SameTime(t, deadline, startTime.Add(wantFirstConnTimeout), TimeDelta)
@@ -96,7 +96,7 @@ func (connReceiver) FirstAcceptError(t *testing.T) ConnReceiverTestCase {
 
 	var (
 		wantErr  = errors.New("accept error")
-		listener = cmock.NewListener()
+		listener = mock.NewListener()
 	)
 	listener.RegisterAccept(func() (net.Conn, error) {
 		return nil, wantErr
@@ -120,12 +120,12 @@ func (connReceiver) FirstResetDeadlineError(t *testing.T) ConnReceiverTestCase {
 
 	var (
 		wantErr  = errors.New("set deadline error")
-		wantConn = cmock.NewConn().RegisterClose(
+		wantConn = mock.NewConn().RegisterClose(
 			func() (err error) { return nil },
 		)
 		wantFirstConnTimeout = time.Second
 		startTime            = time.Now()
-		listener             = cmock.NewListener()
+		listener             = mock.NewListener()
 	)
 
 	listener.RegisterSetDeadline(
@@ -164,12 +164,12 @@ func (connReceiver) SecondAcceptError(t *testing.T) ConnReceiverTestCase {
 
 	var (
 		wantErr  = errors.New("accept error")
-		wantConn = cmock.NewConn().RegisterClose(
+		wantConn = mock.NewConn().RegisterClose(
 			func() (err error) { return nil },
 		)
 		wantFirstConnTimeout = time.Second
 		startTime            = time.Now()
-		listener             = cmock.NewListener()
+		listener             = mock.NewListener()
 	)
 	listener.RegisterSetDeadline(
 		func(deadline time.Time) error {
@@ -219,16 +219,16 @@ func (connReceiver) RunSeveralConnections(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to accept several connections"
 
 	var (
-		wantConn1 = cmock.NewConn().RegisterClose(
+		wantConn1 = mock.NewConn().RegisterClose(
 			func() (err error) { return nil },
 		)
-		wantConn2 = cmock.NewConn().RegisterClose(
+		wantConn2 = mock.NewConn().RegisterClose(
 			func() (err error) { return nil },
 		)
-		wantConn3 = cmock.NewConn().RegisterClose(
+		wantConn3 = mock.NewConn().RegisterClose(
 			func() (err error) { return nil },
 		)
-		listener   = cmock.NewListener()
+		listener   = mock.NewListener()
 		stopAccept = make(chan struct{})
 	)
 	listener.RegisterAccept(
@@ -284,7 +284,7 @@ func (connReceiver) StopWhileAccepting(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to close while Listener.Accept"
 
 	var (
-		listener   = cmock.NewListener()
+		listener   = mock.NewListener()
 		stopAccept = make(chan struct{})
 	)
 	listener.RegisterAccept(
@@ -321,7 +321,7 @@ func (connReceiver) ShutdownWhileAccepting(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to shutdown while Listener.Accept"
 
 	var (
-		listener   = cmock.NewListener()
+		listener   = mock.NewListener()
 		stopAccept = make(chan struct{})
 	)
 	listener.RegisterAccept(
@@ -356,10 +356,10 @@ func (connReceiver) StopWhileQueuing(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to close while queuing a connection"
 
 	var (
-		wantConn = cmock.NewConn().RegisterClose(
+		wantConn = mock.NewConn().RegisterClose(
 			func() (err error) { return nil },
 		)
-		listener = cmock.NewListener()
+		listener = mock.NewListener()
 	)
 	listener.RegisterAccept(
 		func() (net.Conn, error) { return wantConn, nil },
@@ -387,10 +387,10 @@ func (connReceiver) ShutdownWhileQueuing(t *testing.T) ConnReceiverTestCase {
 	name := "Should be able to shutdown the ConnReceiver while queuing a connection"
 
 	var (
-		wantConn = cmock.NewConn().RegisterClose(
+		wantConn = mock.NewConn().RegisterClose(
 			func() (err error) { return nil },
 		)
-		listener = cmock.NewListener()
+		listener = mock.NewListener()
 	)
 	listener.RegisterAccept(
 		func() (net.Conn, error) { return wantConn, nil },

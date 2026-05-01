@@ -15,6 +15,9 @@ const DefaultServerInfoMaxLength = 1024
 // ServerInfo allows the client to identify a compatible server.
 type ServerInfo []byte
 
+// DefaultServerInfo is the default ServerInfo.
+var DefaultServerInfo = ServerInfo("default")
+
 // ServerInfoValidMUS is a ServerInfo MUS serializer with length validation.
 var ServerInfoValidMUS = newServerInfoValidMUS()
 

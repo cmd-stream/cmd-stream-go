@@ -10,7 +10,7 @@ import (
 	ccln "github.com/cmd-stream/cmd-stream-go/core/cln"
 	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	"github.com/cmd-stream/cmd-stream-go/delegate/cln"
-	mockcln "github.com/cmd-stream/cmd-stream-go/test/mock/delegate"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -53,8 +53,8 @@ func (ReconnectDelegate[T]) InitSuccess(t *testing.T) ReconnectTestCase[T] {
 	name := "Should check ServerInfo"
 	var (
 		wantInfo  = dlgt.ServerInfo("server-1")
-		transport = mockcln.NewClientTransport[T]()
-		factory   = mockcln.NewClientTransportFactory[T]()
+		transport = mock.NewClientTransport[T]()
+		factory   = mock.NewClientTransportFactory[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -84,8 +84,8 @@ func (ReconnectDelegate[T]) InitWrongInfo(t *testing.T) ReconnectTestCase[T] {
 	var (
 		wantInfo        = dlgt.ServerInfo("server-1")
 		wrongServerInfo = dlgt.ServerInfo("server-2")
-		transport       = mockcln.NewClientTransport[T]()
-		factory         = mockcln.NewClientTransportFactory[T]()
+		transport       = mock.NewClientTransport[T]()
+		factory         = mock.NewClientTransportFactory[T]()
 	)
 
 	transport.RegisterSetReceiveDeadline(
@@ -114,7 +114,7 @@ func (ReconnectDelegate[T]) InitFactoryError(t *testing.T) ReconnectTestCase[T] 
 
 	var (
 		wantErr = cln.ErrServerInfoMismatch // Any error will do
-		factory = mockcln.NewClientTransportFactory[T]()
+		factory = mock.NewClientTransportFactory[T]()
 	)
 	factory.RegisterNew(
 		func() (dlgt.ClientTransport[T], error) { return nil, wantErr },
@@ -137,8 +137,8 @@ func (ReconnectDelegate[T]) InitCheckError(t *testing.T) ReconnectTestCase[T] {
 	var (
 		wantInfo  = dlgt.ServerInfo("server-1")
 		wantErr   = errors.New("checkServerInfo error")
-		transport = mockcln.NewClientTransport[T]()
-		factory   = mockcln.NewClientTransportFactory[T]()
+		transport = mock.NewClientTransport[T]()
+		factory   = mock.NewClientTransportFactory[T]()
 	)
 	transport.RegisterSetReceiveDeadline(
 		func(deadline time.Time) error { return nil },
@@ -165,9 +165,9 @@ func (ReconnectDelegate[T]) CycleSuccess(t *testing.T) ReconnectTestCase[T] {
 	name := "Should reconnect"
 
 	var (
-		initTransport = mockcln.NewClientTransport[T]()
-		wantTransport = mockcln.NewClientTransport[T]()
-		factory       = mockcln.NewClientTransportFactory[T]()
+		initTransport = mock.NewClientTransport[T]()
+		wantTransport = mock.NewClientTransport[T]()
+		factory       = mock.NewClientTransportFactory[T]()
 		serverInfo    = dlgt.ServerInfo("server-1")
 	)
 	initTransport.RegisterSetReceiveDeadline(
@@ -213,8 +213,8 @@ func (ReconnectDelegate[T]) CycleClose(t *testing.T) ReconnectTestCase[T] {
 	name := "Reconnect should return ErrClosed, if the delegate is closed"
 
 	var (
-		initTransport = mockcln.NewClientTransport[T]()
-		factory       = mockcln.NewClientTransportFactory[T]()
+		initTransport = mock.NewClientTransport[T]()
+		factory       = mock.NewClientTransportFactory[T]()
 		serverInfo    = dlgt.ServerInfo("server-1")
 	)
 	initTransport.RegisterSetReceiveDeadline(
@@ -261,9 +261,9 @@ func (ReconnectDelegate[T]) CycleMismatch(t *testing.T) ReconnectTestCase[T] {
 	name := "If ServerInfo check fails with the ErrServerInfoMismatch, Reconnect should return it"
 
 	var (
-		initTransport = mockcln.NewClientTransport[T]()
-		newTransport  = mockcln.NewClientTransport[T]()
-		factory       = mockcln.NewClientTransportFactory[T]()
+		initTransport = mock.NewClientTransport[T]()
+		newTransport  = mock.NewClientTransport[T]()
+		factory       = mock.NewClientTransportFactory[T]()
 		serverInfo    = dlgt.ServerInfo("server-1")
 		wrongInfo     = dlgt.ServerInfo("wrong-server")
 	)
@@ -310,10 +310,10 @@ func (ReconnectDelegate[T]) CycleCheckError(t *testing.T) ReconnectTestCase[T] {
 	name := "If ServerInfo check fails with an error, Reconnect should try again"
 
 	var (
-		initTransport = mockcln.NewClientTransport[T]()
-		failTransport = mockcln.NewClientTransport[T]()
-		succTransport = mockcln.NewClientTransport[T]()
-		factory       = mockcln.NewClientTransportFactory[T]()
+		initTransport = mock.NewClientTransport[T]()
+		failTransport = mock.NewClientTransport[T]()
+		succTransport = mock.NewClientTransport[T]()
+		factory       = mock.NewClientTransportFactory[T]()
 		serverInfo    = dlgt.ServerInfo("server-1")
 	)
 	initTransport.RegisterSetReceiveDeadline(
@@ -371,8 +371,8 @@ func (ReconnectDelegate[T]) SetSendDeadline(t *testing.T) ReconnectTestCase[T] {
 
 	var (
 		wantDeadline = time.Now().Add(time.Second)
-		transport    = mockcln.NewClientTransport[T]()
-		factory      = mockcln.NewClientTransportFactory[T]()
+		transport    = mock.NewClientTransport[T]()
+		factory      = mock.NewClientTransportFactory[T]()
 		serverInfo   = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -410,8 +410,8 @@ func (ReconnectDelegate[T]) CloseError(t *testing.T) ReconnectTestCase[T] {
 
 	var (
 		wantErr    = errors.New("close error")
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -445,8 +445,8 @@ func (ReconnectDelegate[T]) Flush(t *testing.T) ReconnectTestCase[T] {
 	name := "Flush should call corresponding Transport.Flush"
 
 	var (
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -481,8 +481,8 @@ func (ReconnectDelegate[T]) LocalAddr(t *testing.T) ReconnectTestCase[T] {
 
 	var (
 		wantAddr   = dummyAddr("127.0.0.1:1234")
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -519,8 +519,8 @@ func (ReconnectDelegate[T]) RemoteAddr(t *testing.T) ReconnectTestCase[T] {
 
 	var (
 		wantAddr   = dummyAddr("127.0.0.1:5678")
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -556,8 +556,8 @@ func (ReconnectDelegate[T]) Send(t *testing.T) ReconnectTestCase[T] {
 	var (
 		wantSeq    = core.Seq(123)
 		wantCmd    core.Cmd[T]
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -599,8 +599,8 @@ func (ReconnectDelegate[T]) SendError(t *testing.T) ReconnectTestCase[T] {
 
 	var (
 		wantErr    = errors.New("send error")
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -637,8 +637,8 @@ func (ReconnectDelegate[T]) Receive(t *testing.T) ReconnectTestCase[T] {
 		wantSeq    = core.Seq(456)
 		wantResult = (core.Result)(nil)
 		wantN      = 20
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -676,8 +676,8 @@ func (ReconnectDelegate[T]) ReceiveError(t *testing.T) ReconnectTestCase[T] {
 
 	var (
 		wantErr    = errors.New("receive error")
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -712,8 +712,8 @@ func (ReconnectDelegate[T]) SetReceiveDeadline(t *testing.T) ReconnectTestCase[T
 
 	var (
 		wantDeadline = time.Now().Add(time.Second)
-		transport    = mockcln.NewClientTransport[T]()
-		factory      = mockcln.NewClientTransportFactory[T]()
+		transport    = mock.NewClientTransport[T]()
+		factory      = mock.NewClientTransportFactory[T]()
 		serverInfo   = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(
@@ -753,8 +753,8 @@ func (ReconnectDelegate[T]) SetReceiveDeadlineError(t *testing.T) ReconnectTestC
 
 	var (
 		wantErr    = errors.New("SetReceiveDeadline error")
-		transport  = mockcln.NewClientTransport[T]()
-		factory    = mockcln.NewClientTransportFactory[T]()
+		transport  = mock.NewClientTransport[T]()
+		factory    = mock.NewClientTransportFactory[T]()
 		serverInfo = dlgt.ServerInfo("server-1")
 	)
 	transport.RegisterSetReceiveDeadline(

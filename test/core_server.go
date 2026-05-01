@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core/srv"
-	cmock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -21,7 +21,7 @@ type ServerTestCase struct {
 }
 
 type ServerSetup struct {
-	Delegate cmock.ServerDelegate
+	Delegate mock.ServerDelegate
 	Opts     []srv.SetOption
 	WantErr  error
 }
@@ -54,8 +54,8 @@ func (server) ServeNoWorkers(t *testing.T) ServerTestCase {
 	name := "Should return ErrNoWorkers if WorkersCount is 0"
 
 	var (
-		listener = cmock.NewListener()
-		delegate = cmock.NewServerDelegate()
+		listener = mock.NewListener()
+		delegate = mock.NewServerDelegate()
 	)
 	return ServerTestCase{
 		Name: name,
@@ -74,11 +74,11 @@ func (server) ServeSeveralConnections(t *testing.T) ServerTestCase {
 	name := "Should be able to serve several connections"
 
 	var (
-		wantConn1  = cmock.NewConn()
-		wantConn2  = cmock.NewConn()
-		wantConn3  = cmock.NewConn()
-		listener   = cmock.NewListener()
-		delegate   = cmock.NewServerDelegate()
+		wantConn1  = mock.NewConn()
+		wantConn2  = mock.NewConn()
+		wantConn3  = mock.NewConn()
+		listener   = mock.NewListener()
+		delegate   = mock.NewServerDelegate()
 		stopAccept = make(chan struct{})
 	)
 	listener.RegisterAccept(
@@ -154,8 +154,8 @@ func (server) ShutdownBeforeAccept(t *testing.T) ServerTestCase {
 	name := "Should be able to shutdown the server before any connection"
 
 	var (
-		listener   = cmock.NewListener()
-		delegate   = cmock.NewServerDelegate()
+		listener   = mock.NewListener()
+		delegate   = mock.NewServerDelegate()
 		stopAccept = make(chan struct{})
 	)
 	listener.RegisterAccept(
@@ -200,8 +200,8 @@ func (server) CloseBeforeAccept(t *testing.T) ServerTestCase {
 	name := "Should be able to close the server before any connection"
 
 	var (
-		listener   = cmock.NewListener()
-		delegate   = cmock.NewServerDelegate()
+		listener   = mock.NewListener()
+		delegate   = mock.NewServerDelegate()
 		stopAccept = make(chan struct{})
 	)
 	listener.RegisterAccept(
@@ -246,9 +246,9 @@ func (server) CloseAfterAccept(t *testing.T) ServerTestCase {
 	name := "Should be able to close the server after accepting a connection"
 
 	var (
-		wantConn1  = cmock.NewConn()
-		listener   = cmock.NewListener()
-		delegate   = cmock.NewServerDelegate()
+		wantConn1  = mock.NewConn()
+		listener   = mock.NewListener()
+		delegate   = mock.NewServerDelegate()
 		stopAccept = make(chan struct{})
 	)
 
@@ -306,9 +306,9 @@ func (server) ShutdownAfterAccept(t *testing.T) ServerTestCase {
 	name := "Should be able to shutdown the server after accepting a connection"
 
 	var (
-		wantConn1  = cmock.NewConn()
-		listener   = cmock.NewListener()
-		delegate   = cmock.NewServerDelegate()
+		wantConn1  = mock.NewConn()
+		listener   = mock.NewListener()
+		delegate   = mock.NewServerDelegate()
 		stopAccept = make(chan struct{})
 	)
 	listener.RegisterAccept(
@@ -362,7 +362,7 @@ func (server) ShutdownAfterAccept(t *testing.T) ServerTestCase {
 func (server) ListenAndServeFailOnInvalidAddr(t *testing.T) ServerTestCase {
 	name := "ListenAndServe should fail on invalid address"
 
-	var delegate = cmock.NewServerDelegate()
+	var delegate = mock.NewServerDelegate()
 	return ServerTestCase{
 		Name: name,
 		Setup: ServerSetup{

@@ -2,9 +2,8 @@ package client
 
 import (
 	ccln "github.com/cmd-stream/cmd-stream-go/core/cln"
-	"github.com/cmd-stream/cmd-stream-go/delegate"
+	dlgt "github.com/cmd-stream/cmd-stream-go/delegate"
 	dcln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
-	srv "github.com/cmd-stream/cmd-stream-go/server"
 	tspt "github.com/cmd-stream/cmd-stream-go/transport"
 )
 
@@ -14,7 +13,7 @@ import (
 // layers of the client, including transport, keepalive, delegate behavior, and
 // base client setup.
 type Options struct {
-	Info      delegate.ServerInfo
+	Info      dlgt.ServerInfo
 	Base      []ccln.SetOption
 	Transport []tspt.SetOption
 	Delegate  []dcln.SetOption
@@ -24,7 +23,7 @@ type Options struct {
 // DefaultOptions returns the default Client configuration.
 func DefaultOptions() Options {
 	return Options{
-		Info: srv.ServerInfo,
+		Info: dlgt.DefaultServerInfo,
 	}
 }
 
@@ -35,7 +34,7 @@ type SetOption func(o *Options)
 //
 // ServerInfo helps the client identify a compatible server. Its length is
 // limited to 1KB, otherwise the client will break the connection.
-func WithServerInfo(info delegate.ServerInfo) SetOption {
+func WithServerInfo(info dlgt.ServerInfo) SetOption {
 	return func(o *Options) { o.Info = info }
 }
 

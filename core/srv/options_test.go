@@ -1,4 +1,4 @@
-package srv
+package srv_test
 
 import (
 	"crypto/tls"
@@ -6,22 +6,23 @@ import (
 	"testing"
 	"time"
 
+	csrv "github.com/cmd-stream/cmd-stream-go/core/srv"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
 
 func TestOptions(t *testing.T) {
 	var (
-		o                    = Options{}
+		o                    = csrv.Options{}
 		wantWorkersCount     = 1
 		wantLostConnCallback = func(addr net.Addr, err error) {}
-		wantConnReceiver     = []SetConnReceiverOption{}
+		wantConnReceiver     = []csrv.SetConnReceiverOption{}
 		wantTLSConfig        = &tls.Config{}
 	)
-	Apply(&o,
-		WithWorkersCount(wantWorkersCount),
-		WithLostConnCallback(wantLostConnCallback),
-		WithConnReceiver(wantConnReceiver...),
-		WithTLSConfig(wantTLSConfig),
+	csrv.Apply(&o,
+		csrv.WithWorkersCount(wantWorkersCount),
+		csrv.WithLostConnCallback(wantLostConnCallback),
+		csrv.WithConnReceiver(wantConnReceiver...),
+		csrv.WithTLSConfig(wantTLSConfig),
 		nil,
 	)
 
@@ -37,18 +38,18 @@ func TestOptions(t *testing.T) {
 func TestOptions_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		options Options
+		options csrv.Options
 		wantErr error
 	}{
 		{
 			name:    "valid",
-			options: Options{WorkersCount: 1},
+			options: csrv.Options{WorkersCount: 1},
 			wantErr: nil,
 		},
 		{
 			name:    "no workers",
-			options: Options{WorkersCount: 0},
-			wantErr: ErrNoWorkers,
+			options: csrv.Options{WorkersCount: 0},
+			wantErr: csrv.ErrNoWorkers,
 		},
 	}
 	for _, tt := range tests {
@@ -61,15 +62,15 @@ func TestOptions_Validate(t *testing.T) {
 }
 
 func TestDefaultOptions(t *testing.T) {
-	o := DefaultOptions()
-	asserterror.Equal(t, o.WorkersCount, WorkersCount)
+	o := csrv.DefaultOptions()
+	asserterror.Equal(t, o.WorkersCount, csrv.WorkersCount)
 }
 
 func TestConnReceiverOptions(t *testing.T) {
 	var (
-		o                    = ConnReceiverOptions{}
+		o                    = csrv.ConnReceiverOptions{}
 		wantFirstConnTimeout = time.Second
 	)
-	ApplyConnReceiver(&o, WithFirstConnTimeout(wantFirstConnTimeout))
+	csrv.ApplyConnReceiver(&o, csrv.WithFirstConnTimeout(wantFirstConnTimeout))
 	asserterror.Equal(t, o.FirstConnTimeout, wantFirstConnTimeout)
 }

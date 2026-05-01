@@ -1,4 +1,4 @@
-package core
+package mock
 
 import (
 	"net"
@@ -15,7 +15,7 @@ type (
 	SetWriteDeadlineFn func(deadline time.Time) (err error)
 	WriteFn            func(b []byte) (n int, err error)
 	ReadFn             func(b []byte) (n int, err error)
-	CloseFn            func() (err error)
+	ConnCloseFn        func() (err error)
 )
 
 type Conn struct {
@@ -72,7 +72,7 @@ func (m Conn) RegisterWrite(fn WriteFn) Conn {
 	return m
 }
 
-func (m Conn) RegisterClose(fn CloseFn) Conn {
+func (m Conn) RegisterClose(fn ConnCloseFn) Conn {
 	m.Register("Close", fn)
 	return m
 }

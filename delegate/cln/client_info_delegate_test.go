@@ -3,7 +3,7 @@ package cln_test
 import (
 	"testing"
 
-	"github.com/cmd-stream/cmd-stream-go/delegate/cln"
+	dcln "github.com/cmd-stream/cmd-stream-go/delegate/cln"
 	"github.com/cmd-stream/cmd-stream-go/test"
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
@@ -28,8 +28,8 @@ func TestClientInfoDelegate(t *testing.T) {
 
 func TestClientInfoDelegate_Options(t *testing.T) {
 	var (
-		wantO    = cln.Options{}
-		delegate = cln.NewWithoutInfo[any](nil)
+		wantO    = dcln.Options{}
+		delegate = dcln.NewWithoutInfo[any](nil)
 	)
 	o := delegate.Options()
 	asserterror.Equal(t, o, wantO)

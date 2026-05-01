@@ -10,7 +10,7 @@ import (
 
 	"github.com/cmd-stream/cmd-stream-go/core"
 	"github.com/cmd-stream/cmd-stream-go/core/cln"
-	mock "github.com/cmd-stream/cmd-stream-go/test/mock/core"
+	"github.com/cmd-stream/cmd-stream-go/test/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )

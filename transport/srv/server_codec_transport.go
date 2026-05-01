@@ -19,20 +19,19 @@ func New[T any](conn net.Conn, codec tspt.Codec[core.Result, core.Cmd[T]],
 		w = bufio.NewWriterSize(conn, o.WriterBufSize)
 		r = bufio.NewReaderSize(conn, o.ReaderBufSize)
 	)
-	return &ServerCodecTransport[T]{tspt.New(conn, w, r, codec), w}
+	return &ServerCodecTransport[T]{tspt.New(conn, w, r, codec)}
 }
 
 // ServerCodecTransport implements the delegate.ServerTransport interface.
 type ServerCodecTransport[T any] struct {
 	*tspt.CodecTransport[core.Result, core.Cmd[T]]
-	w tspt.Writer
 }
 
 // SendServerInfo transmits the server info to the client.
 func (ct *ServerCodecTransport[T]) SendServerInfo(info dlgt.ServerInfo) (
 	err error,
 ) {
-	_, err = dlgt.ServerInfoValidMUS.Marshal(info, ct.w)
+	_, err = dlgt.ServerInfoValidMUS.Marshal(info, ct.W)
 	if err != nil {
 		return
 	}

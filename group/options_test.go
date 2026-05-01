@@ -1,4 +1,4 @@
-package group
+package group_test
 
 import (
 	"testing"
@@ -6,50 +6,51 @@ import (
 	asserterror "github.com/ymz-ncnk/assert/error"
 
 	cln "github.com/cmd-stream/cmd-stream-go/client"
+	grp "github.com/cmd-stream/cmd-stream-go/group"
 )
 
 type mockStrategyFactory[T any] struct {
-	DispatchStrategyFactory[T]
+	grp.DispatchStrategyFactory[T]
 }
 
 func TestWithFactory(t *testing.T) {
 	var (
-		opts    = Options[any]{}
+		opts    = grp.Options[any]{}
 		factory = &mockStrategyFactory[any]{}
 	)
-	WithFactory[any](factory)(&opts)
-	asserterror.Equal(t, opts.Factory, DispatchStrategyFactory[any](factory))
+	grp.WithFactory[any](factory)(&opts)
+	asserterror.Equal(t, opts.Factory, grp.DispatchStrategyFactory[any](factory))
 }
 
 func TestWithReconnect(t *testing.T) {
-	opts := Options[any]{}
-	WithReconnect[any]()(&opts)
+	opts := grp.Options[any]{}
+	grp.WithReconnect[any]()(&opts)
 	asserterror.Equal(t, opts.Reconnect, true)
 }
 
 func TestWithClient(t *testing.T) {
 	var (
-		opts      = Options[any]{}
+		opts      = grp.Options[any]{}
 		clientOpt = cln.WithTransport()
 	)
-	WithClient[any](clientOpt)(&opts)
+	grp.WithClient[any](clientOpt)(&opts)
 	asserterror.Equal(t, len(opts.ClientOpts), 1)
 }
 
 func TestOptions_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		options Options[any]
+		options grp.Options[any]
 		wantErr bool
 	}{
 		{
 			name:    "valid options",
-			options: Options[any]{Factory: &mockStrategyFactory[any]{}},
+			options: grp.Options[any]{Factory: &mockStrategyFactory[any]{}},
 			wantErr: false,
 		},
 		{
 			name:    "nil factory",
-			options: Options[any]{Factory: nil},
+			options: grp.Options[any]{Factory: nil},
 			wantErr: true,
 		},
 	}
@@ -62,23 +63,23 @@ func TestOptions_Validate(t *testing.T) {
 
 func TestApply(t *testing.T) {
 	var (
-		opts    = DefaultOptions[any]()
+		opts    = grp.DefaultOptions[any]()
 		factory = &mockStrategyFactory[any]{}
 	)
-	err := Apply(&opts, WithFactory[any](factory), WithReconnect[any](), nil)
+	err := grp.Apply(&opts, grp.WithFactory[any](factory), grp.WithReconnect[any](), nil)
 	asserterror.Equal(t, err, nil)
-	asserterror.Equal(t, opts.Factory, DispatchStrategyFactory[any](factory))
+	asserterror.Equal(t, opts.Factory, grp.DispatchStrategyFactory[any](factory))
 	asserterror.Equal(t, opts.Reconnect, true)
 }
 
 func TestApplyError(t *testing.T) {
-	opts := Options[any]{}
-	err := Apply(&opts, WithFactory[any](nil))
+	opts := grp.Options[any]{}
+	err := grp.Apply(&opts, grp.WithFactory[any](nil))
 	asserterror.Equal(t, err.Error(), "factory is nil")
 }
 
 func TestDefaultOptions(t *testing.T) {
-	opts := DefaultOptions[any]()
+	opts := grp.DefaultOptions[any]()
 	if opts.Factory == nil {
 		t.Error("DefaultOptions should have a default factory")
 	}
