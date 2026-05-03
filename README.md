@@ -27,6 +27,7 @@ communication?  Check out [this series of posts](https://medium.com/p/f9e53442c8
   - [Why cmd-stream?](#why-cmd-stream)
   - [Overview](#overview)
   - [Benchmarks](#benchmarks)
+  - [Stress Testing](#stress-testing)
   - [Installation](#installation)
   - [How To](#how-to)
     - [Quick Look](#quick-look)
@@ -61,6 +62,13 @@ infrastructure costs and scale more effectively.
 
 See [go-client-server-benchmarks](https://github.com/ymz-ncnk/go-client-server-benchmarks)
 for detailed performance comparisons.
+
+## Stress Testing
+
+The library has successfully passed a **12-hour continuous stress test**, ensuring 
+stability under extreme conditions.
+
+For more details on the testing methodology and results, see [stress-test-go](https://github.com/cmd-stream/stress-test-go).
 
 ## Installation
 
@@ -155,6 +163,7 @@ See the [calc_json example](https://github.com/cmd-stream/examples-go/tree/main/
 ### Additional Resources
 
 - [Examples](https://github.com/cmd-stream/examples-go)
+- [Stress Testing Suite](https://github.com/cmd-stream/stress-test-go)
 - [OpenTelemetry Instrumentation](https://github.com/cmd-stream/otelcmd-stream-go)
 
 ## Network Protocols Support
