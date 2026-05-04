@@ -1,7 +1,5 @@
 // Package handler provides a connection handler for the cmd-stream server.
 //
-// # Implementation
-//
 // It implements the ServerTransportHandler interface from the delegate package
 // and executes each Command concurrently using the Invoker.
 package handler
@@ -56,7 +54,10 @@ func (h *Handler[T]) receiveLoop(ctx context.Context, cancel context.CancelCause
 	wg *sync.WaitGroup,
 ) {
 	defer wg.Done()
-	proxy := NewProxy(transport)
+	var (
+		flushFlag uint32
+		mu        = &sync.Mutex{}
+	)
 	for {
 		if h.options.CmdReceiveDuration != 0 {
 			deadline := time.Now().Add(h.options.CmdReceiveDuration)
@@ -70,16 +71,21 @@ func (h *Handler[T]) receiveLoop(ctx context.Context, cancel context.CancelCause
 			cancel(err)
 			return
 		}
-		var at time.Time
+		proxy := Proxy[T]{
+			transport: transport,
+			flushFlag: &flushFlag,
+			mu:        mu,
+			seq:       seq,
+		}
 		if h.options.At {
-			at = time.Now()
+			proxy.at = time.Now()
 		}
 		wg.Add(1)
-		go func(seq core.Seq, cmd core.Cmd[T], n int, at time.Time) {
+		go func(cmd core.Cmd[T], n int, proxy Proxy[T]) {
 			defer wg.Done()
-			if err := h.invoker.Invoke(ctx, seq, at, n, cmd, proxy); err != nil {
+			if err := h.invoker.Invoke(ctx, n, cmd, proxy); err != nil {
 				cancel(err)
 			}
-		}(seq, cmd, n, at)
+		}(cmd, n, proxy)
 	}
 }

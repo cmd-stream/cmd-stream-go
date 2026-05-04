@@ -21,10 +21,10 @@ func TestInvoker(t *testing.T) {
 		receiver = testkit.Receiver{}
 		invoker  = mock.NewInvoker[testkit.Receiver]()
 	)
-	invoker.RegisterInvoke(func(ctx context.Context, seq core.Seq, at time.Time,
-		bytesRead int, cmd core.Cmd[testkit.Receiver], proxy core.Proxy,
+	invoker.RegisterInvoke(func(ctx context.Context, bytesRead int,
+		cmd core.Cmd[testkit.Receiver], proxy core.Proxy,
 	) (err error) {
-		return cmd.Exec(ctx, seq, at, receiver, proxy)
+		return cmd.Exec(ctx, receiver, proxy)
 	})
 
 	// Start server with custom invoker

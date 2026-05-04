@@ -72,17 +72,15 @@ func (HandlerSuite[T]) HandleSuccess(t *testing.T) HandlerTestCase[T] {
 		},
 	)
 	invoker.RegisterInvokeN(2,
-		func(c context.Context, seq core.Seq, at time.Time, bytesRead int,
+		func(c context.Context, bytesRead int,
 			cmd core.Cmd[T], proxy core.Proxy) error {
-			switch seq {
-			case 1:
-				asserterror.EqualDeep(t, cmd, cmd1)
+			switch cmd {
+			case cmd1:
 				asserterror.Equal(t, bytesRead, n1)
-			case 2:
-				asserterror.EqualDeep(t, cmd, cmd2)
+			case cmd2:
 				asserterror.Equal(t, bytesRead, n2)
 			default:
-				t.Errorf("unexpected seq: %d", seq)
+				t.Errorf("unexpected cmd")
 			}
 			return nil
 		},
@@ -189,7 +187,7 @@ func (HandlerSuite[T]) InvokeError(t *testing.T) HandlerTestCase[T] {
 		},
 	)
 	invoker.RegisterInvoke(
-		func(ctx context.Context, seq core.Seq, at time.Time, bytesRead int,
+		func(ctx context.Context, bytesRead int,
 			cmd core.Cmd[T], proxy core.Proxy) error {
 			return wantErr
 		},
@@ -232,9 +230,9 @@ func (HandlerSuite[T]) OptionAt(t *testing.T) HandlerTestCase[T] {
 		},
 	)
 	invoker.RegisterInvoke(
-		func(ctx context.Context, seq core.Seq, at time.Time, bytesRead int,
+		func(ctx context.Context, bytesRead int,
 			cmd core.Cmd[T], proxy core.Proxy) error {
-			asserterror.SameTime(t, at, time.Now(), delta)
+			asserterror.SameTime(t, proxy.ReceivedAt(), time.Now(), delta)
 			return nil
 		},
 	)
@@ -333,7 +331,7 @@ func (HandlerSuite[T]) CloseWhileInvokingCmds(t *testing.T) HandlerTestCase[T] {
 		},
 	)
 	invoker.RegisterInvokeN(2,
-		func(ctx context.Context, seq core.Seq, at time.Time, bytesRead int,
+		func(ctx context.Context, bytesRead int,
 			cmd core.Cmd[T], proxy core.Proxy) error {
 			<-ctx.Done()
 			return nil

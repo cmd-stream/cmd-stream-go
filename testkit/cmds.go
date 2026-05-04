@@ -20,15 +20,14 @@ const (
 // -----------------------------------------------------------------------------
 
 type Cmd struct {
-	ExecTime time.Duration `json:"execTime"`
+	ExecTime time.Duration `json:"exec_time"`
 }
 
-func (c Cmd) Exec(ctx context.Context, seq core.Seq, at time.Time,
-	receiver Receiver,
-	proxy core.Proxy,
-) (err error) {
+func (c Cmd) Exec(ctx context.Context, receiver Receiver, proxy core.Proxy) (
+	err error,
+) {
 	time.Sleep(c.ExecTime)
-	_, err = proxy.Send(seq, Result{LastOneFlag: true})
+	_, err = proxy.Send(Result{LastOneFlag: true})
 	return
 }
 
@@ -39,13 +38,12 @@ type MultiCmd struct {
 	ExecTime     time.Duration
 }
 
-func (c MultiCmd) Exec(ctx context.Context, seq core.Seq, at time.Time,
-	receiver Receiver,
-	proxy core.Proxy,
-) (err error) {
+func (c MultiCmd) Exec(ctx context.Context, receiver Receiver, proxy core.Proxy) (
+	err error,
+) {
 	for i := range c.ResultsCount {
 		time.Sleep(c.ExecTime)
-		_, err = proxy.Send(seq, Result{LastOneFlag: i == c.ResultsCount-1})
+		_, err = proxy.Send(Result{LastOneFlag: i == c.ResultsCount-1})
 		if err != nil {
 			return
 		}

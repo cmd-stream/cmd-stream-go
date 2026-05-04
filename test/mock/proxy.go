@@ -9,9 +9,11 @@ import (
 )
 
 type (
-	ProxySendFn             func(seq core.Seq, result core.Result) (n int, err error)
-	ProxySendWithDeadlineFn func(deadline time.Time, seq core.Seq, result core.Result) (
+	ProxySendFn             func(result core.Result) (n int, err error)
+	ProxySendWithDeadlineFn func(deadline time.Time, result core.Result) (
 		int, err error)
+	ProxyReceivedAtFn func() time.Time
+	ProxySeqFn        func() core.Seq
 )
 
 type Proxy struct {
@@ -42,6 +44,16 @@ func (p Proxy) RegisterSendWithDeadline(fn ProxySendWithDeadlineFn) Proxy {
 	return p
 }
 
+func (p Proxy) RegisterReceivedAt(fn ProxyReceivedAtFn) Proxy {
+	p.Register("ReceivedAt", fn)
+	return p
+}
+
+func (p Proxy) RegisterSeq(fn ProxySeqFn) Proxy {
+	p.Register("Seq", fn)
+	return p
+}
+
 func (p Proxy) LocalAddr() (addr net.Addr) {
 	vals, err := p.Call("LocalAddr")
 	if err != nil {
@@ -60,8 +72,17 @@ func (p Proxy) RemoteAddr() (addr net.Addr) {
 	return
 }
 
-func (p Proxy) Send(seq core.Seq, result core.Result) (n int, err error) {
-	vals, err := p.Call("Send", seq, result)
+func (p Proxy) ReceivedAt() (at time.Time) {
+	vals, err := p.Call("ReceivedAt")
+	if err != nil {
+		panic(err)
+	}
+	at, _ = vals[0].(time.Time)
+	return
+}
+
+func (p Proxy) Send(result core.Result) (n int, err error) {
+	vals, err := p.Call("Send", result)
 	if err != nil {
 		panic(err)
 	}
@@ -70,13 +91,22 @@ func (p Proxy) Send(seq core.Seq, result core.Result) (n int, err error) {
 	return
 }
 
-func (p Proxy) SendWithDeadline(deadline time.Time, seq core.Seq, result core.Result,
-) (n int, err error) {
-	vals, err := p.Call("SendWithDeadline", deadline, seq, result)
+func (p Proxy) SendWithDeadline(deadline time.Time, result core.Result) (
+	n int, err error) {
+	vals, err := p.Call("SendWithDeadline", deadline, result)
 	if err != nil {
 		panic(err)
 	}
 	n = vals[0].(int)
 	err, _ = vals[1].(error)
+	return
+}
+
+func (p Proxy) Seq() (seq core.Seq) {
+	vals, err := p.Call("Seq")
+	if err != nil {
+		panic(err)
+	}
+	seq = vals[0].(core.Seq)
 	return
 }

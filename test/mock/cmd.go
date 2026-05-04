@@ -8,8 +8,7 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-type ExecFn[T any] func(ctx context.Context, seq core.Seq, at time.Time, receiver T,
-	proxy core.Proxy) (err error)
+type ExecFn[T any] func(ctx context.Context, receiver T, proxy core.Proxy) (err error)
 type TimeoutFn func() (timeout time.Duration)
 
 type Cmd[T any] struct {
@@ -25,10 +24,8 @@ func (c Cmd[T]) RegisterExec(fn ExecFn[T]) Cmd[T] {
 	return c
 }
 
-func (c Cmd[T]) Exec(ctx context.Context, seq core.Seq, at time.Time, receiver T,
-	proxy core.Proxy,
-) (err error) {
-	vals, err := c.Call("Exec", ctx, seq, at, receiver, proxy)
+func (c Cmd[T]) Exec(ctx context.Context, receiver T, proxy core.Proxy) (err error) {
+	vals, err := c.Call("Exec", ctx, receiver, proxy)
 	if err != nil {
 		panic(err)
 	}

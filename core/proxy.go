@@ -8,23 +8,37 @@ import (
 	"github.com/mus-format/mus-stream-go/varint"
 )
 
-// Proxy represents a server transport proxy, enabling Commands to send Results
-// back.
+// Proxy provides an interface for Commands to interact with the server
+// transport and send results back to the client.
 //
-// Implementation of this interface must be thread-safe.
+// A Proxy instance is typically short-lived, created specifically for a single
+// Command execution. It encapsulates the network context and sequence
+// information required for Result routing.
+//
+// Implementations must be thread-safe, as a Command may execute asynchronously
+// and send Results from multiple goroutines.
 type Proxy interface {
+	// LocalAddr returns the local network address.
 	LocalAddr() net.Addr
+	// RemoteAddr returns the remote network address.
 	RemoteAddr() net.Addr
-	Send(seq Seq, result Result) (n int, err error)
-	SendWithDeadline(deadline time.Time, seq Seq, result Result) (n int, err error)
+	// ReceivedAt returns the time when the Command was received by the server.
+	// Returns a zero time if the information is not available.
+	ReceivedAt() time.Time
+	// Send sends a Result back to the client.
+	Send(result Result) (n int, err error)
+	// SendWithDeadline sends a Result back to the client with a specified deadline.
+	SendWithDeadline(deadline time.Time, result Result) (n int, err error)
+	// Seq returns the sequence number of the Command.
+	Seq() Seq
 }
 
 // -----------------------------------------------------------------------------
 
 // Seq represents the sequence number of a Command.
 //
-// The sequence number ensures that each Command can be uniquely identified and
-// mapped to its corresponding Results.
+// Sequence numbers provide a unique identifier to map Results back to their
+// original Commands.
 type Seq int64
 
 // -----------------------------------------------------------------------------

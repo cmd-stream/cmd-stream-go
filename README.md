@@ -6,7 +6,6 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12510/badge)](https://www.bestpractices.dev/projects/12510)
 [![Follow on X](https://img.shields.io/twitter/url?url=https%3A%2F%2Fx.com%2Fcmdstream_lib)](https://x.com/cmdstream_lib)
 
-
 **cmd-stream** is a high-performance networking library that implements the 
 Distributed [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern) (DCP) 
 for Go. Designed for low-latency communication over TCP/TLS, it provides a 
@@ -110,18 +109,16 @@ func (c Calc) Sub(a, b int) int { return a - b }
 // AddCmd executes addition via Calc.
 type AddCmd struct{ A, B int }
 
-func (c AddCmd) Exec(ctx context.Context, seq core.Seq, _ time.Time, calc Calc,
-  proxy core.Proxy) error {
-  _, err := proxy.Send(seq, CalcResult(calc.Add(c.A, c.B)))
+func (c AddCmd) Exec(ctx context.Context, calc Calc, proxy core.Proxy) error {
+  _, err := proxy.Send(CalcResult(calc.Add(c.A, c.B)))
   return err
 }
 
 // SubCmd executes subtraction via Calc.
 type SubCmd struct{ A, B int }
 
-func (c SubCmd) Exec(ctx context.Context, seq core.Seq, _ time.Time, calc Calc,
-  proxy core.Proxy) error {
-  _, err := proxy.Send(seq, CalcResult(calc.Sub(c.A, c.B)))
+func (c SubCmd) Exec(ctx context.Context, calc Calc, proxy core.Proxy) error {
+  _, err := proxy.Send(CalcResult(calc.Sub(c.A, c.B)))
   return err
 }
 

@@ -2,13 +2,12 @@ package mock
 
 import (
 	"context"
-	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core"
 	"github.com/ymz-ncnk/mok"
 )
 
-type InvokeFn[T any] func(ctx context.Context, seq core.Seq, at time.Time,
+type InvokeFn[T any] func(ctx context.Context,
 	bytesRead int, cmd core.Cmd[T], proxy core.Proxy) (err error)
 
 type Invoker[T any] struct {
@@ -29,10 +28,9 @@ func (i Invoker[T]) RegisterInvokeN(n int, fn InvokeFn[T]) Invoker[T] {
 	return i
 }
 
-func (i Invoker[T]) Invoke(ctx context.Context, seq core.Seq, at time.Time,
-	bytesRead int, cmd core.Cmd[T], proxy core.Proxy,
-) (err error) {
-	vals, err := i.Call("Invoke", ctx, seq, at, bytesRead, cmd, proxy)
+func (i Invoker[T]) Invoke(ctx context.Context, bytesRead int, cmd core.Cmd[T],
+	proxy core.Proxy) (err error) {
+	vals, err := i.Call("Invoke", ctx, bytesRead, cmd, proxy)
 	if err != nil {
 		panic(err)
 	}

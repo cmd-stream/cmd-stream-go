@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"time"
 
 	"github.com/cmd-stream/cmd-stream-go/core"
 )
@@ -20,8 +19,7 @@ func NewInvoker[T any](receiver T) Invoker[T] {
 }
 
 // Invoke executes the given command.
-func (i Invoker[T]) Invoke(ctx context.Context, seq core.Seq, at time.Time,
-	_ int, cmd core.Cmd[T], proxy core.Proxy,
-) error {
-	return cmd.Exec(ctx, seq, at, i.receiver, proxy)
+func (i Invoker[T]) Invoke(ctx context.Context, _ int, cmd core.Cmd[T],
+	proxy core.Proxy) error {
+	return cmd.Exec(ctx, i.receiver, proxy)
 }

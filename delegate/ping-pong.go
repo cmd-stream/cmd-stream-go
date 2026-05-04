@@ -11,10 +11,8 @@ import (
 type PingCmd[T any] struct{}
 
 // Exec sends a pong result back to the server.
-func (c PingCmd[T]) Exec(_ context.Context, seq core.Seq, _ time.Time,
-	_ T, proxy core.Proxy,
-) (err error) {
-	_, err = proxy.SendWithDeadline(time.Time{}, seq, PongResult{})
+func (c PingCmd[T]) Exec(_ context.Context, _ T, proxy core.Proxy) (err error) {
+	_, err = proxy.SendWithDeadline(time.Time{}, PongResult{})
 	return
 }
 
