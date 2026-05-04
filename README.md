@@ -41,15 +41,16 @@ communication?  Check out [this series of posts](https://medium.com/p/f9e53442c8
 
 ## Why cmd-stream?
 
-It delivers high-performance and resource efficiency, helping reduce
-infrastructure costs and scale more effectively.
+It delivers high-performance and resource efficiency by multiplexing asynchronous
+requests over long-lived connections, minimizing network overhead. This helps
+reduce infrastructure costs and scale more effectively.
 
 ## Overview
 
 - Works over TCP, TLS or mutual TLS.
 - Has an asynchronous client that uses only one connection for both sending
   Commands and receiving Results.
-- Supports the server streaming, i.e. a Command can send back multiple Results.
+- Supports server streaming, i.e. a Command can send back multiple Results.
 - Provides reconnect and keepalive features.
 - Supports the Circuit Breaker pattern.
 - Has OpenTelemetry integration.
@@ -127,12 +128,15 @@ func (c SubCmd) Exec(ctx context.Context, seq core.Seq, _ time.Time, calc Calc,
 // CalcResult represents the Command output.
 type CalcResult int
 
+// LastOne indicates if this is the final result for the Command.
 func (r CalcResult) LastOne() bool { return true }
 
 func main() {
+  // Imports and error handling omitted for brevity.
+
   const addr = "127.0.0.1:9000"
 
-  // 1. Setup codecs.
+  // 1. Setup codecs with all supported Command and Result types.
   reg := cdcjson.NewRegistry(
     cdcjson.WithCmd[Calc, AddCmd](),
     cdcjson.WithCmd[Calc, SubCmd](),
@@ -176,8 +180,7 @@ authentication).
 
 To maximize performance between services:
 
-1. Use N parallel connections. More connections typically improve throughput,
-   until a saturation point.
+1. Use N parallel clients. More connections typically improve throughput, until a saturation point.
 2. Pre-establish all connections instead of opening them on-demand.
 3. Keep connections alive to avoid the overhead from reconnections.
 
