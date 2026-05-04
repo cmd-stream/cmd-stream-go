@@ -1,4 +1,4 @@
-# cmd-stream-go
+# cmd-stream: High-Performance Distributed Command Pattern (DCP) for Go
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/cmd-stream/cmd-stream-go.svg)](https://pkg.go.dev/github.com/cmd-stream/cmd-stream-go)
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
@@ -21,7 +21,7 @@ communication?  Check out [this series of posts](https://medium.com/p/f9e53442c8
 
 ## Contents
 
-- [cmd-stream-go](#cmd-stream-go)
+- [cmd-stream: High-Performance Distributed Command Pattern (DCP) for Go](#cmd-stream-high-performance-distributed-command-pattern-dcp-for-go)
   - [Contents](#contents)
   - [Why cmd-stream?](#why-cmd-stream)
   - [Overview](#overview)
