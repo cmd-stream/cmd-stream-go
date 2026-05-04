@@ -232,7 +232,7 @@ func (HandlerSuite[T]) OptionAt(t *testing.T) HandlerTestCase[T] {
 	invoker.RegisterInvoke(
 		func(ctx context.Context, bytesRead int,
 			cmd core.Cmd[T], proxy core.Proxy) error {
-			asserterror.SameTime(t, proxy.ReceivedAt(), time.Now(), delta)
+			asserterror.SameTime(t, proxy.At(), time.Now(), delta)
 			return nil
 		},
 	)

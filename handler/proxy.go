@@ -19,8 +19,8 @@ type Proxy[T any] struct {
 	at        time.Time
 }
 
-// ReceivedAt returns the time the Proxy received the command from the network.
-func (p Proxy[T]) ReceivedAt() time.Time {
+// At returns the time the Proxy received the command from the network.
+func (p Proxy[T]) At() time.Time {
 	return p.at
 }
 

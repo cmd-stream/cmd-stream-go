@@ -22,9 +22,9 @@ type Proxy interface {
 	LocalAddr() net.Addr
 	// RemoteAddr returns the remote network address.
 	RemoteAddr() net.Addr
-	// ReceivedAt returns the time when the Command was received by the server.
+	// At returns the time when the Command was received by the server.
 	// Returns a zero time if the information is not available.
-	ReceivedAt() time.Time
+	At() time.Time
 	// Send sends a Result back to the client.
 	Send(result Result) (n int, err error)
 	// SendWithDeadline sends a Result back to the client with a specified deadline.
