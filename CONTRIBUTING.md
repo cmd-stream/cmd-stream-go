@@ -76,12 +76,16 @@ to ensure a welcoming and inclusive environment for everyone.
 
 We maintain strict quality standards to ensure the framework remains reliable.
 
-### Linting
+### Static Analysis
 
-Always run the linter before submitting a PR:
+Always run these checks before submitting a PR:
 
 ```bash
+# General linting
 golangci-lint run
+
+# Security scan
+gosec ./...
 ```
 
 Our configuration focuses on performance markers, resource safety (body closing),
