@@ -6,7 +6,7 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12510/badge)](https://www.bestpractices.dev/projects/12510)
 [![Follow on X](https://img.shields.io/twitter/url?url=https%3A%2F%2Fx.com%2Fcmdstream_lib)](https://x.com/cmdstream_lib)
 
-**cmd-stream** is a high-performance networking library that implements the 
+**cmd-stream** is a high-performance networking framework that implements the 
 Distributed [Command Pattern](https://en.wikipedia.org/wiki/Command_pattern) (DCP) 
 for Go. Designed for low-latency communication over TCP/TLS, it provides a 
 flexible, decoupled alternative to traditional RPC by treating requests as 
@@ -65,14 +65,14 @@ for detailed performance comparisons.
 
 ## Stress Testing
 
-The library has successfully passed a **12-hour continuous stress test**, ensuring 
+The framework has successfully passed a **12-hour continuous stress test**, ensuring 
 stability under extreme conditions.
 
 For more details on the testing methodology and results, see [stress-test-go](https://github.com/cmd-stream/stress-test-go).
 
 ## Installation
 
-To obtain the library, use: 
+To obtain the framework, use: 
 
 ```bash
 go get github.com/cmd-stream/cmd-stream-go

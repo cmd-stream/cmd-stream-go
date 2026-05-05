@@ -1,6 +1,5 @@
-// Package delegate provides standard client and server delegate implementations
-// for the cmd-stream library, bridging core protocol logic with the transport
-// layer.
+// Package delegate provides standard client and server delegate implementations,
+// bridging core protocol logic with the transport layer.
 //
 // These delegates manage the connection lifecycle, including the initial
 // handshake, protocol-level heartbeat (keepalive), and automated reconnection.

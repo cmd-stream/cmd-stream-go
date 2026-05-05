@@ -66,7 +66,7 @@ to ensure a welcoming and inclusive environment for everyone.
   and [Go Code Review Comments](https://go.dev/wiki/CodeReviewComments).
 - **Documentation**: All exported types, interfaces, and functions **must** have
   professional documentation comments. This is enforced by our linter.
-- **Performance**: As a high-performance library, we prioritize efficiency. 
+- **Performance**: As a high-performance framework, we prioritize efficiency. 
   Avoid unnecessary allocations and use tools like `prealloc` and `perfsprint` 
   (included in our linting suite).
 - **Naming**: Avoid "stuttering" in names. For example, use `group.Client` 
@@ -74,7 +74,7 @@ to ensure a welcoming and inclusive environment for everyone.
 
 ## Testing and Linting
 
-We maintain strict quality standards to ensure the library remains reliable.
+We maintain strict quality standards to ensure the framework remains reliable.
 
 ### Linting
 

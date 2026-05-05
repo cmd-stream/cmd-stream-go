@@ -1,8 +1,7 @@
 // Package core defines the fundamental interfaces and types for the cmd-stream
 // protocol, including Commands, Results, and sequence numbers (Seq).
 //
-// It contains definitions for both the client and server components of the
-// library.
+// It contains definitions for both the client and server components.
 //
 // # Internal Workflow
 //
