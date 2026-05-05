@@ -12,8 +12,8 @@ type (
 	ProxySendFn             func(result core.Result) (n int, err error)
 	ProxySendWithDeadlineFn func(deadline time.Time, result core.Result) (
 		int, err error)
-	ProxyReceivedAtFn func() time.Time
-	ProxySeqFn        func() core.Seq
+	ProxyAtFn  func() time.Time
+	ProxySeqFn func() core.Seq
 )
 
 type Proxy struct {
@@ -44,8 +44,8 @@ func (p Proxy) RegisterSendWithDeadline(fn ProxySendWithDeadlineFn) Proxy {
 	return p
 }
 
-func (p Proxy) RegisterReceivedAt(fn ProxyReceivedAtFn) Proxy {
-	p.Register("ReceivedAt", fn)
+func (p Proxy) RegisterAt(fn ProxyAtFn) Proxy {
+	p.Register("At", fn)
 	return p
 }
 
@@ -72,8 +72,8 @@ func (p Proxy) RemoteAddr() (addr net.Addr) {
 	return
 }
 
-func (p Proxy) ReceivedAt() (at time.Time) {
-	vals, err := p.Call("ReceivedAt")
+func (p Proxy) At() (at time.Time) {
+	vals, err := p.Call("At")
 	if err != nil {
 		panic(err)
 	}
