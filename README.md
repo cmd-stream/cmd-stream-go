@@ -4,6 +4,7 @@
 [![GoReportCard](https://goreportcard.com/badge/cmd-stream/cmd-stream-go)](https://goreportcard.com/report/github.com/cmd-stream/cmd-stream-go)
 [![codecov](https://codecov.io/gh/cmd-stream/cmd-stream-go/graph/badge.svg?token=RXPJ6ZIPK7)](https://codecov.io/gh/cmd-stream/cmd-stream-go)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12510/badge)](https://www.bestpractices.dev/projects/12510)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/cmd-stream/cmd-stream-go/badge)](https://scorecard.dev/viewer/?uri=github.com/cmd-stream/cmd-stream-go)
 [![Follow on X](https://img.shields.io/twitter/url?url=https%3A%2F%2Fx.com%2Fcmdstream_lib)](https://x.com/cmdstream_lib)
 
 **cmd-stream** is a networking framework that implements the Distributed
