@@ -1,3 +1,12 @@
+Release: 2026.05.c
+
+- github.com/cmd-stream/cmd-stream-go        v0.7.3
+- github.com/cmd-stream/codec-json-go        v0.0.0-20260507023604-bd9f383b4b33
+- github.com/cmd-stream/codec-mus-stream-go  v0.0.0-20260507023828-ce715501030d
+- github.com/cmd-stream/codec-protobuf-go    v0.0.0-20260507023720-7952eb3f0a00
+- github.com/cmd-stream/otelcmd-stream-go    v0.3.2
+- github.com/mus-format/mus-stream-go        v0.10.2
+
 Release: 2026.05.b
 
 - github.com/cmd-stream/cmd-stream-go        v0.7.1
